@@ -3,6 +3,7 @@
 // 2, MappingSource::UnicodeData, 0x0100, 0x012f, -1, 1, 1, 1,
 
 var fs = require('fs');
+var _ = require('lodash');
 // var lazy = require('lazy');
 
 // smallest int as key -> [set of equivalent codes as ints (including self), sorted in ascending order]
@@ -29,17 +30,18 @@ function toHex(a) {
     return "0x" + a.toString(16);
 }
 
+// handle special case for skipCount == 2
 function processPairs(begin, end) {
     // special case where case equivalents are in pairs, e.g.:
     // 2, MappingSource::UnicodeData, 0x0100, 0x012f, -1, 1, 1, 1,
     for (var i = begin; i <= end; i += 2) {
-        console.log([i,i+1]);
+        // console.log([i,i+1]);
         codepointMap[i] = [i, i + 1];
     }
 }
 
 function processLine(line) {
-    console.log(line);
+    // console.log(line);
 
     var line = line.trim().replace(/,\s*$/, '');
     var fields = line.split(", ");
@@ -52,18 +54,37 @@ function processLine(line) {
         processPairs(rangeStart, rangeEnd);
     } else {
         for (var i = rangeStart; i <= rangeEnd; ++i) {
+            var codepoints = delta.map(x => x + i);
+            codepoints = codepoints.sort();
+            var existingCodepoints = codepointMap[codepoints[0]];
+            if (existingCodepoints !== undefined) {
+                codepoints += existingCodepoints;
+            }
+            codepoints = _(codepoints).sort().uniq().value();
 
+            if (("" + codepoints[0]).length === 1) {
+                console.log()
+            }
+
+            codepointMap[codepoints[0]] = codepoints; // store the equivalence set into the map
         }
     }
 }
 
 function processData(data) {
     var lines = data.split(/\r?\n/);
-    console.log(lines.count);
+    // console.log(lines.count);
     for (var line of lines) {
         processLine(line);
     }
-    console.log(codepointMap);
+}
+
+function render() {
+    // TODO
+    output = fs.createWriteStream("./equiv.txt", "utf8");
+    output.write(codepointMap.toString());
+    output.close();
+    // console.log();
 }
 
 // function afterProcess() {
@@ -81,6 +102,7 @@ function main() {
             throw err;
         }
         processData(data);
+        render();
     });
 }
 
