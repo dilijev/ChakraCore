@@ -2,10 +2,7 @@
 // 1, MappingSource::UnicodeData, 0x0041, 0x004a, 0, 32, 32, 32,
 // 2, MappingSource::UnicodeData, 0x0100, 0x012f, -1, 1, 1, 1,
 
-// https://stackoverflow.com/questions/6156501/read-a-file-one-line-at-a-time-in-node-js
-var lineReader = require('readline').createInterface({
-    input: require('fs').createReadStream('sourcetable.csv')
-});
+var fs = require('fs');
 
 // smallest int as key -> [set of equivalent codes as ints (including self), sorted in ascending order]
 var codepointMap = {}
@@ -35,10 +32,9 @@ function processPairs(begin, end) {
     // special case where case equivalents are in pairs, e.g.:
     // 2, MappingSource::UnicodeData, 0x0100, 0x012f, -1, 1, 1, 1,
     for (var i = begin; i <= end; i += 2) {
-        // console.log([i,i+1]);
-        codepointMap[i] = [i, i+1];
+        console.log([i,i+1]);
+        codepointMap[i] = [i, i + 1];
     }
-    // console.log(codepointMap);
 }
 
 function processLine(line) {
@@ -50,7 +46,6 @@ function processLine(line) {
     // console.log([skipCount, source, toHex(rangeStart), toHex(rangeEnd), delta]); // sanity check
 
     if (skipCount === 2) {
-        console.log('eyy');
         processPairs(rangeStart, rangeEnd);
     } else {
         for (var i = rangeStart; i <= rangeEnd; ++i) {
@@ -59,11 +54,25 @@ function processLine(line) {
     }
 }
 
-function afterInput() {
-    console.log("hello");
+function processData(data) {
+    var lines = data.split(/\r?\n/);
+    console.log(lines.count);
+    for (var line of lines) {
+        processLine(line);
+    }
     console.log(codepointMap);
 }
 
-lineReader.on('line', processLine);
-lineReader.on('close', afterInput);
-// lineReader.close();
+function main() {
+    var input = undefined;
+
+    // read the file all at once, which is okay because this is a simple tool which reads a small file
+    fs.readFile('sourcetable.csv', 'utf8', function (err, data) {
+        if (err) {
+            throw err;
+        }
+        processData(data);
+    });
+}
+
+main();

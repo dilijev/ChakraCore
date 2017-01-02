@@ -17,3 +17,8 @@ It is always the case that these entries are case-equivalent for subsequent entr
 0x0102 == 0x0103
 etc.
 
+
+
+https://stackoverflow.com/questions/6156501/read-a-file-one-line-at-a-time-in-node-js
+    ... also process them all
+    when the end of the file is reached, close the readline
