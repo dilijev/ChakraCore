@@ -22,3 +22,16 @@ etc.
 https://stackoverflow.com/questions/6156501/read-a-file-one-line-at-a-time-in-node-js
     ... also process them all
     when the end of the file is reached, close the readline
+
+http://danieltao.com/lazy.js/
+
+    // var stream = fs.createReadStream('sourcetable.csv').on('end', afterProcess);
+    // new lazy(stream.data).lines.forEach(processLine);
+
+    // read the file all at once, which is okay because this is a simple tool which reads a small file
+    fs.readFile('sourcetable.csv', 'utf8', function (err, data) {
+        if (err) {
+            throw err;
+        }
+        processData(data);
+    });

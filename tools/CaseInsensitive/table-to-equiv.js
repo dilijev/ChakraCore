@@ -3,6 +3,7 @@
 // 2, MappingSource::UnicodeData, 0x0100, 0x012f, -1, 1, 1, 1,
 
 var fs = require('fs');
+// var lazy = require('lazy');
 
 // smallest int as key -> [set of equivalent codes as ints (including self), sorted in ascending order]
 var codepointMap = {}
@@ -38,6 +39,8 @@ function processPairs(begin, end) {
 }
 
 function processLine(line) {
+    console.log(line);
+
     var line = line.trim().replace(/,\s*$/, '');
     var fields = line.split(", ");
     var delta = [0, 0, 0, 0];
@@ -63,8 +66,14 @@ function processData(data) {
     console.log(codepointMap);
 }
 
+// function afterProcess() {
+//     console.log('hi');
+//     // console.log(codepointMap);
+// }
+
 function main() {
-    var input = undefined;
+    // var stream = fs.createReadStream('sourcetable.csv').on('end', afterProcess);
+    // new lazy(stream.data).lines.forEach(processLine);
 
     // read the file all at once, which is okay because this is a simple tool which reads a small file
     fs.readFile('sourcetable.csv', 'utf8', function (err, data) {
