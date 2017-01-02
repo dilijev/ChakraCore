@@ -40,6 +40,8 @@ function processPairs(begin, end) {
     }
 }
 
+var numericSort = (a, b) => a - b;
+
 function processLine(line) {
     // console.log(line);
 
@@ -54,16 +56,21 @@ function processLine(line) {
         processPairs(rangeStart, rangeEnd);
     } else {
         for (var i = rangeStart; i <= rangeEnd; ++i) {
-            var codepoints = delta.map(x => x + i);
-            codepoints = codepoints.sort();
+            var codepoints = delta.map(
+                function (x) {
+                    var ret = i + x;
+                    return ret;
+                }
+            )
+            codepoints = codepoints.sort(numericSort);
             var existingCodepoints = codepointMap[codepoints[0]];
             if (existingCodepoints !== undefined) {
-                codepoints += existingCodepoints;
+                codepoints.concat(existingCodepoints);
             }
-            codepoints = _(codepoints).sort().uniq().value();
+            codepoints = _(codepoints).sort(numericSort).uniq().value();
 
             if (("" + codepoints[0]).length === 1) {
-                console.log()
+                debugger;
             }
 
             codepointMap[codepoints[0]] = codepoints; // store the equivalence set into the map
@@ -80,11 +87,22 @@ function processData(data) {
 }
 
 function render() {
-    // TODO
-    output = fs.createWriteStream("./equiv.txt", "utf8");
-    output.write(codepointMap.toString());
-    output.close();
-    // console.log();
+    var out = "";
+    for (var x in codepointMap) {
+        codepoints = codepointMap[x];
+        var first = true;
+        for (var x of codepoints) {
+            if (!first) out += ",";
+            first = false;
+            out += toHex(x);
+        }
+        out += "\n";
+    }
+    return out;
+}
+
+function writeOutput(blob) {
+    fs.writeFile("./equiv.txt", blob);
 }
 
 // function afterProcess() {
@@ -102,7 +120,7 @@ function main() {
             throw err;
         }
         processData(data);
-        render();
+        writeOutput(render());
     });
 }
 
