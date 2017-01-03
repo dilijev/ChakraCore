@@ -5,7 +5,16 @@
 // 2, MappingSource::UnicodeData, 0x0100, 0x012f, -1, 1, 1, 1,
 var fs = require('fs');
 var _ = require('lodash');
+function getArgs() {
+    let args = (process && process.argv && process.argv.slice(2)) || [];
+    console.log("Arguments:");
+    console.log(JSON.stringify(process.argv));
+    return args;
+}
 let NumericSort = (a, b) => a - b;
+Array.prototype.insert = function (index, item) {
+    this.splice(index, 0, item);
+};
 String.prototype.zeroPadFourDigits = function () {
     if (this.length > 4) {
         return this;
@@ -21,7 +30,9 @@ String.prototype.toCodepoint = function () {
         return parseInt(this, 16);
     }
 };
-Number.prototype.toHex = function () {
+Number.prototype.toUnicodeHex = function () {
+    // In Unicode, code points are written as [0-9a-f]{4,6},
+    // so for consistency with the Unicode data files, we will follow the same convention.
     return "0x" + this.toString(16).zeroPadFourDigits();
 };
 var MappingSource;
@@ -59,6 +70,10 @@ class Row {
         row.skipCount = record.skipCount;
         return row;
     }
+    static createFromCaseFoldingRecord(record) {
+        let row = new Row(MappingSource.CaseFolding, record.codePoint, canonicalizeDeltas([0, record.getDelta()]));
+        return row;
+    }
     // return true if the record was folded successfully, false otherwise
     foldInUnicodeRecord(record) {
         // can only fold subsequent entries
@@ -79,9 +94,20 @@ class Row {
     }
     toString() {
         return `${this.skipCount}, ${MappingSourceToString(this.mappingSource)}, ` +
-            `${this.beginRange.toHex()}, ${this.endRange.toHex()}, ` +
+            `${this.beginRange.toUnicodeHex()}, ${this.endRange.toUnicodeHex()}, ` +
             `${this.deltas[0]}, ${this.deltas[1]}, ${this.deltas[2]}, ${this.deltas[3]},`;
     }
+}
+function canonicalizeDeltas(deltas) {
+    deltas = _(deltas).sort(NumericSort).uniq().value(); // canonicalize order and uniqueness
+    let lastVal = 0;
+    let canonicalDeltas = [];
+    for (let i = 0; i < 4; ++i) {
+        // fill out array so that we have total four deltas
+        lastVal = (deltas[i] !== undefined) ? deltas[i] : lastVal;
+        canonicalDeltas[i] = lastVal;
+    }
+    return canonicalDeltas;
 }
 class UnicodeDataRecord {
     constructor(line) {
@@ -100,12 +126,7 @@ class UnicodeDataRecord {
             this.skipCount = 2;
             deltas = [-1, 1]; // special value for deltas array when skipCount === 2
         }
-        this.deltas = [];
-        let lastVal = 0;
-        for (let i = 0; i < 4; ++i) {
-            lastVal = (deltas[i] !== undefined) ? deltas[i] : lastVal;
-            this.deltas[i] = lastVal;
-        }
+        this.deltas = canonicalizeDeltas(deltas);
     }
     getDelta(codePoint) {
         if (codePoint === undefined) {
@@ -115,7 +136,7 @@ class UnicodeDataRecord {
     }
     toString() {
         return `${this.skipCount}, MappingSource::UnicodeData, ` +
-            `${this.codePoint.toHex()}, ${this.codePoint.toHex()}, ` +
+            `${this.codePoint.toUnicodeHex()}, ${this.codePoint.toUnicodeHex()}, ` +
             `${this.deltas[0]}, ${this.deltas[1]}, ${this.deltas[2]}, ${this.deltas[3]},`;
     }
 }
@@ -143,6 +164,10 @@ function processUnicodeData(data) {
             }
         }
     }
+    if (currentRow) {
+        rows.push(currentRow);
+        currentRow = undefined;
+    }
     return rows;
 }
 class CaseFoldingRecord {
@@ -158,7 +183,7 @@ class CaseFoldingRecord {
         return this.mapping - this.codePoint;
     }
     toString() {
-        return `${this.codePoint.toHex()}; ${this.category}; ${this.mapping.toHex()}`;
+        return `${this.codePoint.toUnicodeHex()}; ${this.category}; ${this.mapping.toUnicodeHex()}`;
     }
 }
 function processCaseFoldingData(rows, data) {
@@ -171,6 +196,12 @@ function processCaseFoldingData(rows, data) {
             continue;
         }
         let record = new CaseFoldingRecord(line);
+        // NOTE: To do a simple case mapping (no change in length), use categories C + S.
+        // REVIEW: This code assumes records with (record.category === "C") are identical to UnicodeData.txt mappings
+        // and therefore it is not necessary to extract that information from the CaseFolding.txt file.
+        if (record.category === "S") {
+            console.log(record.toString());
+        }
     }
     return rows; // TODO
 }
@@ -208,12 +239,10 @@ function main(unicodeDataFile, caseFoldingFile, outputFile) {
     // console.log(blob);
     writeOutput(outputFile, blob);
 }
-let args = (process && process.argv && process.argv.slice(2)) || [];
+let args = getArgs();
 let unicodeDataFile = args[0] || "ucd/UnicodeData-8.0.0.txt";
 let caseFoldingFile = args[1] || "ucd/CaseFolding-8.0.0.txt";
 let outputFile = args[2] || "mappings-8.0.0.txt";
-console.log("Checking arguments:");
-console.log(JSON.stringify(process.argv));
 console.log(`
 Using the following files:
     unicodeDataFile: ${unicodeDataFile}

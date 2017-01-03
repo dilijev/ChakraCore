@@ -8,16 +8,31 @@
 var fs = require('fs');
 var _ = require('lodash');
 
+function getArgs(): string[] {
+    let args: string[] = (process && process.argv && process.argv.slice(2)) || []
+
+    console.log("Arguments:");
+    console.log(JSON.stringify(process.argv));
+
+    return args;
+}
+
 let NumericSort = (a, b) => a - b;
 
+// interface Array {
+//     insert(index: number, item: any): void;
+// }
 interface String {
     zeroPadFourDigits(): string;
     toCodepoint(): number;
 }
 interface Number {
-    toHex(): string;
+    toUnicodeHex(): string;
 }
 
+// Array.prototype.insert = function (index: number, item: any): void {
+//     this.splice(index, 0, item);
+// }
 String.prototype.zeroPadFourDigits = function (): string {
     if (this.length > 4) {
         return this
@@ -31,7 +46,9 @@ String.prototype.toCodepoint = function (): number {
         return parseInt(this, 16);
     }
 }
-Number.prototype.toHex = function (): string {
+Number.prototype.toUnicodeHex = function (): string {
+    // In Unicode, code points are written as /[0-9a-f]{4,6}/ (minimum 4 hex digits, up to 6).
+    // For consistency with the Unicode data files, we will follow the same convention.
     return "0x" + this.toString(16).zeroPadFourDigits();
 }
 
@@ -64,6 +81,27 @@ class Row {
         return row;
     }
 
+    static createFromCaseFoldingRecord(record: CaseFoldingRecord): Row {
+        let row = new Row(MappingSource.CaseFolding, record.codePoint, canonicalizeDeltas([0, record.getDelta()]));
+        return row;
+    }
+
+    constructor(mappingSource: MappingSource, codePoint: number, deltas: number[]) {
+        this.skipCount = 1;
+        this.mappingSource = mappingSource;
+        this.beginRange = this.endRange = codePoint;
+        this.deltas = deltas;
+
+        //*
+        // test value
+        // this.skipCount = 1;
+        // this.mappingSource = MappingSource.UnicodeData;
+        // this.beginRange = 0;
+        // this.endRange = 10;
+        // this.deltas = [0, 32, 32, 32];
+        //*/
+    }
+
     // return true if the record was folded successfully, false otherwise
     foldInUnicodeRecord(record: UnicodeDataRecord): boolean {
         // can only fold subsequent entries
@@ -85,27 +123,25 @@ class Row {
         return true;
     }
 
-    constructor(mappingSource: MappingSource, codePoint: number, deltas: number[]) {
-        this.skipCount = 1;
-        this.mappingSource = mappingSource;
-        this.beginRange = this.endRange = codePoint;
-        this.deltas = deltas;
-
-        //*
-        // test value
-        // this.skipCount = 1;
-        // this.mappingSource = MappingSource.UnicodeData;
-        // this.beginRange = 0;
-        // this.endRange = 10;
-        // this.deltas = [0, 32, 32, 32];
-        //*/
-    }
-
     toString(): string {
         return `${this.skipCount}, ${MappingSourceToString(this.mappingSource)}, ` +
-            `${this.beginRange.toHex()}, ${this.endRange.toHex()}, ` +
+            `${this.beginRange.toUnicodeHex()}, ${this.endRange.toUnicodeHex()}, ` +
             `${this.deltas[0]}, ${this.deltas[1]}, ${this.deltas[2]}, ${this.deltas[3]},`;
     }
+}
+
+function canonicalizeDeltas(deltas: number[]): number[] {
+    deltas = _(deltas).sort(NumericSort).uniq().value(); // canonicalize order and uniqueness
+
+    let lastVal = 0;
+    let canonicalDeltas = [];
+    for (let i = 0; i < 4; ++i) {
+        // fill out array so that we have total four deltas
+        lastVal = (deltas[i] !== undefined) ? deltas[i] : lastVal;
+        canonicalDeltas[i] = lastVal;
+    }
+
+    return canonicalDeltas;
 }
 
 class UnicodeDataRecord {
@@ -149,17 +185,12 @@ class UnicodeDataRecord {
             deltas = [-1, 1]; // special value for deltas array when skipCount === 2
         }
 
-        this.deltas = [];
-        let lastVal = 0;
-        for (let i = 0; i < 4; ++i) {
-            lastVal = (deltas[i] !== undefined) ? deltas[i] : lastVal;
-            this.deltas[i] = lastVal;
-        }
+        this.deltas = canonicalizeDeltas(deltas);
     }
 
     toString(): string {
         return `${this.skipCount}, MappingSource::UnicodeData, ` +
-            `${this.codePoint.toHex()}, ${this.codePoint.toHex()}, ` +
+            `${this.codePoint.toUnicodeHex()}, ${this.codePoint.toUnicodeHex()}, ` +
             `${this.deltas[0]}, ${this.deltas[1]}, ${this.deltas[2]}, ${this.deltas[3]},`
     }
 }
@@ -196,6 +227,11 @@ function processUnicodeData(data: string): Row[] {
         }
     }
 
+    if (currentRow) {
+        rows.push(currentRow);
+        currentRow = undefined;
+    }
+
     return rows;
 }
 
@@ -220,7 +256,7 @@ class CaseFoldingRecord {
     }
 
     toString(): string {
-        return `${this.codePoint.toHex()}; ${this.category}; ${this.mapping.toHex()}`;
+        return `${this.codePoint.toUnicodeHex()}; ${this.category}; ${this.mapping.toUnicodeHex()}`;
     }
 }
 
@@ -234,10 +270,15 @@ function processCaseFoldingData(rows: Row[], data: string): Row[] {
             continue;
         }
 
-        let record: CaseFoldingRecord = new CaseFoldingRecord(line);
-        // console.log(record.toString());
+        let record = new CaseFoldingRecord(line);
 
-        // TODO
+        // NOTE: To do a simple case mapping (no change in length), use categories C + S.
+        // REVIEW: This code assumes records with (record.category === "C") are identical to UnicodeData.txt mappings
+        // and therefore it is not necessary to extract that information from the CaseFolding.txt file.
+        if (record.category === "S") {
+
+            console.log(record.toString());
+        }
     }
 
     return rows; // TODO
@@ -290,13 +331,10 @@ function main(unicodeDataFile: string, caseFoldingFile: string, outputFile: stri
     writeOutput(outputFile, blob);
 }
 
-let args: string[] = (process && process.argv && process.argv.slice(2)) || []
+let args = getArgs();
 let unicodeDataFile: string = args[0] || "ucd/UnicodeData-8.0.0.txt";
 let caseFoldingFile: string = args[1] || "ucd/CaseFolding-8.0.0.txt";
 let outputFile: string = args[2] || "mappings-8.0.0.txt";
-
-console.log("Checking arguments:");
-console.log(JSON.stringify(process.argv));
 
 console.log(`
 Using the following files:
