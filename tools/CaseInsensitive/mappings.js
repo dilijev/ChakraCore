@@ -208,9 +208,10 @@ function main(unicodeDataFile, caseFoldingFile, outputFile) {
     // console.log(blob);
     writeOutput(outputFile, blob);
 }
-let unicodeDataFile = (process && process.argv[2]) || "ucd/UnicodeData-8.0.0.txt";
-let caseFoldingFile = (process && process.argv[3]) || "ucd/CaseFolding-8.0.0.txt";
-let outputFile = (process && process.argv[4]) || "mappings-8.0.0.txt";
+let args = (process && process.argv && process.argv.slice(2)) || [];
+let unicodeDataFile = args[0] || "ucd/UnicodeData-8.0.0.txt";
+let caseFoldingFile = args[1] || "ucd/CaseFolding-8.0.0.txt";
+let outputFile = args[2] || "mappings-8.0.0.txt";
 console.log("Checking arguments:");
 console.log(JSON.stringify(process.argv));
 console.log(`

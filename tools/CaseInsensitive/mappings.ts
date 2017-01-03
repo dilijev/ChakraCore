@@ -234,7 +234,7 @@ function processCaseFoldingData(rows: Row[], data: string): Row[] {
             continue;
         }
 
-        let record : CaseFoldingRecord = new CaseFoldingRecord(line);
+        let record: CaseFoldingRecord = new CaseFoldingRecord(line);
         // console.log(record.toString());
 
         // TODO
@@ -290,9 +290,10 @@ function main(unicodeDataFile: string, caseFoldingFile: string, outputFile: stri
     writeOutput(outputFile, blob);
 }
 
-let unicodeDataFile: string = (process && process.argv[2]) || "ucd/UnicodeData-8.0.0.txt";
-let caseFoldingFile: string = (process && process.argv[3]) || "ucd/CaseFolding-8.0.0.txt";
-let outputFile: string = (process && process.argv[4]) || "mappings-8.0.0.txt";
+let args: string[] = (process && process.argv && process.argv.slice(2)) || []
+let unicodeDataFile: string = args[0] || "ucd/UnicodeData-8.0.0.txt";
+let caseFoldingFile: string = args[1] || "ucd/CaseFolding-8.0.0.txt";
+let outputFile: string = args[2] || "mappings-8.0.0.txt";
 
 console.log("Checking arguments:");
 console.log(JSON.stringify(process.argv));
