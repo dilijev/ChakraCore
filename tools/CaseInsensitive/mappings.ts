@@ -1,3 +1,6 @@
+// node mappings.js ucd/UnicodeData-8.0.0.txt ucd/CaseFolding-8.0.0.txt mappings-8.0.0.txt
+// node mappings.js ucd/UnicodeData-9.0.0.txt ucd/CaseFolding-9.0.0.txt mappings-9.0.0.txt
+
 // skipcount, source, rangeStart, rangeEnd, delta[0], delta[1], delta[2], delta[3]
 // 1, MappingSource::UnicodeData, 0x0041, 0x004a, 0, 32, 32, 32,
 // 2, MappingSource::UnicodeData, 0x0100, 0x012f, -1, 1, 1, 1,
@@ -178,8 +181,6 @@ function processUnicodeData(data: string): Row[] {
                 continue; // singleton, no information to include in the table
             }
 
-            debugger;
-
             if (currentRow) {
                 if (!currentRow.foldInUnicodeRecord(record)) {
                     rows.push(currentRow);
@@ -198,8 +199,48 @@ function processUnicodeData(data: string): Row[] {
     return rows;
 }
 
-function processCaseFolding(data) {
+class CaseFoldingRecord {
+    codePoint: number;
+    category: string;
+    mapping: number;
 
+    // NOTE: codePoint and mapping are considered equivalent under CaseInsenstive,
+    // so use this information to construct equivalence (update both corresponding Rows).
+
+    constructor(line: string) {
+        let fields: string[] = line.trim().replace(/; #.*$/, "").split(/;\s*/);
+
+        this.codePoint = parseInt(fields[0], 16);
+        this.category = fields[1];
+        this.mapping = parseInt(fields[2], 16);
+    }
+
+    getDelta(): number {
+        return this.mapping - this.codePoint;
+    }
+
+    toString(): string {
+        return `${this.codePoint.toHex()}; ${this.category}; ${this.mapping.toHex()}`;
+    }
+}
+
+function processCaseFoldingData(rows: Row[], data: string): Row[] {
+    let lines: string[] = data.split(/\r?\n/);
+    for (let line of lines) {
+        if (line.trim().length === 0) {
+            continue;
+        }
+        if (line.startsWith("#")) {
+            continue;
+        }
+
+        let record : CaseFoldingRecord = new CaseFoldingRecord(line);
+        // console.log(record.toString());
+
+        // TODO
+    }
+
+    return rows; // TODO
 }
 
 function render(rows: Row[]): string {
@@ -210,8 +251,8 @@ function render(rows: Row[]): string {
     return out;
 }
 
-function writeOutput(blob) {
-    fs.writeFile("./mappings.txt", blob);
+function writeOutput(outputFile: string, blob: string) {
+    fs.writeFile(outputFile, blob);
 }
 
 // writeOutput(render());
@@ -227,18 +268,41 @@ function tests() {
     console.log(new Row(MappingSource.UnicodeData, record.codePoint, record.deltas).toString());
 }
 
-function main() {
+function main(unicodeDataFile: string, caseFoldingFile: string, outputFile: string) {
     // var stream = fs.createReadStream('sourcetable.csv').on('end', afterProcess);
     // new lazy(stream.data).lines.forEach(processLine);
 
+    console.log(`reading ${unicodeDataFile}`);
+
     // read the file all at once, which is okay because this is a simple tool which reads a relatively small file
-    let data = fs.readFileSync('ucd/UnicodeData-8.0.0.txt', 'utf8');
+    let data = fs.readFileSync(unicodeDataFile, 'utf8');
     let rows: Row[] = processUnicodeData(data);
 
+    console.log(`reading ${caseFoldingFile}`);
+
+    data = fs.readFileSync(caseFoldingFile, 'utf8');
+    rows = processCaseFoldingData(rows, data); // augment Rows with CaseFolding
+
+    console.log(`rendering output to ${outputFile}`);
+
     let blob: string = render(rows);
-    console.log(blob);
-    writeOutput(render(rows));
+    // console.log(blob);
+    writeOutput(outputFile, blob);
 }
 
+let unicodeDataFile: string = (process && process.argv[2]) || "ucd/UnicodeData-8.0.0.txt";
+let caseFoldingFile: string = (process && process.argv[3]) || "ucd/CaseFolding-8.0.0.txt";
+let outputFile: string = (process && process.argv[4]) || "mappings-8.0.0.txt";
+
+console.log("Checking arguments:");
+console.log(JSON.stringify(process.argv));
+
+console.log(`
+Using the following files:
+    unicodeDataFile: ${unicodeDataFile}
+    caseFoldingFile: ${caseFoldingFile}
+    outputFile: ${outputFile}
+`);
+
 // tests();
-main();
+main(unicodeDataFile, caseFoldingFile, outputFile);

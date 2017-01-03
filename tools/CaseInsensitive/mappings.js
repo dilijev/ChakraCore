@@ -1,9 +1,11 @@
+// node mappings.js ucd/UnicodeData-8.0.0.txt ucd/CaseFolding-8.0.0.txt mappings-8.0.0.txt
+// node mappings.js ucd/UnicodeData-9.0.0.txt ucd/CaseFolding-9.0.0.txt mappings-9.0.0.txt
 // skipcount, source, rangeStart, rangeEnd, delta[0], delta[1], delta[2], delta[3]
 // 1, MappingSource::UnicodeData, 0x0041, 0x004a, 0, 32, 32, 32,
 // 2, MappingSource::UnicodeData, 0x0100, 0x012f, -1, 1, 1, 1,
 var fs = require('fs');
 var _ = require('lodash');
-var NumericSort = function (a, b) { return a - b; };
+let NumericSort = (a, b) => a - b;
 String.prototype.zeroPadFourDigits = function () {
     if (this.length > 4) {
         return this;
@@ -37,8 +39,8 @@ function MappingSourceToString(source) {
             return undefined;
     }
 }
-var Row = (function () {
-    function Row(mappingSource, codePoint, deltas) {
+class Row {
+    constructor(mappingSource, codePoint, deltas) {
         this.skipCount = 1;
         this.mappingSource = mappingSource;
         this.beginRange = this.endRange = codePoint;
@@ -52,13 +54,13 @@ var Row = (function () {
         // this.deltas = [0, 32, 32, 32];
         //*/
     }
-    Row.createFromUnicodeDataRecord = function (record) {
-        var row = new Row(MappingSource.UnicodeData, record.codePoint, record.deltas);
+    static createFromUnicodeDataRecord(record) {
+        let row = new Row(MappingSource.UnicodeData, record.codePoint, record.deltas);
         row.skipCount = record.skipCount;
         return row;
-    };
+    }
     // return true if the record was folded successfully, false otherwise
-    Row.prototype.foldInUnicodeRecord = function (record) {
+    foldInUnicodeRecord(record) {
         // can only fold subsequent entries
         if (record.codePoint !== (this.endRange + 1)) {
             return false;
@@ -74,25 +76,24 @@ var Row = (function () {
         }
         ++this.endRange;
         return true;
-    };
-    Row.prototype.toString = function () {
-        return this.skipCount + ", " + MappingSourceToString(this.mappingSource) + ", " +
-            (this.beginRange.toHex() + ", " + this.endRange.toHex() + ", ") +
-            (this.deltas[0] + ", " + this.deltas[1] + ", " + this.deltas[2] + ", " + this.deltas[3] + ",");
-    };
-    return Row;
-}());
-var UnicodeDataRecord = (function () {
-    function UnicodeDataRecord(line) {
+    }
+    toString() {
+        return `${this.skipCount}, ${MappingSourceToString(this.mappingSource)}, ` +
+            `${this.beginRange.toHex()}, ${this.endRange.toHex()}, ` +
+            `${this.deltas[0]}, ${this.deltas[1]}, ${this.deltas[2]}, ${this.deltas[3]},`;
+    }
+}
+class UnicodeDataRecord {
+    constructor(line) {
         this.skipCount = 1; // default value;
-        var fields = line.trim().split(/\s*;\s*/);
+        let fields = line.trim().split(/\s*;\s*/);
         this.codePoint = parseInt(fields[0], 16);
         this.category = fields[2];
-        var uppercase = this.getDelta((fields[12] || "").toCodepoint());
-        var lowercase = this.getDelta((fields[13] || "").toCodepoint());
-        var titlecase = this.getDelta((fields[14] || "").toCodepoint());
+        let uppercase = this.getDelta((fields[12] || "").toCodepoint());
+        let lowercase = this.getDelta((fields[13] || "").toCodepoint());
+        let titlecase = this.getDelta((fields[14] || "").toCodepoint());
         // include delta of 0 because we need to count self
-        var deltas = _([0, uppercase, lowercase, titlecase]).sort(NumericSort).uniq().value();
+        let deltas = _([0, uppercase, lowercase, titlecase]).sort(NumericSort).uniq().value();
         this.numUniqueDeltas = deltas.length;
         if ((deltas[0] === 0 && deltas[1] === 1)
             || (deltas[0] === -1 && deltas[1] === 0)) {
@@ -100,40 +101,37 @@ var UnicodeDataRecord = (function () {
             deltas = [-1, 1]; // special value for deltas array when skipCount === 2
         }
         this.deltas = [];
-        var lastVal = 0;
-        for (var i = 0; i < 4; ++i) {
+        let lastVal = 0;
+        for (let i = 0; i < 4; ++i) {
             lastVal = (deltas[i] !== undefined) ? deltas[i] : lastVal;
             this.deltas[i] = lastVal;
         }
     }
-    UnicodeDataRecord.prototype.getDelta = function (codePoint) {
+    getDelta(codePoint) {
         if (codePoint === undefined) {
             return 0;
         }
         return codePoint - this.codePoint;
-    };
-    UnicodeDataRecord.prototype.toString = function () {
-        return this.skipCount + ", MappingSource::UnicodeData, " +
-            (this.codePoint.toHex() + ", " + this.codePoint.toHex() + ", ") +
-            (this.deltas[0] + ", " + this.deltas[1] + ", " + this.deltas[2] + ", " + this.deltas[3] + ",");
-    };
-    return UnicodeDataRecord;
-}());
+    }
+    toString() {
+        return `${this.skipCount}, MappingSource::UnicodeData, ` +
+            `${this.codePoint.toHex()}, ${this.codePoint.toHex()}, ` +
+            `${this.deltas[0]}, ${this.deltas[1]}, ${this.deltas[2]}, ${this.deltas[3]},`;
+    }
+}
 function processUnicodeData(data) {
-    var lines = data.split(/\r?\n/);
-    var rows = [];
-    var currentRow = undefined;
-    for (var _i = 0, lines_1 = lines; _i < lines_1.length; _i++) {
-        var line = lines_1[_i];
+    let lines = data.split(/\r?\n/);
+    let rows = [];
+    let currentRow = undefined;
+    for (let line of lines) {
         if (line.length === 0) {
             continue;
         }
-        var record = new UnicodeDataRecord(line);
+        let record = new UnicodeDataRecord(line);
         if (record.category === "Ll" || record.category === "Lu") {
             if (record.numUniqueDeltas === 1) {
                 continue; // singleton, no information to include in the table
             }
-            debugger;
             if (currentRow) {
                 if (!currentRow.foldInUnicodeRecord(record)) {
                     rows.push(currentRow);
@@ -147,38 +145,80 @@ function processUnicodeData(data) {
     }
     return rows;
 }
-function processCaseFolding(data) {
+class CaseFoldingRecord {
+    // NOTE: codePoint and mapping are considered equivalent under CaseInsenstive,
+    // so use this information to construct equivalence (update both corresponding Rows).
+    constructor(line) {
+        let fields = line.trim().replace(/; #.*$/, "").split(/;\s*/);
+        this.codePoint = parseInt(fields[0], 16);
+        this.category = fields[1];
+        this.mapping = parseInt(fields[2], 16);
+    }
+    getDelta() {
+        return this.mapping - this.codePoint;
+    }
+    toString() {
+        return `${this.codePoint.toHex()}; ${this.category}; ${this.mapping.toHex()}`;
+    }
+}
+function processCaseFoldingData(rows, data) {
+    let lines = data.split(/\r?\n/);
+    for (let line of lines) {
+        if (line.trim().length === 0) {
+            continue;
+        }
+        if (line.startsWith("#")) {
+            continue;
+        }
+        let record = new CaseFoldingRecord(line);
+    }
+    return rows; // TODO
 }
 function render(rows) {
-    var out = "";
-    for (var _i = 0, rows_1 = rows; _i < rows_1.length; _i++) {
-        var row = rows_1[_i];
+    let out = "";
+    for (let row of rows) {
         out += row.toString() + "\n";
     }
     return out;
 }
-function writeOutput(blob) {
-    fs.writeFile("./mappings.txt", blob);
+function writeOutput(outputFile, blob) {
+    fs.writeFile(outputFile, blob);
 }
 // writeOutput(render());
 function tests() {
     console.log("--- tests ---");
     // test for UnicodeDataRecord
-    var record = new UnicodeDataRecord("0041;LATIN CAPITAL LETTER A;Lu;0;L;;;;;N;;;;0061;");
+    let record = new UnicodeDataRecord("0041;LATIN CAPITAL LETTER A;Lu;0;L;;;;;N;;;;0061;");
     console.log(record.toString());
     // test for Row#toString()
     console.log(new Row(MappingSource.UnicodeData, record.codePoint, record.deltas).toString());
 }
-function main() {
+function main(unicodeDataFile, caseFoldingFile, outputFile) {
     // var stream = fs.createReadStream('sourcetable.csv').on('end', afterProcess);
     // new lazy(stream.data).lines.forEach(processLine);
+    console.log(`reading ${unicodeDataFile}`);
     // read the file all at once, which is okay because this is a simple tool which reads a relatively small file
-    var data = fs.readFileSync('ucd/UnicodeData-8.0.0.txt', 'utf8');
-    var rows = processUnicodeData(data);
-    var blob = render(rows);
-    console.log(blob);
-    writeOutput(render(rows));
+    let data = fs.readFileSync(unicodeDataFile, 'utf8');
+    let rows = processUnicodeData(data);
+    console.log(`reading ${caseFoldingFile}`);
+    data = fs.readFileSync(caseFoldingFile, 'utf8');
+    rows = processCaseFoldingData(rows, data); // augment Rows with CaseFolding
+    console.log(`rendering output to ${outputFile}`);
+    let blob = render(rows);
+    // console.log(blob);
+    writeOutput(outputFile, blob);
 }
+let unicodeDataFile = (process && process.argv[2]) || "ucd/UnicodeData-8.0.0.txt";
+let caseFoldingFile = (process && process.argv[3]) || "ucd/CaseFolding-8.0.0.txt";
+let outputFile = (process && process.argv[4]) || "mappings-8.0.0.txt";
+console.log("Checking arguments:");
+console.log(JSON.stringify(process.argv));
+console.log(`
+Using the following files:
+    unicodeDataFile: ${unicodeDataFile}
+    caseFoldingFile: ${caseFoldingFile}
+    outputFile: ${outputFile}
+`);
 // tests();
-main();
+main(unicodeDataFile, caseFoldingFile, outputFile);
 //# sourceMappingURL=mappings.js.map
