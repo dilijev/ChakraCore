@@ -12,9 +12,9 @@ function getArgs() {
     return args;
 }
 let NumericSort = (a, b) => a - b;
-Array.prototype.insert = function (index, item) {
-    this.splice(index, 0, item);
-};
+// Array.prototype.insert = function (index: number, item: any): void {
+//     this.splice(index, 0, item);
+// }
 String.prototype.zeroPadFourDigits = function () {
     if (this.length > 4) {
         return this;
@@ -30,9 +30,9 @@ String.prototype.toCodepoint = function () {
         return parseInt(this, 16);
     }
 };
-Number.prototype.toUnicodeHex = function () {
-    // In Unicode, code points are written as [0-9a-f]{4,6},
-    // so for consistency with the Unicode data files, we will follow the same convention.
+Number.prototype.toUnicodeHexString = function () {
+    // In Unicode, code points are written as /[0-9a-f]{4,6}/i (minimum 4 hex digits, up to 6).
+    // For consistency with the Unicode data files, we will follow the same convention.
     return "0x" + this.toString(16).zeroPadFourDigits();
 };
 var MappingSource;
@@ -94,7 +94,7 @@ class Row {
     }
     toString() {
         return `${this.skipCount}, ${MappingSourceToString(this.mappingSource)}, ` +
-            `${this.beginRange.toUnicodeHex()}, ${this.endRange.toUnicodeHex()}, ` +
+            `${this.beginRange.toUnicodeHexString()}, ${this.endRange.toUnicodeHexString()}, ` +
             `${this.deltas[0]}, ${this.deltas[1]}, ${this.deltas[2]}, ${this.deltas[3]},`;
     }
 }
@@ -136,7 +136,7 @@ class UnicodeDataRecord {
     }
     toString() {
         return `${this.skipCount}, MappingSource::UnicodeData, ` +
-            `${this.codePoint.toUnicodeHex()}, ${this.codePoint.toUnicodeHex()}, ` +
+            `${this.codePoint.toUnicodeHexString()}, ${this.codePoint.toUnicodeHexString()}, ` +
             `${this.deltas[0]}, ${this.deltas[1]}, ${this.deltas[2]}, ${this.deltas[3]},`;
     }
 }
@@ -154,12 +154,14 @@ function processUnicodeData(data) {
                 continue; // singleton, no information to include in the table
             }
             if (currentRow) {
-                if (!currentRow.foldInUnicodeRecord(record)) {
+                let success = currentRow.foldInUnicodeRecord(record);
+                if (!success) {
                     rows.push(currentRow);
                     currentRow = undefined;
                 }
             }
             if (!currentRow) {
+                // folding ${record} failed, so now we must create a new Row from the same record
                 currentRow = Row.createFromUnicodeDataRecord(record);
             }
         }
@@ -183,7 +185,7 @@ class CaseFoldingRecord {
         return this.mapping - this.codePoint;
     }
     toString() {
-        return `${this.codePoint.toUnicodeHex()}; ${this.category}; ${this.mapping.toUnicodeHex()}`;
+        return `${this.codePoint.toUnicodeHexString()}; ${this.category}; ${this.mapping.toUnicodeHexString()}`;
     }
 }
 function processCaseFoldingData(rows, data) {
@@ -200,7 +202,9 @@ function processCaseFoldingData(rows, data) {
         // REVIEW: This code assumes records with (record.category === "C") are identical to UnicodeData.txt mappings
         // and therefore it is not necessary to extract that information from the CaseFolding.txt file.
         if (record.category === "S") {
+            let row = Row.createFromCaseFoldingRecord(record);
             console.log(record.toString());
+            console.log(row.toString());
         }
     }
     return rows; // TODO
@@ -213,7 +217,7 @@ function render(rows) {
     return out;
 }
 function writeOutput(outputFile, blob) {
-    fs.writeFile(outputFile, blob);
+    fs.writeFile(outputFile, blob); // TODO change to writeFileSync? (not worth the time right now)
 }
 // writeOutput(render());
 function tests() {

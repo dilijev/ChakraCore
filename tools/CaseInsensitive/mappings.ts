@@ -27,7 +27,7 @@ interface String {
     toCodepoint(): number;
 }
 interface Number {
-    toUnicodeHex(): string;
+    toUnicodeHexString(): string;
 }
 
 // Array.prototype.insert = function (index: number, item: any): void {
@@ -46,8 +46,8 @@ String.prototype.toCodepoint = function (): number {
         return parseInt(this, 16);
     }
 }
-Number.prototype.toUnicodeHex = function (): string {
-    // In Unicode, code points are written as /[0-9a-f]{4,6}/ (minimum 4 hex digits, up to 6).
+Number.prototype.toUnicodeHexString = function (): string {
+    // In Unicode, code points are written as /[0-9a-f]{4,6}/i (minimum 4 hex digits, up to 6).
     // For consistency with the Unicode data files, we will follow the same convention.
     return "0x" + this.toString(16).zeroPadFourDigits();
 }
@@ -125,7 +125,7 @@ class Row {
 
     toString(): string {
         return `${this.skipCount}, ${MappingSourceToString(this.mappingSource)}, ` +
-            `${this.beginRange.toUnicodeHex()}, ${this.endRange.toUnicodeHex()}, ` +
+            `${this.beginRange.toUnicodeHexString()}, ${this.endRange.toUnicodeHexString()}, ` +
             `${this.deltas[0]}, ${this.deltas[1]}, ${this.deltas[2]}, ${this.deltas[3]},`;
     }
 }
@@ -190,7 +190,7 @@ class UnicodeDataRecord {
 
     toString(): string {
         return `${this.skipCount}, MappingSource::UnicodeData, ` +
-            `${this.codePoint.toUnicodeHex()}, ${this.codePoint.toUnicodeHex()}, ` +
+            `${this.codePoint.toUnicodeHexString()}, ${this.codePoint.toUnicodeHexString()}, ` +
             `${this.deltas[0]}, ${this.deltas[1]}, ${this.deltas[2]}, ${this.deltas[3]},`
     }
 }
@@ -213,13 +213,15 @@ function processUnicodeData(data: string): Row[] {
             }
 
             if (currentRow) {
-                if (!currentRow.foldInUnicodeRecord(record)) {
+                let success: boolean = currentRow.foldInUnicodeRecord(record);
+                if (!success) {
                     rows.push(currentRow);
                     currentRow = undefined;
                 }
             }
 
             if (!currentRow) {
+                // folding ${record} failed, so now we must create a new Row from the same record
                 currentRow = Row.createFromUnicodeDataRecord(record);
             }
 
@@ -236,9 +238,9 @@ function processUnicodeData(data: string): Row[] {
 }
 
 class CaseFoldingRecord {
-    codePoint: number;
-    category: string;
-    mapping: number;
+    codePoint: number; // field 0
+    category: string; // field 1
+    mapping: number; // field 2
 
     // NOTE: codePoint and mapping are considered equivalent under CaseInsenstive,
     // so use this information to construct equivalence (update both corresponding Rows).
@@ -256,7 +258,7 @@ class CaseFoldingRecord {
     }
 
     toString(): string {
-        return `${this.codePoint.toUnicodeHex()}; ${this.category}; ${this.mapping.toUnicodeHex()}`;
+        return `${this.codePoint.toUnicodeHexString()}; ${this.category}; ${this.mapping.toUnicodeHexString()}`;
     }
 }
 
@@ -276,8 +278,10 @@ function processCaseFoldingData(rows: Row[], data: string): Row[] {
         // REVIEW: This code assumes records with (record.category === "C") are identical to UnicodeData.txt mappings
         // and therefore it is not necessary to extract that information from the CaseFolding.txt file.
         if (record.category === "S") {
+            let row = Row.createFromCaseFoldingRecord(record);
 
             console.log(record.toString());
+            console.log(row.toString());
         }
     }
 
@@ -293,7 +297,7 @@ function render(rows: Row[]): string {
 }
 
 function writeOutput(outputFile: string, blob: string) {
-    fs.writeFile(outputFile, blob);
+    fs.writeFile(outputFile, blob); // TODO change to writeFileSync? (not worth the time right now)
 }
 
 // writeOutput(render());
