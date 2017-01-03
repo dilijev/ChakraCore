@@ -80,7 +80,6 @@ function processLine(line) {
 
 function processData(data) {
     var lines = data.split(/\r?\n/);
-    // console.log(lines.count);
     for (var line of lines) {
         processLine(line);
     }

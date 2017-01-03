@@ -3,7 +3,12 @@
 // 2, MappingSource::UnicodeData, 0x0100, 0x012f, -1, 1, 1, 1,
 var fs = require('fs');
 var _ = require('lodash');
+var NumericSort = function (a, b) { return a - b; };
 String.prototype.zeroPadFourDigits = function () {
+    if (this.length > 4) {
+        return this;
+    }
+    ;
     return ("0000" + this).slice(-4); // take the last four characters after left-padding
 };
 String.prototype.toCodepoint = function () {
@@ -17,7 +22,6 @@ String.prototype.toCodepoint = function () {
 Number.prototype.toHex = function () {
     return "0x" + this.toString(16).zeroPadFourDigits();
 };
-var NumericSort = function (a, b) { return a - b; };
 var MappingSource;
 (function (MappingSource) {
     MappingSource[MappingSource["UnicodeData"] = 0] = "UnicodeData";
@@ -48,6 +52,29 @@ var Row = (function () {
         // this.deltas = [0, 32, 32, 32];
         //*/
     }
+    Row.createFromUnicodeDataRecord = function (record) {
+        var row = new Row(MappingSource.UnicodeData, record.codePoint, record.deltas);
+        row.skipCount = record.skipCount;
+        return row;
+    };
+    // return true if the record was folded successfully, false otherwise
+    Row.prototype.foldInUnicodeRecord = function (record) {
+        // can only fold subsequent entries
+        if (record.codePoint !== (this.endRange + 1)) {
+            return false;
+        }
+        if ((record.deltas[0] !== this.deltas[0])
+            || (record.deltas[1] !== this.deltas[1])
+            || (record.deltas[2] !== this.deltas[2])
+            || (record.deltas[3] !== this.deltas[3])) {
+            return false;
+        }
+        if (record.skipCount !== this.skipCount) {
+            return false;
+        }
+        ++this.endRange;
+        return true;
+    };
     Row.prototype.toString = function () {
         return this.skipCount + ", " + MappingSourceToString(this.mappingSource) + ", " +
             (this.beginRange.toHex() + ", " + this.endRange.toHex() + ", ") +
@@ -57,17 +84,25 @@ var Row = (function () {
 }());
 var UnicodeDataRecord = (function () {
     function UnicodeDataRecord(line) {
+        this.skipCount = 1; // default value;
         var fields = line.trim().split(/\s*;\s*/);
         this.codePoint = parseInt(fields[0], 16);
         this.category = fields[2];
-        var uppercase = this.getDelta(fields[12].toCodepoint());
-        var lowercase = this.getDelta(fields[13].toCodepoint());
-        var titlecase = this.getDelta(fields[14].toCodepoint());
-        var deltas = _([uppercase, lowercase, titlecase]).sort(NumericSort).uniq().value();
+        var uppercase = this.getDelta((fields[12] || "").toCodepoint());
+        var lowercase = this.getDelta((fields[13] || "").toCodepoint());
+        var titlecase = this.getDelta((fields[14] || "").toCodepoint());
+        // include delta of 0 because we need to count self
+        var deltas = _([0, uppercase, lowercase, titlecase]).sort(NumericSort).uniq().value();
+        this.numUniqueDeltas = deltas.length;
+        if ((deltas[0] === 0 && deltas[1] === 1)
+            || (deltas[0] === -1 && deltas[1] === 0)) {
+            this.skipCount = 2;
+            deltas = [-1, 1]; // special value for deltas array when skipCount === 2
+        }
         this.deltas = [];
         var lastVal = 0;
         for (var i = 0; i < 4; ++i) {
-            lastVal = deltas[i] || lastVal;
+            lastVal = (deltas[i] !== undefined) ? deltas[i] : lastVal;
             this.deltas[i] = lastVal;
         }
     }
@@ -78,21 +113,54 @@ var UnicodeDataRecord = (function () {
         return codePoint - this.codePoint;
     };
     UnicodeDataRecord.prototype.toString = function () {
-        return "1, MappingSource::UnicodeData, " +
+        return this.skipCount + ", MappingSource::UnicodeData, " +
             (this.codePoint.toHex() + ", " + this.codePoint.toHex() + ", ") +
             (this.deltas[0] + ", " + this.deltas[1] + ", " + this.deltas[2] + ", " + this.deltas[3] + ",");
     };
     return UnicodeDataRecord;
 }());
 function processUnicodeData(data) {
+    var lines = data.split(/\r?\n/);
+    var rows = [];
+    var currentRow = undefined;
+    for (var _i = 0, lines_1 = lines; _i < lines_1.length; _i++) {
+        var line = lines_1[_i];
+        if (line.length === 0) {
+            continue;
+        }
+        var record = new UnicodeDataRecord(line);
+        if (record.category === "Ll" || record.category === "Lu") {
+            if (record.numUniqueDeltas === 1) {
+                continue; // singleton, no information to include in the table
+            }
+            debugger;
+            if (currentRow) {
+                if (!currentRow.foldInUnicodeRecord(record)) {
+                    rows.push(currentRow);
+                    currentRow = undefined;
+                }
+            }
+            if (!currentRow) {
+                currentRow = Row.createFromUnicodeDataRecord(record);
+            }
+        }
+    }
+    return rows;
 }
 function processCaseFolding(data) {
 }
-function render() {
+function render(rows) {
+    var out = "";
+    for (var _i = 0, rows_1 = rows; _i < rows_1.length; _i++) {
+        var row = rows_1[_i];
+        out += row.toString() + "\n";
+    }
+    return out;
 }
 function writeOutput(blob) {
-    fs.writeFile("./equiv.txt", blob);
+    fs.writeFile("./mappings.txt", blob);
 }
+// writeOutput(render());
 function tests() {
     console.log("--- tests ---");
     // test for UnicodeDataRecord
@@ -105,152 +173,12 @@ function main() {
     // var stream = fs.createReadStream('sourcetable.csv').on('end', afterProcess);
     // new lazy(stream.data).lines.forEach(processLine);
     // read the file all at once, which is okay because this is a simple tool which reads a relatively small file
-    fs.readFileSync('ucd/UnicodeData-8.0.0.txt', 'utf8', function (err, data) {
-        if (err) {
-            throw err;
-        }
-        processUnicodeData(data);
-    });
+    var data = fs.readFileSync('ucd/UnicodeData-8.0.0.txt', 'utf8');
+    var rows = processUnicodeData(data);
+    var blob = render(rows);
+    console.log(blob);
+    writeOutput(render(rows));
 }
-tests();
+// tests();
 main();
-/*
-
-class Table {
-    rows: Row[];
-}
-
-class UnicodeRange {
-    constructor() {
-    }
-}
-
-/*
-
-var fs = require('fs');
-var _ = require('lodash');
-
-// Construct ranges as we go (UnicodeData.txt)
-// Insert CaseFolding.txt data in a second pass, splitting ranges as necessary to keep codepoints in increasing order.
-// CaseFolding.txt entries can duplicate a code point (for compatibility, I'm assuming that they must do so:
-// all data from UnicodeData.txt must be preserved, even with the additions from CaseFolding.txt).
-
-// smallest int as key -> [set of equivalent codes as ints (including self), sorted in ascending order]
-var codepointMap = {}
-
-function processInt(val) {
-    if (val.startsWith("0x")) {
-        val = val.replace("0x", "");
-        return parseInt(val, 16);
-    } else {
-        return parseInt(val);
-    }
-}
-
-function processFields(skipCount, source, ...rest) {
-    return [
-        parseInt(skipCount),
-        source, // string
-        ...(rest.map(processInt))
-    ]
-}
-
-
-// handle special case for skipCount == 2
-function processPairs(begin, end) {
-    // special case where case equivalents are in pairs, e.g.:
-    // 2, MappingSource::UnicodeData, 0x0100, 0x012f, -1, 1, 1, 1,
-    for (var i = begin; i <= end; i += 2) {
-        // console.log([i,i+1]);
-        codepointMap[i] = [i, i + 1];
-    }
-}
-
-var numericSort = (a, b) => a - b;
-
-function processLine(line) {
-    // console.log(line);
-
-    var line = line.trim().replace(/,\s*$/, '');
-    var fields = line.split(", ");
-    var delta = [0, 0, 0, 0];
-    var [skipCount, source, rangeStart, rangeEnd, ...delta] = processFields(...fields);
-
-    // console.log([skipCount, source, toHex(rangeStart), toHex(rangeEnd), delta]); // sanity check
-
-    if (skipCount === 2) {
-        processPairs(rangeStart, rangeEnd);
-    } else {
-        for (var i = rangeStart; i <= rangeEnd; ++i) {
-            var codepoints = delta.map(
-                function (x) {
-                    var ret = i + x;
-                    return ret;
-                }
-            )
-            codepoints = codepoints.sort(numericSort);
-            var existingCodepoints = codepointMap[codepoints[0]];
-            if (existingCodepoints !== undefined) {
-                codepoints.concat(existingCodepoints);
-            }
-            codepoints = _(codepoints).sort(numericSort).uniq().value();
-
-            if (("" + codepoints[0]).length === 1) {
-                debugger;
-            }
-
-            codepointMap[codepoints[0]] = codepoints; // store the equivalence set into the map
-        }
-    }
-}
-
-function processData(data) {
-    var lines = data.split(/\r?\n/);
-    // console.log(lines.count);
-    for (var line of lines) {
-        processLine(line);
-    }
-}
-
-function render() {
-    var out = "";
-    for (var x in codepointMap) {
-        codepoints = codepointMap[x];
-        var first = true;
-        for (var x of codepoints) {
-            if (!first) out += ",";
-            first = false;
-            out += toHex(x);
-        }
-        out += "\n";
-    }
-    return out;
-}
-
-function writeOutput(blob) {
-    fs.writeFile("./equiv.txt", blob);
-}
-
-// function afterProcess() {
-//     console.log('hi');
-//     // console.log(codepointMap);
-// }
-
-function main() {
-    // var stream = fs.createReadStream('sourcetable.csv').on('end', afterProcess);
-    // new lazy(stream.data).lines.forEach(processLine);
-
-    // read the file all at once, which is okay because this is a simple tool which reads a small file
-    fs.readFile('sourcetable.csv', 'utf8', function (err, data) {
-        if (err) {
-            throw err;
-        }
-        processData(data);
-        writeOutput(render());
-    });
-}
-
-main();
-
-//*/
 //# sourceMappingURL=mappings.js.map
