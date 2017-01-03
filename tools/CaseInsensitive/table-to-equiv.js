@@ -89,7 +89,7 @@ function processData(data) {
 function render() {
     var out = "";
     for (var x in codepointMap) {
-        codepoints = codepointMap[x];
+        var codepoints = codepointMap[x];
         var first = true;
         for (var x of codepoints) {
             if (!first) out += ",";
@@ -104,11 +104,6 @@ function render() {
 function writeOutput(blob) {
     fs.writeFile("./equiv.txt", blob);
 }
-
-// function afterProcess() {
-//     console.log('hi');
-//     // console.log(codepointMap);
-// }
 
 function main() {
     // var stream = fs.createReadStream('sourcetable.csv').on('end', afterProcess);
