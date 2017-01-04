@@ -1,3 +1,10 @@
+/// <reference path="MappingSource.ts" />
+/// <reference path="Records.ts" />
+
+// import { MappingSource, MappingSourceToString } from 'MappingSource';
+// import { UnicodeDataRecord, CaseFoldingRecord } from 'Records';
+
+// export
 class Row {
     skipCount: number;
     mappingSource: MappingSource;
@@ -70,11 +77,13 @@ class Row {
     }
 }
 
+// export
 function getRowInsertionIndex(rows: Row[], row: Row): number {
     let _ = require('lodash');
     return _.sortedIndexBy(rows, row, Row.orderBy);
 }
 
+// export
 function getRowIndexByCodePoint(rows: Row[], codePoint: number): number {
     function test(row: Row, codePoint: number): number {
         if (codePoint < row.beginRange) {

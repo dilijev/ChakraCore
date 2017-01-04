@@ -1,5 +1,8 @@
-/// <reference path="utils.ts"/>
+/// <reference path="utils.ts" />
 
+// let _ = require('lodash');
+
+// export
 class UnicodeDataRecord {
     // schema:
     // http://www.unicode.org/Public//3.0-Update1/UnicodeData-3.0.1.html#Field%20Formats
@@ -33,6 +36,7 @@ class UnicodeDataRecord {
         let titlecase: number = this.getDelta((fields[14] || "").toCodepoint());
 
         // include delta of 0 because we need to count self
+        let _ = require('lodash');
         let deltas: number[] = _([0, uppercase, lowercase, titlecase]).sort(NumericOrder).uniq().value();
         this.numUniqueDeltas = deltas.length;
         if ((deltas[0] === 0 && deltas[1] === 1)
@@ -51,6 +55,7 @@ class UnicodeDataRecord {
     }
 }
 
+// export
 class CaseFoldingRecord {
     codePoint: number; // field 0
     category: string; // field 1

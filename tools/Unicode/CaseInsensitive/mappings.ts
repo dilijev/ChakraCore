@@ -1,8 +1,13 @@
-/// <reference path="row.ts"/>
-/// <reference path="utils.ts"/>
-/// <reference path="MappingSource.ts"/>
-/// <reference path="Records.ts"/>
-/// <reference path="algorithm.ts"/>
+/// <reference path="MappingSource.ts" />
+/// <reference path="row.ts" />
+/// <reference path="Records.ts" />
+/// <reference path="utils.ts" />
+/// <reference path="algorithm.ts" />
+
+// import { MappingSource } from 'MappingSource';
+// import { UnicodeDataRecord, CaseFoldingRecord } from 'Records';
+// import { Row, getRowInsertionIndex, getRowIndexByCodePoint } from 'row';
+// import { processUnicodeData, processCaseFoldingData } from 'algorithm';
 
 // node mappings.js ../UCD/UnicodeData-8.0.0.txt ../UCD/CaseFolding-8.0.0.txt ./out/mappings-8.0.0.txt
 // node mappings.js ../UCD/UnicodeData-9.0.0.txt ../UCD/CaseFolding-9.0.0.txt ./out/mappings-9.0.0.txt
@@ -13,6 +18,15 @@
 
 let fs = require('fs');
 let _ = require('lodash');
+
+function getArgs(): string[] {
+    let args: string[] = (process && process.argv && process.argv.slice(2)) || []
+
+    console.log("Arguments:");
+    console.log(JSON.stringify(process.argv));
+
+    return args;
+}
 
 function render(rows: Row[]): string {
     let out: string = "";

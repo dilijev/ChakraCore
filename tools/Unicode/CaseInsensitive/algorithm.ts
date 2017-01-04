@@ -1,3 +1,10 @@
+/// <reference path="Records.ts" />
+/// <reference path="row.ts" />
+
+// import { UnicodeDataRecord, CaseFoldingRecord } from 'Records';
+// import { Row } from 'row';
+
+// export
 function processUnicodeData(data: string): Row[] {
     let lines: string[] = data.split(/\r?\n/);
 
@@ -40,6 +47,7 @@ function processUnicodeData(data: string): Row[] {
     return rows;
 }
 
+// export
 function processCaseFoldingData(rows: Row[], data: string): Row[] {
     let lines: string[] = data.split(/\r?\n/);
     for (let line of lines) {

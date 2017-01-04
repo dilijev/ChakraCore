@@ -1,11 +1,4 @@
-function getArgs(): string[] {
-    let args: string[] = (process && process.argv && process.argv.slice(2)) || []
-
-    console.log("Arguments:");
-    console.log(JSON.stringify(process.argv));
-
-    return args;
-}
+// let _ = require('lodash');
 
 // interface Array {
 //     insert(index: number, item: any): void;
@@ -24,8 +17,8 @@ interface Number {
 // }
 String.prototype.zeroPadFourDigits = function (): string {
     if (this.length > 4) {
-        return this
-    };
+        return this;
+    }
     return ("0000" + this).slice(-4); // take the last four characters after left-padding
 }
 String.prototype.toCodepoint = function (): number {

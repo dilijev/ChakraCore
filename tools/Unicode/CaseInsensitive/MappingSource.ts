@@ -1,8 +1,10 @@
+// export
 enum MappingSource {
     UnicodeData,
     CaseFolding
 }
 
+// export
 function MappingSourceToString(source: MappingSource): string {
     switch (source) {
         case MappingSource.CaseFolding:
