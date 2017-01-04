@@ -17,7 +17,7 @@ function getArgs(): string[] {
     return args;
 }
 
-let NumericSort = (a, b) => a - b;
+let NumericOrder = (a, b) => a - b;
 
 // interface Array {
 //     insert(index: number, item: any): void;
@@ -28,6 +28,7 @@ interface String {
 }
 interface Number {
     toUnicodeHexString(): string;
+    toCppUnicodeHexString(): string;
 }
 
 // Array.prototype.insert = function (index: number, item: any): void {
@@ -49,7 +50,11 @@ String.prototype.toCodepoint = function (): number {
 Number.prototype.toUnicodeHexString = function (): string {
     // In Unicode, code points are written as /[0-9a-f]{4,6}/i (minimum 4 hex digits, up to 6).
     // For consistency with the Unicode data files, we will follow the same convention.
-    return "0x" + this.toString(16).zeroPadFourDigits();
+    return this.toString(16).zeroPadFourDigits();
+}
+Number.prototype.toCppUnicodeHexString = function (): string {
+    // Add "0x" prefix to be a valid hex literal for C++ code.
+    return "0x" + this.toUnicodeHexString();
 }
 
 enum MappingSource {
@@ -86,11 +91,21 @@ class Row {
         return row;
     }
 
+    // static orderBy(value: Row): [number, number] {
+    //     return [value.beginRange, value.endRange];
+    // }
+
+    static orderBy(value: Row): string {
+        let numericString = value.beginRange.toUnicodeHexString() + (value.endRange - value.beginRange).toUnicodeHexString();
+        let str = "0000000000" + numericString; // 10 leading zeroes
+        return "0x" + str.slice(-10);
+    }
+
     constructor(mappingSource: MappingSource, codePoint: number, deltas: number[]) {
         this.skipCount = 1;
         this.mappingSource = mappingSource;
         this.beginRange = this.endRange = codePoint;
-        this.deltas = deltas;
+        this.deltas = canonicalizeDeltas(deltas);
 
         //*
         // test value
@@ -125,13 +140,48 @@ class Row {
 
     toString(): string {
         return `${this.skipCount}, ${MappingSourceToString(this.mappingSource)}, ` +
-            `${this.beginRange.toUnicodeHexString()}, ${this.endRange.toUnicodeHexString()}, ` +
+            `${this.beginRange.toCppUnicodeHexString()}, ${this.endRange.toCppUnicodeHexString()}, ` +
             `${this.deltas[0]}, ${this.deltas[1]}, ${this.deltas[2]}, ${this.deltas[3]},`;
     }
 }
 
+function getRowInsertionIndex(rows: Row[], row: Row): number {
+    debugger;
+    return _.sortedIndexBy(rows, row, Row.orderBy);
+}
+
+function getRowIndexByCodePoint(rows: Row[], codePoint: number): number {
+    function test(row: Row, codePoint: number): number {
+        if (codePoint < row.beginRange) {
+            return -1;
+        } else if (codePoint > row.endRange) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+
+    function binarySearch(rows: Row[], low: number, high: number, codePoint: number): number {
+        if (low > high) {
+            return -1;
+        }
+
+        let mid = Math.floor(low + (high - low) / 2);
+        let testValue = test(rows[mid], codePoint);
+        if (testValue < 0) {
+            return binarySearch(rows, 0, mid - 1, codePoint);
+        } else if (testValue > 0) {
+            return binarySearch(rows, mid + 1, high, codePoint);
+        } else {
+            return mid; // found
+        }
+    }
+
+    return binarySearch(rows, 0, rows.length - 1, codePoint);
+}
+
 function canonicalizeDeltas(deltas: number[]): number[] {
-    deltas = _(deltas).sort(NumericSort).uniq().value(); // canonicalize order and uniqueness
+    deltas = _(deltas).sort(NumericOrder).uniq().value(); // canonicalize order and uniqueness
 
     let lastVal = 0;
     let canonicalDeltas = [];
@@ -177,7 +227,7 @@ class UnicodeDataRecord {
         let titlecase: number = this.getDelta((fields[14] || "").toCodepoint());
 
         // include delta of 0 because we need to count self
-        let deltas: number[] = _([0, uppercase, lowercase, titlecase]).sort(NumericSort).uniq().value();
+        let deltas: number[] = _([0, uppercase, lowercase, titlecase]).sort(NumericOrder).uniq().value();
         this.numUniqueDeltas = deltas.length;
         if ((deltas[0] === 0 && deltas[1] === 1)
             || (deltas[0] === -1 && deltas[1] === 0)) {
@@ -190,7 +240,7 @@ class UnicodeDataRecord {
 
     toString(): string {
         return `${this.skipCount}, MappingSource::UnicodeData, ` +
-            `${this.codePoint.toUnicodeHexString()}, ${this.codePoint.toUnicodeHexString()}, ` +
+            `${this.codePoint.toCppUnicodeHexString()}, ${this.codePoint.toCppUnicodeHexString()}, ` +
             `${this.deltas[0]}, ${this.deltas[1]}, ${this.deltas[2]}, ${this.deltas[3]},`
     }
 }
@@ -258,7 +308,7 @@ class CaseFoldingRecord {
     }
 
     toString(): string {
-        return `${this.codePoint.toUnicodeHexString()}; ${this.category}; ${this.mapping.toUnicodeHexString()}`;
+        return `${this.codePoint.toCppUnicodeHexString()}; ${this.category}; ${this.mapping.toCppUnicodeHexString()}`;
     }
 }
 
@@ -280,8 +330,8 @@ function processCaseFoldingData(rows: Row[], data: string): Row[] {
         if (record.category === "S") {
             let row = Row.createFromCaseFoldingRecord(record);
 
-            console.log(record.toString());
-            console.log(row.toString());
+            // console.log(record.toString());
+            // console.log(row.toString());
         }
     }
 
@@ -327,6 +377,44 @@ function main(unicodeDataFile: string, caseFoldingFile: string, outputFile: stri
 
     data = fs.readFileSync(caseFoldingFile, 'utf8');
     rows = processCaseFoldingData(rows, data); // augment Rows with CaseFolding
+
+    rows = _(rows).sortBy(Row.orderBy).value();
+    debugger;
+
+    // FIXME comment-out tests
+    function tests() {
+        !function () {
+            console.log("\n--- TESTS (getRowIndexByCodePoint) ---");
+            let index = getRowIndexByCodePoint(rows, 0x43);
+            console.log(index);
+            console.log(rows[index].toString());
+            index = getRowIndexByCodePoint(rows, 0x10);
+            console.log(index);
+            index = getRowIndexByCodePoint(rows, 0xa7af);
+            console.log(index);
+        }
+
+        !function () {
+            // let record = new UnicodeDataRecord("1, MappingSource::UnicodeData, 0x0041, 0x004b, 0, 300, 300, 300,");
+            let row = new Row(MappingSource.UnicodeData, 0x4b, [0, 32]);
+            console.log(row.toString());
+            console.log(Row.orderBy(rows[0]));
+            console.log(Row.orderBy(row));
+            let index = getRowInsertionIndex(rows, row);
+            console.log(`insertion point: ${index}`);
+        }()
+
+        !function () {
+            // let record = new UnicodeDataRecord("1, MappingSource::UnicodeData, 0x0100, 0x0100, 0, 300, 300, 300,");
+            let row = new Row(MappingSource.UnicodeData, 0x100, [0, 32]);
+            console.log(row.toString());
+            console.log(Row.orderBy(row));
+            let index = getRowInsertionIndex(rows, row);
+            console.log(`insertion point: ${index}`);
+        }()
+    }
+    tests(); // TODO comment out the call to tests
+    // (end tests)
 
     console.log(`rendering output to ${outputFile}`);
 
