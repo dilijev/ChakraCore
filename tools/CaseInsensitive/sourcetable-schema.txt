@@ -1,6 +1,0 @@
-skipcount, source, rangeStart, rangeEnd, delta[0], delta[1], delta[2], delta[3]
-byte,       string, codepoint_t, codepoint_t, int,  int,      int,      int
-
-Notes:
-
-Deltas are offsets stored as int because that's smaller than codepoint_t

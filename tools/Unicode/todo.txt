@@ -1,0 +1,37 @@
+
+I. write program to map table to actual character code equivalence classes (sort equivalence by codepoint, display each set only once (by lowest code point)
+
+II. Regenerate the source table from UnicodeData-8.0.0.txt and CaseMapping-8.0.0.txt
+Ensure that program I. generates the same output from the original table and the table generated from II.
+
+IIb. Run II with UnicodeData-9.0.0.txt and CaseMapping-9.0.0.txt.
+
+
+Note:
+
+skip 2 has special rules, always has entry -1, 1, 1, 1
+It is always the case that these entries are case-equivalent for subsequent entries, e.g.
+
+
+0x0100 == 0x0101
+0x0102 == 0x0103
+etc.
+
+
+
+https://stackoverflow.com/questions/6156501/read-a-file-one-line-at-a-time-in-node-js
+    ... also process them all
+    when the end of the file is reached, close the readline
+
+http://danieltao.com/lazy.js/
+
+    // var stream = fs.createReadStream('sourcetable.csv').on('end', afterProcess);
+    // new lazy(stream.data).lines.forEach(processLine);
+
+    // read the file all at once, which is okay because this is a simple tool which reads a small file
+    fs.readFile('sourcetable.csv', 'utf8', function (err, data) {
+        if (err) {
+            throw err;
+        }
+        processData(data);
+    });

@@ -1,0 +1,15 @@
+enum MappingSource {
+    UnicodeData,
+    CaseFolding
+}
+
+function MappingSourceToString(source: MappingSource): string {
+    switch (source) {
+        case MappingSource.CaseFolding:
+            return "MappingSource::CaseFolding";
+        case MappingSource.UnicodeData:
+            return "MappingSource::UnicodeData";
+        default:
+            return undefined;
+    }
+}
