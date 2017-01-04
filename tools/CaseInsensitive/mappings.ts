@@ -107,13 +107,13 @@ class Row {
         this.beginRange = this.endRange = codePoint;
         this.deltas = canonicalizeDeltas(deltas);
 
-        //*
+        /*
         // test value
-        // this.skipCount = 1;
-        // this.mappingSource = MappingSource.UnicodeData;
-        // this.beginRange = 0;
-        // this.endRange = 10;
-        // this.deltas = [0, 32, 32, 32];
+        this.skipCount = 1;
+        this.mappingSource = MappingSource.UnicodeData;
+        this.beginRange = 0;
+        this.endRange = 10;
+        this.deltas = [0, 32, 32, 32];
         //*/
     }
 
@@ -271,7 +271,7 @@ function processUnicodeData(data: string): Row[] {
             }
 
             if (!currentRow) {
-                // folding ${record} failed, so now we must create a new Row from the same record
+                // folding ${record} failed, so now we must create a new Row from ${record}
                 currentRow = Row.createFromUnicodeDataRecord(record);
             }
 
