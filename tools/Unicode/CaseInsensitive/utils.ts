@@ -54,3 +54,7 @@ function canonicalizeDeltas(deltas: number[]): number[] {
 
     return canonicalDeltas;
 }
+
+function writeOutput(outputFile: string, blob: string) {
+    fs.writeFile(outputFile, blob); // TODO change to writeFileSync? (not worth the time right now)
+}

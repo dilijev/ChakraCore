@@ -3,6 +3,7 @@
 /// <reference path="Records.ts" />
 /// <reference path="utils.ts" />
 /// <reference path="algorithm.ts" />
+/// <reference path="tests.ts" />
 
 // import { MappingSource } from 'MappingSource';
 // import { UnicodeDataRecord, CaseFoldingRecord } from 'Records';
@@ -20,35 +21,12 @@ let fs = require('fs');
 let _ = require('lodash');
 
 function getArgs(): string[] {
-    let args: string[] = (process && process.argv && process.argv.slice(2)) || []
+    let args: string[] = (process && process.argv && process.argv.slice(2)) || [];
 
     console.log("Arguments:");
     console.log(JSON.stringify(process.argv));
 
     return args;
-}
-
-function render(rows: Row[]): string {
-    let out: string = "";
-    for (let row of rows) {
-        out += row.toString() + "\n";
-    }
-    return out;
-}
-
-function writeOutput(outputFile: string, blob: string) {
-    fs.writeFile(outputFile, blob); // TODO change to writeFileSync? (not worth the time right now)
-}
-
-function tests() {
-    console.log("--- tests ---");
-
-    // test for UnicodeDataRecord
-    let record = new UnicodeDataRecord("0041;LATIN CAPITAL LETTER A;Lu;0;L;;;;;N;;;;0061;");
-    console.log(record.toString());
-
-    // test for Row#toString()
-    console.log(new Row(MappingSource.UnicodeData, record.codePoint, record.deltas).toString());
 }
 
 function main(unicodeDataFile: string, caseFoldingFile: string, outputFile: string) {
@@ -68,44 +46,11 @@ function main(unicodeDataFile: string, caseFoldingFile: string, outputFile: stri
 
     rows = _(rows).sortBy(Row.orderBy).value();
 
-    // FIXME comment-out tests
-    function tests() {
-        !function () {
-            console.log("\n--- TESTS (getRowIndexByCodePoint) ---");
-            let index = getRowIndexByCodePoint(rows, 0x43);
-            console.log(index);
-            console.log(rows[index].toString());
-            index = getRowIndexByCodePoint(rows, 0x10);
-            console.log(index);
-            index = getRowIndexByCodePoint(rows, 0xa7af);
-            console.log(index);
-        }
-
-        !function () {
-            // let record = new UnicodeDataRecord("1, MappingSource::UnicodeData, 0x0041, 0x004b, 0, 300, 300, 300,");
-            let row = new Row(MappingSource.UnicodeData, 0x4b, [0, 32]);
-            console.log(row.toString());
-            console.log(Row.orderBy(rows[0]));
-            console.log(Row.orderBy(row));
-            let index = getRowInsertionIndex(rows, row);
-            console.log(`insertion point: ${index}`);
-        }()
-
-        !function () {
-            // let record = new UnicodeDataRecord("1, MappingSource::UnicodeData, 0x0100, 0x0100, 0, 300, 300, 300,");
-            let row = new Row(MappingSource.UnicodeData, 0x100, [0, 32]);
-            console.log(row.toString());
-            console.log(Row.orderBy(row));
-            let index = getRowInsertionIndex(rows, row);
-            console.log(`insertion point: ${index}`);
-        }()
-    }
-    tests(); // TODO comment out the call to tests
-    // (end tests)
+    indexTests(rows); // FIXME comment out tests
 
     console.log(`rendering output to ${outputFile}`);
 
-    let blob: string = render(rows);
+    let blob: string = renderRows(rows);
     // console.log(blob);
     writeOutput(outputFile, blob);
 }

@@ -113,3 +113,12 @@ function getRowIndexByCodePoint(rows: Row[], codePoint: number): number {
 
     return binarySearch(rows, 0, rows.length - 1, codePoint);
 }
+
+// export
+function renderRows(rows: Row[]): string {
+    let out: string = "";
+    for (let row of rows) {
+        out += row.toString() + "\n";
+    }
+    return out;
+}
