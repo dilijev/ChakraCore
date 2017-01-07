@@ -1,11 +1,16 @@
-/// <reference path="Records.ts" />
-/// <reference path="row.ts" />
+// <reference path="Records.ts" />
+// <reference path="row.ts" />
 
 // import { UnicodeDataRecord, CaseFoldingRecord } from 'Records';
 // import { Row } from 'row';
 
-// export
-function processUnicodeData(data: string): Row[] {
+let Records = require('./Records');
+let UnicodeDataRecord = Records.UnicodeDataRecord;
+let CaseFoldingRecord = Records.CaseFoldingRecord;
+let RowModule = require('./row');
+let Row = RowModule.Row;
+
+export function processUnicodeData(data: string): Row[] {
     let lines: string[] = data.split(/\r?\n/);
 
     let rows: Row[] = [];
@@ -47,8 +52,7 @@ function processUnicodeData(data: string): Row[] {
     return rows;
 }
 
-// export
-function processCaseFoldingData(rows: Row[], data: string): Row[] {
+export function processCaseFoldingData(rows: Row[], data: string): Row[] {
     let lines: string[] = data.split(/\r?\n/);
     for (let line of lines) {
         if (line.trim().length === 0) {

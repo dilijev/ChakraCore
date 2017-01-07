@@ -2,7 +2,7 @@
     "compilerOptions": {
         "target": "es6",
         "sourceMap": true,
-        // "outFile": "mappings.js",
-        "module": "commonjs"
+        "outFile": "table-to-equiv.js",
+        "module": "amd"
     }
 }

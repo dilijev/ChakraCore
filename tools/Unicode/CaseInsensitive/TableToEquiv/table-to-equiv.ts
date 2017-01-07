@@ -1,9 +1,9 @@
+/// <reference path="../utils.ts" />
+
 // skipcount, source, rangeStart, rangeEnd, delta[0], delta[1], delta[2], delta[3]
 // 1, MappingSource::UnicodeData, 0x0041, 0x004a, 0, 32, 32, 32,
 // 2, MappingSource::UnicodeData, 0x0100, 0x012f, -1, 1, 1, 1,
 
-var fs = require('fs');
-var _ = require('lodash');
 // var lazy = require('lazy');
 
 // smallest int as key -> [set of equivalent codes as ints (including self), sorted in ascending order]
@@ -40,8 +40,6 @@ function processPairs(begin, end) {
     }
 }
 
-var numericSort = (a, b) => a - b;
-
 function processLine(line) {
     // console.log(line);
 
@@ -62,12 +60,12 @@ function processLine(line) {
                     return ret;
                 }
             )
-            codepoints = codepoints.sort(numericSort);
+            codepoints = codepoints.sort(NumericOrder);
             var existingCodepoints = codepointMap[codepoints[0]];
             if (existingCodepoints !== undefined) {
                 codepoints.concat(existingCodepoints);
             }
-            codepoints = _(codepoints).sort(numericSort).uniq().value();
+            codepoints = _(codepoints).sort(NumericOrder).uniq().value();
 
             if (("" + codepoints[0]).length === 1) {
                 debugger;
@@ -100,22 +98,20 @@ function render() {
     return out;
 }
 
-function writeOutput(blob) {
-    fs.writeFile("./equiv.txt", blob);
-}
+(function(fs, _) {
 
-function main() {
-    // var stream = fs.createReadStream('sourcetable.csv').on('end', afterProcess);
-    // new lazy(stream.data).lines.forEach(processLine);
+    (function() {
+        // var stream = fs.createReadStream('sourcetable.csv').on('end', afterProcess);
+        // new lazy(stream.data).lines.forEach(processLine);
 
-    // read the file all at once, which is okay because this is a simple tool which reads a small file
-    fs.readFile('sourcetable.csv', 'utf8', function (err, data) {
-        if (err) {
-            throw err;
-        }
-        processData(data);
-        writeOutput(render());
-    });
-}
+        // read the file all at once, which is okay because this is a simple tool which reads a small file
+        fs.readFile('../../sourcetable.csv', 'utf8', function (err, data) {
+            if (err) {
+                throw err;
+            }
+            processData(data);
+            writeOutput("./equiv.txt", render());
+        });
+    })();
 
-main();
+})(require('fs'), require('lodash'));

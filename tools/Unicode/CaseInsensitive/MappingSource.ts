@@ -1,11 +1,9 @@
-// export
-enum MappingSource {
+export enum MappingSource {
     UnicodeData,
     CaseFolding
 }
 
-// export
-function MappingSourceToString(source: MappingSource): string {
+export function toString(source: MappingSource): string {
     switch (source) {
         case MappingSource.CaseFolding:
             return "MappingSource::CaseFolding";

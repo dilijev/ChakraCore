@@ -1,9 +1,11 @@
-/// <reference path="MappingSource.ts" />
-/// <reference path="row.ts" />
-/// <reference path="Records.ts" />
-/// <reference path="utils.ts" />
-/// <reference path="algorithm.ts" />
-/// <reference path="tests.ts" />
+/// <reference path="prototypes.ts" />
+
+// <reference path="MappingSource.ts" />
+// <reference path="row.ts" />
+// <reference path="Records.ts" />
+// <reference path="utils.ts" />
+// <reference path="algorithm.ts" />
+// <reference path="tests.ts" />
 
 // import { MappingSource } from 'MappingSource';
 // import { UnicodeDataRecord, CaseFoldingRecord } from 'Records';
@@ -20,14 +22,10 @@
 let fs = require('fs');
 let _ = require('lodash');
 
-function getArgs(): string[] {
-    let args: string[] = (process && process.argv && process.argv.slice(2)) || [];
-
-    console.log("Arguments:");
-    console.log(JSON.stringify(process.argv));
-
-    return args;
-}
+let Utils = require('./utils');
+let Tests = require('./tests');
+let Algorithm = require('./algorithm');
+let Records = require('./Records');
 
 function main(unicodeDataFile: string, caseFoldingFile: string, outputFile: string) {
     // var stream = fs.createReadStream('sourcetable.csv').on('end', afterProcess);
@@ -37,25 +35,25 @@ function main(unicodeDataFile: string, caseFoldingFile: string, outputFile: stri
 
     // read the file all at once, which is okay because this is a simple tool which reads a relatively small file
     let data = fs.readFileSync(unicodeDataFile, 'utf8');
-    let rows: Row[] = processUnicodeData(data);
+    let rows: Row[] = Algorithm.processUnicodeData(data);
 
     console.log(`reading ${caseFoldingFile}`);
 
     data = fs.readFileSync(caseFoldingFile, 'utf8');
-    rows = processCaseFoldingData(rows, data); // augment Rows with CaseFolding
+    rows = Algorithm.processCaseFoldingData(rows, data); // augment Rows with CaseFolding
 
     rows = _(rows).sortBy(Row.orderBy).value();
 
-    indexTests(rows); // FIXME comment out tests
+    Tests.indexTests(rows); // FIXME comment out tests
 
     console.log(`rendering output to ${outputFile}`);
 
     let blob: string = renderRows(rows);
     // console.log(blob);
-    writeOutput(outputFile, blob);
+    Utils.writeOutput(outputFile, blob);
 }
 
-let args = getArgs();
+let args = Utils.getArgs();
 let unicodeDataFile: string = args[0] || "../UCD/UnicodeData-8.0.0.txt";
 let caseFoldingFile: string = args[1] || "../UCD/CaseFolding-8.0.0.txt";
 let outputFile: string = args[2] || "./out/mappings-8.0.0.txt";
@@ -67,5 +65,5 @@ Using the following files:
     outputFile: ${outputFile}
 `);
 
-// tests();
+// Tests.tests();
 main(unicodeDataFile, caseFoldingFile, outputFile);

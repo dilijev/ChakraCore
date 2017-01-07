@@ -1,11 +1,19 @@
-/// <reference path="MappingSource.ts" />
-/// <reference path="Records.ts" />
+/// <reference path="prototypes.ts" />
+/// <reference path="./MappingSource.d.ts" />
+/// <reference path="./Records.d.ts" />
 
 // import { MappingSource, MappingSourceToString } from 'MappingSource';
 // import { UnicodeDataRecord, CaseFoldingRecord } from 'Records';
 
+let Utils = require('./Utils');
+let MappingSourceModule = require('./MappingSource');
+let MappingSource = MappingSourceModule.MappingSource;
+let Records = require('./Records');
+let UnicodeDataRecord = Records.UnicodeDataRecord;
+let CaseFoldingRecord = Records.CaseFoldingRecord;
+
 // export
-class Row {
+export class Row {
     skipCount: number;
     mappingSource: MappingSource;
     beginRange: number;
@@ -19,7 +27,7 @@ class Row {
     }
 
     static createFromCaseFoldingRecord(record: CaseFoldingRecord): Row {
-        let row = new Row(MappingSource.CaseFolding, record.codePoint, canonicalizeDeltas([0, record.getDelta()]));
+        let row = new Row(MappingSource.CaseFolding, record.codePoint, Utils.canonicalizeDeltas([0, record.getDelta()]));
         return row;
     }
 
@@ -37,7 +45,7 @@ class Row {
         this.skipCount = 1;
         this.mappingSource = mappingSource;
         this.beginRange = this.endRange = codePoint;
-        this.deltas = canonicalizeDeltas(deltas);
+        this.deltas = Utils.canonicalizeDeltas(deltas);
 
         /*
         // test value
@@ -71,20 +79,18 @@ class Row {
     }
 
     toString(): string {
-        return `${this.skipCount}, ${MappingSourceToString(this.mappingSource)}, ` +
+        return `${this.skipCount}, ${MappingSource.toString(this.mappingSource)}, ` +
             `${this.beginRange.toCppUnicodeHexString()}, ${this.endRange.toCppUnicodeHexString()}, ` +
             `${this.deltas[0]}, ${this.deltas[1]}, ${this.deltas[2]}, ${this.deltas[3]},`;
     }
 }
 
-// export
-function getRowInsertionIndex(rows: Row[], row: Row): number {
+export function getRowInsertionIndex(rows: Row[], row: Row): number {
     let _ = require('lodash');
     return _.sortedIndexBy(rows, row, Row.orderBy);
 }
 
-// export
-function getRowIndexByCodePoint(rows: Row[], codePoint: number): number {
+export function getRowIndexByCodePoint(rows: Row[], codePoint: number): number {
     function test(row: Row, codePoint: number): number {
         if (codePoint < row.beginRange) {
             return -1;
@@ -114,8 +120,7 @@ function getRowIndexByCodePoint(rows: Row[], codePoint: number): number {
     return binarySearch(rows, 0, rows.length - 1, codePoint);
 }
 
-// export
-function renderRows(rows: Row[]): string {
+export function renderRows(rows: Row[]): string {
     let out: string = "";
     for (let row of rows) {
         out += row.toString() + "\n";

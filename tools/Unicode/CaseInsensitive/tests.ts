@@ -1,8 +1,16 @@
-/// <reference path="MappingSource.ts" />
-/// <reference path="row.ts" />
-/// <reference path="Records.ts" />
+// <reference path="MappingSource.ts" />
+// <reference path="row.ts" />
+// <reference path="Records.ts" />
 
-function tests() {
+let Records = require('./Records');
+let UnicodeDataRecord = Records.UnicodeDataRecord;
+let MappingSource = require('./MappingSource').MappingSource;
+let RowModule = require('./row');
+let Row = RowModule.Row;
+let getRowInsertionIndex = RowModule.getRowInsertionIndex;
+let getRowIndexByCodePoint = RowModule.getRowIndexByCodePoint;
+
+export function tests() {
     console.log("--- tests ---");
 
     // test for UnicodeDataRecord
@@ -13,7 +21,7 @@ function tests() {
     console.log(new Row(MappingSource.UnicodeData, record.codePoint, record.deltas).toString());
 }
 
-function indexTests(rows : Row[]) {
+export function indexTests(rows: Row[]) {
     function tests() {
         !function () {
             console.log("\n--- TESTS (getRowIndexByCodePoint) ---");

@@ -1,46 +1,6 @@
-// let _ = require('lodash');
+export let NumericOrder = (a, b) => a - b;
 
-// interface Array {
-//     insert(index: number, item: any): void;
-// }
-interface String {
-    zeroPadFourDigits(): string;
-    toCodepoint(): number;
-}
-interface Number {
-    toUnicodeHexString(): string;
-    toCppUnicodeHexString(): string;
-}
-
-// Array.prototype.insert = function (index: number, item: any): void {
-//     this.splice(index, 0, item);
-// }
-String.prototype.zeroPadFourDigits = function (): string {
-    if (this.length > 4) {
-        return this;
-    }
-    return ("0000" + this).slice(-4); // take the last four characters after left-padding
-}
-String.prototype.toCodepoint = function (): number {
-    if (this.length === 0) {
-        return undefined;
-    } else {
-        return parseInt(this, 16);
-    }
-}
-Number.prototype.toUnicodeHexString = function (): string {
-    // In Unicode, code points are written as /[0-9a-f]{4,6}/i (minimum 4 hex digits, up to 6).
-    // For consistency with the Unicode data files, we will follow the same convention.
-    return this.toString(16).zeroPadFourDigits();
-}
-Number.prototype.toCppUnicodeHexString = function (): string {
-    // Add "0x" prefix to be a valid hex literal for C++ code.
-    return "0x" + this.toUnicodeHexString();
-}
-
-let NumericOrder = (a, b) => a - b;
-
-function canonicalizeDeltas(deltas: number[]): number[] {
+export function canonicalizeDeltas(deltas: number[]): number[] {
     let _ = require('lodash');
     deltas = _(deltas).sort(NumericOrder).uniq().value(); // canonicalize order and uniqueness
 
@@ -55,6 +15,16 @@ function canonicalizeDeltas(deltas: number[]): number[] {
     return canonicalDeltas;
 }
 
-function writeOutput(outputFile: string, blob: string) {
+export function writeOutput(outputFile: string, blob: string) {
+    let fs = require('fs');
     fs.writeFile(outputFile, blob); // TODO change to writeFileSync? (not worth the time right now)
+}
+
+export function getArgs(): string[] {
+    let args: string[] = (process && process.argv && process.argv.slice(2)) || [];
+
+    console.log("Arguments:");
+    console.log(JSON.stringify(process.argv));
+
+    return args;
 }
