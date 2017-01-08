@@ -1,4 +1,6 @@
-export let NumericOrder = (a, b) => a - b;
+import MappingSource = require('./MappingSource');
+
+export const NumericOrder = (a, b) => a - b;
 
 export function canonicalizeDeltas(deltas: number[]): number[] {
     let _ = require('lodash');
@@ -27,4 +29,15 @@ export function getArgs(): string[] {
     console.log(JSON.stringify(process.argv));
 
     return args;
+}
+
+export function MappingSourceToString(source: MappingSource): string {
+    switch (source) {
+        case MappingSource.CaseFolding:
+            return "MappingSource::CaseFolding";
+        case MappingSource.UnicodeData:
+            return "MappingSource::UnicodeData";
+        default:
+            return undefined;
+    }
 }

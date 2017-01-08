@@ -1,19 +1,18 @@
+/// <reference path="typings/globals/node/index.d.ts" />
+
 /// <reference path="prototypes.ts" />
-/// <reference path="./MappingSource.d.ts" />
-/// <reference path="./Records.d.ts" />
+
+// <reference path="./MappingSource.d.ts" />
+// <reference path="./Records.d.ts" />
 
 // import { MappingSource, MappingSourceToString } from 'MappingSource';
-// import { UnicodeDataRecord, CaseFoldingRecord } from 'Records';
 
-let Utils = require('./Utils');
-let MappingSourceModule = require('./MappingSource');
-let MappingSource = MappingSourceModule.MappingSource;
-let Records = require('./Records');
-let UnicodeDataRecord = Records.UnicodeDataRecord;
-let CaseFoldingRecord = Records.CaseFoldingRecord;
+let _ = require('lodash');
+import MappingSource = require('./MappingSource');
+import Utils = require('./Utils');
+import { UnicodeDataRecord, CaseFoldingRecord } from './Records';
 
-// export
-export class Row {
+class Row {
     skipCount: number;
     mappingSource: MappingSource;
     beginRange: number;
@@ -79,51 +78,53 @@ export class Row {
     }
 
     toString(): string {
-        return `${this.skipCount}, ${MappingSource.toString(this.mappingSource)}, ` +
+        return `${this.skipCount}, ${Utils.MappingSourceToString(this.mappingSource)}, ` +
             `${this.beginRange.toCppUnicodeHexString()}, ${this.endRange.toCppUnicodeHexString()}, ` +
             `${this.deltas[0]}, ${this.deltas[1]}, ${this.deltas[2]}, ${this.deltas[3]},`;
     }
-}
 
-export function getRowInsertionIndex(rows: Row[], row: Row): number {
-    let _ = require('lodash');
-    return _.sortedIndexBy(rows, row, Row.orderBy);
-}
-
-export function getRowIndexByCodePoint(rows: Row[], codePoint: number): number {
-    function test(row: Row, codePoint: number): number {
-        if (codePoint < row.beginRange) {
-            return -1;
-        } else if (codePoint > row.endRange) {
-            return 1;
-        } else {
-            return 0;
-        }
+    static getRowInsertionIndex(rows: Row[], row: Row): number {
+        return _.sortedIndexBy(rows, row, Row.orderBy);
     }
 
-    function binarySearch(rows: Row[], low: number, high: number, codePoint: number): number {
-        if (low > high) {
-            return -1;
+    static getRowIndexByCodePoint(rows: Row[], codePoint: number): number {
+        function test(row: Row, codePoint: number): number {
+            if (codePoint < row.beginRange) {
+                return -1;
+            } else if (codePoint > row.endRange) {
+                return 1;
+            } else {
+                return 0;
+            }
         }
 
-        let mid = Math.floor(low + (high - low) / 2);
-        let testValue = test(rows[mid], codePoint);
-        if (testValue < 0) {
-            return binarySearch(rows, 0, mid - 1, codePoint);
-        } else if (testValue > 0) {
-            return binarySearch(rows, mid + 1, high, codePoint);
-        } else {
-            return mid; // found
+        function binarySearch(rows: Row[], low: number, high: number, codePoint: number): number {
+            if (low > high) {
+                return -1;
+            }
+
+            let mid = Math.floor(low + (high - low) / 2);
+            let testValue = test(rows[mid], codePoint);
+            if (testValue < 0) {
+                return binarySearch(rows, 0, mid - 1, codePoint);
+            } else if (testValue > 0) {
+                return binarySearch(rows, mid + 1, high, codePoint);
+            } else {
+                return mid; // found
+            }
         }
+
+        return binarySearch(rows, 0, rows.length - 1, codePoint);
     }
 
-    return binarySearch(rows, 0, rows.length - 1, codePoint);
+    static renderRows(rows: Row[]): string {
+        let out: string = "";
+        for (let row of rows) {
+            out += row.toString() + "\n";
+        }
+        return out;
+    }
+
 }
 
-export function renderRows(rows: Row[]): string {
-    let out: string = "";
-    for (let row of rows) {
-        out += row.toString() + "\n";
-    }
-    return out;
-}
+export = Row;

@@ -2,13 +2,9 @@
 // <reference path="row.ts" />
 // <reference path="Records.ts" />
 
-let Records = require('./Records');
-let UnicodeDataRecord = Records.UnicodeDataRecord;
-let MappingSource = require('./MappingSource').MappingSource;
-let RowModule = require('./row');
-let Row = RowModule.Row;
-let getRowInsertionIndex = RowModule.getRowInsertionIndex;
-let getRowIndexByCodePoint = RowModule.getRowIndexByCodePoint;
+import { UnicodeDataRecord } from './Records';
+import MappingSource = require('./MappingSource');
+import Row = require('./row');
 
 export function tests() {
     console.log("--- tests ---");
@@ -25,12 +21,12 @@ export function indexTests(rows: Row[]) {
     function tests() {
         !function () {
             console.log("\n--- TESTS (getRowIndexByCodePoint) ---");
-            let index = getRowIndexByCodePoint(rows, 0x43);
+            let index = Row.getRowIndexByCodePoint(rows, 0x43);
             console.log(index);
             console.log(rows[index].toString());
-            index = getRowIndexByCodePoint(rows, 0x10);
+            index = Row.getRowIndexByCodePoint(rows, 0x10);
             console.log(index);
-            index = getRowIndexByCodePoint(rows, 0xa7af);
+            index = Row.getRowIndexByCodePoint(rows, 0xa7af);
             console.log(index);
         }
 
@@ -40,7 +36,7 @@ export function indexTests(rows: Row[]) {
             console.log(row.toString());
             console.log(Row.orderBy(rows[0]));
             console.log(Row.orderBy(row));
-            let index = getRowInsertionIndex(rows, row);
+            let index = Row.getRowInsertionIndex(rows, row);
             console.log(`insertion point: ${index}`);
         }()
 
@@ -49,7 +45,7 @@ export function indexTests(rows: Row[]) {
             let row = new Row(MappingSource.UnicodeData, 0x100, [0, 32]);
             console.log(row.toString());
             console.log(Row.orderBy(row));
-            let index = getRowInsertionIndex(rows, row);
+            let index = Row.getRowInsertionIndex(rows, row);
             console.log(`insertion point: ${index}`);
         }()
     }
