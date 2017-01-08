@@ -1,16 +1,13 @@
 /// <reference path="typings/globals/node/index.d.ts" />
+/// <reference path="protos.d.ts" />
 
-/// <reference path="prototypes.ts" />
-
-// <reference path="./MappingSource.d.ts" />
-// <reference path="./Records.d.ts" />
-
-// import { MappingSource, MappingSourceToString } from 'MappingSource';
-
-let _ = require('lodash');
+const _ = require('lodash');
 import MappingSource = require('./MappingSource');
 import Utils = require('./Utils');
 import { UnicodeDataRecord, CaseFoldingRecord } from './Records';
+import { ExtendStringProto, ExtendNumberProto } from './prototypes'
+ExtendStringProto(String.prototype);
+ExtendNumberProto(Number.prototype);
 
 class Row {
     skipCount: number;

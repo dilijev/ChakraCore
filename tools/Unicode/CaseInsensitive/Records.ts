@@ -1,9 +1,9 @@
-//// <reference path="utils.ts" />
-/// <reference path="prototypes.ts" />
+/// <reference path="protos.d.ts" />
 
-// let _ = require('lodash');
-
-let Utils = require('./utils');
+import Utils = require('./utils');
+import { ExtendStringProto, ExtendNumberProto } from './prototypes'
+ExtendStringProto(String.prototype);
+ExtendNumberProto(Number.prototype);
 
 export class UnicodeDataRecord {
     // schema:
