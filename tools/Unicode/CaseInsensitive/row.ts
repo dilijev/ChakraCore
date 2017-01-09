@@ -2,8 +2,9 @@
 /// <reference path="protos.d.ts" />
 
 const _ = require('lodash');
-import MappingSource = require('./MappingSource');
-import Utils = require('./Utils');
+
+import MappingSource from './MappingSource';
+import * as Utils from './Utils';
 import { UnicodeDataRecord, CaseFoldingRecord } from './Records';
 import { ExtendStringProto, ExtendNumberProto } from './prototypes'
 ExtendStringProto(String.prototype);
@@ -121,7 +122,6 @@ class Row {
         }
         return out;
     }
-
 }
 
-export = Row;
+export default Row;

@@ -1,6 +1,6 @@
 /// <reference path="protos.d.ts" />
 
-import Utils = require('./utils');
+import * as Utils from './utils';
 import { ExtendStringProto, ExtendNumberProto } from './prototypes'
 ExtendStringProto(String.prototype);
 ExtendNumberProto(Number.prototype);

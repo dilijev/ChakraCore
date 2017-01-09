@@ -3,4 +3,4 @@ enum MappingSource {
     CaseFolding
 }
 
-export = MappingSource;
+export default MappingSource;

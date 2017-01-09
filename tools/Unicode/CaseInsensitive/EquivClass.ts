@@ -1,6 +1,6 @@
-import Row = require('./row');
-import MappingSource = require('./MappingSource');
-import Utils = require('./utils');
+import Row from './row';
+import MappingSource from './MappingSource';
+import * as Utils from './utils';
 
 class EquivClass {
     codePoints: number[]; // ensure that this is always in sorted order
@@ -15,7 +15,7 @@ class EquivClass {
         this.mappingSource = mappingSource;
     }
 
-    private normalize() {
+    private normalize(): void {
         this.codePoints = this.codePoints.sort(Utils.NumericOrder);
     }
 
@@ -47,4 +47,4 @@ class EquivClass {
     }
 }
 
-export = EquivClass;
+export default EquivClass;

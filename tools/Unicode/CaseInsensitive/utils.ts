@@ -1,4 +1,4 @@
-import MappingSource = require('./MappingSource');
+import MappingSource from './MappingSource';
 
 export const NumericOrder = (a, b) => a - b;
 

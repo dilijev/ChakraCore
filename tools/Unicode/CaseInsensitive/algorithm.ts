@@ -1,9 +1,4 @@
-// <reference path="Records.ts" />
-// <reference path="row.ts" />
-
-// import { Row } from './row';
-
-import Row = require('./row');
+import Row from './row';
 import { UnicodeDataRecord, CaseFoldingRecord } from './Records';
 
 export function processUnicodeData(data: string): Row[] {

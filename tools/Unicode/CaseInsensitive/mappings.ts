@@ -8,12 +8,10 @@
 const fs = require('fs');
 const _ = require('lodash');
 
-/// <reference path="prototypes.ts" />
-import Utils = require('./utils');
-import Tests = require('./tests');
-import Algorithm = require('./algorithm');
-import Records = require('./Records');
-import Row = require('./row');
+import * as Utils from './utils';
+import * as Tests from './tests';
+import * as Algorithm from './algorithm';
+import Row from './row';
 
 function main(unicodeDataFile: string, caseFoldingFile: string, outputFile: string) {
     // var stream = fs.createReadStream('sourcetable.csv').on('end', afterProcess);

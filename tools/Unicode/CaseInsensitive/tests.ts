@@ -1,10 +1,6 @@
-// <reference path="MappingSource.ts" />
-// <reference path="row.ts" />
-// <reference path="Records.ts" />
-
 import { UnicodeDataRecord } from './Records';
-import MappingSource = require('./MappingSource');
-import Row = require('./row');
+import MappingSource from './MappingSource';
+import Row from './row';
 
 export function tests() {
     console.log("--- tests ---");
