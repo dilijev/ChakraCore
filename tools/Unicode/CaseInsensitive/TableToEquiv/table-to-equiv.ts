@@ -1,13 +1,13 @@
-/// <reference path="../utils.ts" />
-
 // skipcount, source, rangeStart, rangeEnd, delta[0], delta[1], delta[2], delta[3]
 // 1, MappingSource::UnicodeData, 0x0041, 0x004a, 0, 32, 32, 32,
 // 2, MappingSource::UnicodeData, 0x0100, 0x012f, -1, 1, 1, 1,
 
-// var lazy = require('lazy');
+const fs = require('fs');
+const _ = require('lodash');
+import Utils = require('../utils');
 
 // smallest int as key -> [set of equivalent codes as ints (including self), sorted in ascending order]
-var codepointMap = {}
+let codepointMap = {}
 
 function processInt(val) {
     if (val.startsWith("0x")) {
@@ -60,12 +60,12 @@ function processLine(line) {
                     return ret;
                 }
             )
-            codepoints = codepoints.sort(NumericOrder);
+            codepoints = codepoints.sort(Utils.NumericOrder);
             var existingCodepoints = codepointMap[codepoints[0]];
             if (existingCodepoints !== undefined) {
                 codepoints.concat(existingCodepoints);
             }
-            codepoints = _(codepoints).sort(NumericOrder).uniq().value();
+            codepoints = _(codepoints).sort(Utils.NumericOrder).uniq().value();
 
             if (("" + codepoints[0]).length === 1) {
                 debugger;
@@ -84,34 +84,32 @@ function processData(data) {
 }
 
 function render() {
-    var out = "";
-    for (var x in codepointMap) {
+    let out = "";
+    for (let x in codepointMap) {
         var codepoints = codepointMap[x];
         var first = true;
-        for (var x of codepoints) {
+        for (let y of codepoints) {
             if (!first) out += ",";
             first = false;
-            out += toHex(x);
+            out += toHex(y);
         }
         out += "\n";
     }
     return out;
 }
 
-(function(fs, _) {
+function main() {
+    // var stream = fs.createReadStream('sourcetable.csv').on('end', afterProcess);
+    // new lazy(stream.data).lines.forEach(processLine);
 
-    (function() {
-        // var stream = fs.createReadStream('sourcetable.csv').on('end', afterProcess);
-        // new lazy(stream.data).lines.forEach(processLine);
+    // read the file all at once, which is okay because this is a simple tool which reads a small file
+    fs.readFile('../../sourcetable.csv', 'utf8', function (err, data) {
+        if (err) {
+            throw err;
+        }
+        processData(data);
+        Utils.writeOutput("./equiv.txt", render());
+    });
+}
 
-        // read the file all at once, which is okay because this is a simple tool which reads a small file
-        fs.readFile('../../sourcetable.csv', 'utf8', function (err, data) {
-            if (err) {
-                throw err;
-            }
-            processData(data);
-            writeOutput("./equiv.txt", render());
-        });
-    })();
-
-})(require('fs'), require('lodash'));
+main();
