@@ -1,0 +1,11 @@
+{
+  "name": "case-insensitive",
+  "version": "1.0.0",
+  "description": "Generate case-insensitive table for ChakraCore",
+  "main": "mappings.js",
+  "dependencies": {
+    "lodash": "^4.17.4"
+  },
+  "devDependencies": {},
+  "license": "MIT"
+}
