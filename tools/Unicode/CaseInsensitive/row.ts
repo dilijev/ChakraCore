@@ -17,15 +17,93 @@ class Row {
     endRange: number;
     deltas: number[];
 
-    static createFromUnicodeDataRecord(record: UnicodeDataRecord): Row {
-        let row = new Row(MappingSource.UnicodeData, record.codePoint, record.deltas);
-        row.skipCount = record.skipCount;
-        return row;
+    constructor(mappingSource: MappingSource, codePoint: number, deltas: number[], skipCount: number = 1) {
+        this.skipCount = skipCount;
+        this.mappingSource = mappingSource;
+        this.beginRange = this.endRange = codePoint;
+        this.deltas = Utils.canonicalizeDeltas(deltas);
     }
 
-    static createFromCaseFoldingRecord(record: CaseFoldingRecord): Row {
-        let row = new Row(MappingSource.CaseFolding, record.codePoint, Utils.canonicalizeDeltas([0, record.getDelta()]));
-        return row;
+    isCompatibleWith(other: Row | UnicodeDataRecord): boolean {
+        return this.skipCount === other.skipCount &&
+            this.deltas[0] === other.deltas[0] &&
+            this.deltas[1] === other.deltas[1] &&
+            this.deltas[2] === other.deltas[2] &&
+            this.deltas[3] === other.deltas[3];
+    }
+
+    equals(other: Row): boolean {
+        return this.beginRange == other.beginRange &&
+            this.endRange === other.endRange &&
+            this.mappingSource === other.mappingSource &&
+            this.isCompatibleWith(other);
+    }
+
+    toString(): string {
+        return `${this.skipCount}, ${Utils.MappingSourceToString(this.mappingSource)}, ` +
+            `${this.beginRange.toCppUnicodeHexString()}, ${this.endRange.toCppUnicodeHexString()}, ` +
+            `${this.deltas[0]}, ${this.deltas[1]}, ${this.deltas[2]}, ${this.deltas[3]},`;
+    }
+
+    private static areSubsequentRows(a: Row, b: Row): boolean {
+        return b.beginRange === (a.endRange + 1);
+    }
+
+    private static chooseMappingSource(a: Row, b: Row): MappingSource {
+        if (a.mappingSource === MappingSource.CaseFolding ||
+            b.mappingSource === MappingSource.CaseFolding) {
+            return MappingSource.CaseFolding;
+        } else {
+            return MappingSource.UnicodeData;
+        }
+    }
+
+    foldRow(other: Row): boolean {
+        if (this.equals(other)) {
+            // "fold" these together by making no changes
+            return true;
+        }
+
+        // can only fold subsequent, compatible entries
+        if (Row.areSubsequentRows(this, other) && this.isCompatibleWith(other)) {
+            this.endRange = other.endRange;
+            this.mappingSource = Row.chooseMappingSource(this, other);
+            return true;
+        }
+
+        return false;
+    }
+
+    static foldRows(rows: Row[]): Row[] {
+        const folded: Row[] = [];
+
+        let currentRow: Row = undefined;
+        for (const row of rows) {
+            if (currentRow) {
+                const success = currentRow.foldRow(row);
+                if (!success) {
+                    folded.push(currentRow);
+                    currentRow = row;
+                }
+            } else {
+                currentRow = row;
+            }
+        }
+
+        if (currentRow) {
+            folded.push(currentRow);
+            currentRow = undefined;
+        }
+
+        return folded;
+    }
+
+    static renderRows(rows: Row[]): string {
+        let out: string = "";
+        for (let row of rows) {
+            out += row.toString() + "\n";
+        }
+        return out;
     }
 
     // static orderBy(value: Row): [number, number] {
@@ -38,48 +116,19 @@ class Row {
         return "0x" + str.slice(-10);
     }
 
-    constructor(mappingSource: MappingSource, codePoint: number, deltas: number[]) {
-        this.skipCount = 1;
-        this.mappingSource = mappingSource;
-        this.beginRange = this.endRange = codePoint;
-        this.deltas = Utils.canonicalizeDeltas(deltas);
-
-        /*
-        // test value
-        this.skipCount = 1;
-        this.mappingSource = MappingSource.UnicodeData;
-        this.beginRange = 0;
-        this.endRange = 10;
-        this.deltas = [0, 32, 32, 32];
-        //*/
+    static Comparator(a: Row, b: Row): number {
+        if (a.beginRange !== b.beginRange) {
+            return a.beginRange - b.beginRange;
+        } else if (a.endRange !== b.endRange) {
+            return a.endRange - b.endRange;
+        } else {
+            return 0;
+        }
     }
 
-    // return true if the record was folded successfully, false otherwise
-    foldInUnicodeRecord(record: UnicodeDataRecord): boolean {
-        // can only fold subsequent entries
-        if (record.codePoint !== (this.endRange + 1)) {
-            return false;
-        }
-
-        if ((record.deltas[0] !== this.deltas[0])
-            || (record.deltas[1] !== this.deltas[1])
-            || (record.deltas[2] !== this.deltas[2])
-            || (record.deltas[3] !== this.deltas[3])) {
-            return false;
-        }
-        if (record.skipCount !== this.skipCount) {
-            return false;
-        }
-
-        ++this.endRange;
-        return true;
-    }
-
-    toString(): string {
-        return `${this.skipCount}, ${Utils.MappingSourceToString(this.mappingSource)}, ` +
-            `${this.beginRange.toCppUnicodeHexString()}, ${this.endRange.toCppUnicodeHexString()}, ` +
-            `${this.deltas[0]}, ${this.deltas[1]}, ${this.deltas[2]}, ${this.deltas[3]},`;
-    }
+    //
+    // TODO determine whether these are needed
+    //
 
     static getRowInsertionIndex(rows: Row[], row: Row): number {
         return _.sortedIndexBy(rows, row, Row.orderBy);
@@ -115,12 +164,28 @@ class Row {
         return binarySearch(rows, 0, rows.length - 1, codePoint);
     }
 
-    static renderRows(rows: Row[]): string {
-        let out: string = "";
-        for (let row of rows) {
-            out += row.toString() + "\n";
+    // TODO is this needed?
+    // return true if the record was folded successfully, false otherwise
+    foldInUnicodeRecord(record: UnicodeDataRecord): boolean {
+        // can only fold subsequent entries
+        if (record.codePoint !== (this.endRange + 1)) {
+            return false;
         }
-        return out;
+
+        if (!this.isCompatibleWith(record)) {
+            return false;
+        }
+
+        ++this.endRange;
+        return true;
+    }
+
+    static createFromUnicodeDataRecord(record: UnicodeDataRecord): Row {
+        return new Row(MappingSource.UnicodeData, record.codePoint, record.deltas, record.skipCount);
+    }
+
+    static createFromCaseFoldingRecord(record: CaseFoldingRecord): Row {
+        return new Row(MappingSource.CaseFolding, record.codePoint, Utils.canonicalizeDeltas([0, record.getDelta()]));
     }
 }
 

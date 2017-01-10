@@ -1,7 +1,53 @@
 import Row from './row';
 import { UnicodeDataRecord, CaseFoldingRecord } from './Records';
 
-export function processUnicodeData(data: string): Row[] {
+import EquivClass from './EquivClass';
+
+function processUnicodeDataLine(line: string): EquivClass {
+    return EquivClass.createFromUnicodeDataEntry(line);
+}
+
+function processUnicodeDataLines(lines: string[]): EquivClass[] {
+    const equivClasses: EquivClass[] = [];
+    for (const line of lines) {
+        const ec = processUnicodeDataLine(line);
+
+        if (ec.isSingleton()) {
+            // there's only one codepoint in this equivalence class, so there's no information to include in the table
+            continue;
+        }
+
+        if (ec.category === "Ll" || ec.category === "Lu") {
+            // console.log(JSON.stringify(ec));
+            equivClasses.push(ec);
+        }
+    }
+
+    return equivClasses;
+}
+
+export function processUnicodeData(data: string): EquivClass[] {
+    let lines: string[] = data.split(/\r?\n/);
+    const equivClasses: EquivClass[] = processUnicodeDataLines(lines);
+
+    console.log("Processed Unicode Data");
+    // console.log(JSON.stringify(equivClasses));
+
+    // check the values
+    for (const ec of equivClasses) {
+        console.log(ec.toString());
+        const rows = ec.toRows();
+        for (const row of rows) {
+            console.log(row.toString());
+        }
+    }
+
+    return equivClasses;
+}
+
+// --- old impl
+
+function processUnicodeDataIntoRows(data: string): Row[] {
     let lines: string[] = data.split(/\r?\n/);
 
     let rows: Row[] = [];
@@ -43,7 +89,7 @@ export function processUnicodeData(data: string): Row[] {
     return rows;
 }
 
-export function processCaseFoldingData(rows: Row[], data: string): Row[] {
+function processCaseFoldingDataIntoRows(rows: Row[], data: string): Row[] {
     let lines: string[] = data.split(/\r?\n/);
     for (let line of lines) {
         if (line.trim().length === 0) {

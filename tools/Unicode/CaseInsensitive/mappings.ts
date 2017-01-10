@@ -12,6 +12,7 @@ import * as Utils from './utils';
 import * as Tests from './tests';
 import * as Algorithm from './algorithm';
 import Row from './row';
+import EquivClass from './EquivClass'
 
 function main(unicodeDataFile: string, caseFoldingFile: string, outputFile: string) {
     // var stream = fs.createReadStream('sourcetable.csv').on('end', afterProcess);
@@ -20,17 +21,50 @@ function main(unicodeDataFile: string, caseFoldingFile: string, outputFile: stri
     console.log(`reading ${unicodeDataFile}`);
 
     // read the file all at once, which is okay because this is a simple tool which reads a relatively small file
-    let data = fs.readFileSync(unicodeDataFile, 'utf8');
-    let rows: Row[] = Algorithm.processUnicodeData(data);
+    const data = fs.readFileSync(unicodeDataFile, 'utf8');
+    const equivClasses: EquivClass[] = Algorithm.processUnicodeData(data);
 
-    console.log(`reading ${caseFoldingFile}`);
+    let rows: Row[] = [];
+    for (const ec of equivClasses) {
+        rows = rows.concat(ec.toRows());
+    }
 
-    data = fs.readFileSync(caseFoldingFile, 'utf8');
-    rows = Algorithm.processCaseFoldingData(rows, data); // augment Rows with CaseFolding
+    let a = rows.length;
+    rows = _(rows).sortBy(['beginRange', 'endRange']).sortedUniqBy('beginRange', 'endRange', 'mappingSource', 'deltas', 'skipCount').value();
+    let b = rows.length;
+    rows = Row.foldRows(rows);
+    let c = rows.length;
 
-    rows = _(rows).sortBy(Row.orderBy).value();
+    // check values
 
-    Tests.indexTests(rows); // FIXME comment out tests
+    // for (const row of rows) {
+    //     console.log(row.toString());
+    // }
+
+    // console.log(a);
+    // console.log(b);
+    // console.log(c);
+
+
+
+
+
+    //
+    // old algorithm
+    //
+
+    // console.log(`reading ${caseFoldingFile}`);
+
+    // data = fs.readFileSync(caseFoldingFile, 'utf8');
+    // rows = Algorithm.processCaseFoldingData(rows, data); // augment Rows with CaseFolding
+
+    // rows = _(rows).sortBy(Row.orderBy).value();
+
+    // Tests.indexTests(rows); // FIXME comment out tests
+
+    //
+    // RENDER OUTPUT
+    //
 
     console.log(`rendering output to ${outputFile}`);
 
