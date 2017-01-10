@@ -27,11 +27,18 @@ class EquivClass {
         const lowercase: number = (fields[13] || "").toCodepoint();
         const titlecase: number = (fields[14] || "").toCodepoint();
 
-        if (codePoint === 0x41) {
-            debugger;
-        }
-
         const equiv: EquivClass = new EquivClass(codePoint, MappingSource.UnicodeData, [uppercase, lowercase, titlecase], category);
+        return equiv;
+    }
+
+    static createFromCaseFoldingEntry(line: string): EquivClass {
+        const fields = line.trim().split(/\s*;\s*/);
+
+        const codePoint = parseInt(fields[0], 16);
+        const category = fields[1];
+        const mapping = parseInt(fields[2], 16);
+
+        const equiv: EquivClass = new EquivClass(codePoint, MappingSource.CaseFolding, [mapping], category);
         return equiv;
     }
 
@@ -103,8 +110,12 @@ class EquivClass {
 
     private isSpecialPairFormat(): boolean {
         const deltas = this.createDeltas(this.codePoints[0]);
-        return (deltas[0] === 0 && deltas[1] === 1) ||
-            (deltas[0] === -1 && deltas[1] === 0);
+        if (deltas.length === 2) {
+            return (deltas[0] === 0 && deltas[1] === 1) ||
+                (deltas[0] === -1 && deltas[1] === 0);
+        } else {
+            return false;
+        }
     }
 
     private createDeltas(baseCodePoint: number): number[] {

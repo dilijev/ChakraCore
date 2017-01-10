@@ -21,17 +21,37 @@ function main(unicodeDataFile: string, caseFoldingFile: string, outputFile: stri
     console.log(`reading ${unicodeDataFile}`);
 
     // read the file all at once, which is okay because this is a simple tool which reads a relatively small file
-    const data = fs.readFileSync(unicodeDataFile, 'utf8');
-    const equivClasses: EquivClass[] = Algorithm.processUnicodeData(data);
+    let data = fs.readFileSync(unicodeDataFile, 'utf8');
+    let unicodeEquivClasses: EquivClass[] = Algorithm.processUnicodeData(data);
 
     let rows: Row[] = [];
-    for (const ec of equivClasses) {
+    for (const ec of unicodeEquivClasses) {
+        rows = rows.concat(ec.toRows());
+    }
+
+    console.log(`reading ${caseFoldingFile}`);
+
+    data = fs.readFileSync(caseFoldingFile, 'utf8');
+    let caseFoldingEquivClasses: EquivClass[] = Algorithm.processCaseFoldingData(data);
+
+    // sanity check
+    // for (const ec of caseFoldingEquivClasses) {
+         // console.log(ec.toString());
+    // }
+
+    for (const ec of caseFoldingEquivClasses) {
         rows = rows.concat(ec.toRows());
     }
 
     let a = rows.length;
-    rows = _(rows).sortBy(['beginRange', 'endRange']).sortedUniqBy('beginRange', 'endRange', 'mappingSource', 'deltas', 'skipCount').value();
+    rows = _(rows).sortBy(['beginRange', 'endRange']).sortedUniqBy('beginRange', 'endRange', 'deltas', 'mappingSource', 'skipCount').value();
     let b = rows.length;
+
+    // sanity check
+    for (const row of rows) {
+        console.log(row.toString());
+    }
+
     rows = Row.foldRows(rows);
     let c = rows.length;
 
@@ -53,12 +73,6 @@ function main(unicodeDataFile: string, caseFoldingFile: string, outputFile: stri
     // old algorithm
     //
 
-    // console.log(`reading ${caseFoldingFile}`);
-
-    // data = fs.readFileSync(caseFoldingFile, 'utf8');
-    // rows = Algorithm.processCaseFoldingData(rows, data); // augment Rows with CaseFolding
-
-    // rows = _(rows).sortBy(Row.orderBy).value();
 
     // Tests.indexTests(rows); // FIXME comment out tests
 

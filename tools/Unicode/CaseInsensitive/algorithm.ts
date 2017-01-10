@@ -3,22 +3,45 @@ import { UnicodeDataRecord, CaseFoldingRecord } from './Records';
 
 import EquivClass from './EquivClass';
 
-function processUnicodeDataLine(line: string): EquivClass {
-    return EquivClass.createFromUnicodeDataEntry(line);
+function processData(data: string, processLines: (string) => EquivClass[]) {
+    let lines: string[] = data.split(/\r?\n/);
+    const equivClasses: EquivClass[] = processLines(lines);
+
+    // console.log("Processed Unicode Data");
+    // console.log(JSON.stringify(equivClasses));
+
+    // check the values
+    // for (const ec of equivClasses) {
+    //     // console.log(ec.toString());
+    //     const rows = ec.toRows();
+    //     for (const row of rows) {
+    //         // console.log(row.toString());
+    //     }
+    // }
+
+    return equivClasses;
+}
+
+export function processCaseFoldingData(data: string): EquivClass[] {
+    return processData(data, processCaseFoldingLines);
+}
+
+export function processUnicodeData(data: string): EquivClass[] {
+    return processData(data, processUnicodeDataLines);
 }
 
 function processUnicodeDataLines(lines: string[]): EquivClass[] {
     const equivClasses: EquivClass[] = [];
     for (const line of lines) {
-        const ec = processUnicodeDataLine(line);
+        const ec = EquivClass.createFromUnicodeDataEntry(line);
 
         if (ec.isSingleton()) {
             // there's only one codepoint in this equivalence class, so there's no information to include in the table
             continue;
         }
 
+        // Only interested in mapping uppercase and lowercase letters (categories Ll and Lu)
         if (ec.category === "Ll" || ec.category === "Lu") {
-            // console.log(JSON.stringify(ec));
             equivClasses.push(ec);
         }
     }
@@ -26,19 +49,19 @@ function processUnicodeDataLines(lines: string[]): EquivClass[] {
     return equivClasses;
 }
 
-export function processUnicodeData(data: string): EquivClass[] {
-    let lines: string[] = data.split(/\r?\n/);
-    const equivClasses: EquivClass[] = processUnicodeDataLines(lines);
+function processCaseFoldingLines(lines: string[]): EquivClass[] {
+    const equivClasses: EquivClass[] = [];
+    for (const line of lines) {
+        const ec = EquivClass.createFromCaseFoldingEntry(line);
 
-    console.log("Processed Unicode Data");
-    // console.log(JSON.stringify(equivClasses));
+        if (ec.isSingleton()) {
+            // there's only one codepoint in this equivalence class, so there's no information to include in the table
+            continue;
+        }
 
-    // check the values
-    for (const ec of equivClasses) {
-        console.log(ec.toString());
-        const rows = ec.toRows();
-        for (const row of rows) {
-            console.log(row.toString());
+        // C + S = simple case folding, which is all we're interested in doing here
+        if (ec.category === "C" || ec.category === "S") {
+            equivClasses.push(ec);
         }
     }
 
