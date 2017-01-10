@@ -1,4 +1,6 @@
 import MappingSource from './MappingSource';
+import Row from './row';
+import EquivClass from './EquivClass';
 
 export const NumericOrder = (a, b) => a - b;
 
@@ -39,5 +41,14 @@ export function MappingSourceToString(source: MappingSource): string {
             return "MappingSource::UnicodeData";
         default:
             return undefined;
+    }
+}
+
+export function chooseMappingSource(a: Row | EquivClass, b: Row | EquivClass): MappingSource {
+    if (a.mappingSource === MappingSource.CaseFolding ||
+        b.mappingSource === MappingSource.CaseFolding) {
+        return MappingSource.CaseFolding;
+    } else {
+        return MappingSource.UnicodeData;
     }
 }

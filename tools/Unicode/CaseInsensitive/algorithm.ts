@@ -54,13 +54,19 @@ function processCaseFoldingLines(lines: string[]): EquivClass[] {
     for (const line of lines) {
         const ec = EquivClass.createFromCaseFoldingEntry(line);
 
+        if (!ec) {
+            continue;
+        }
+
         if (ec.isSingleton()) {
             // there's only one codepoint in this equivalence class, so there's no information to include in the table
             continue;
         }
 
         // C + S = simple case folding, which is all we're interested in doing here
-        if (ec.category === "C" || ec.category === "S") {
+        // T = turkish case mapping which should be ignored -- noting here because UnicodeData contains these mappings
+        // We need remove the T mappings from the set when folding.
+        if (ec.category === "C" || ec.category === "S" || ec.category === "T") {
             equivClasses.push(ec);
         }
     }
@@ -82,7 +88,8 @@ function processUnicodeDataIntoRows(data: string): Row[] {
         }
 
         let record = new UnicodeDataRecord(line);
-        if (record.category === "Ll" || record.category === "Lu") {
+        if (//record.category === "Ll" ||
+            record.category === "Lu") {
             if (record.numUniqueDeltas === 1) {
                 continue; // singleton, no information to include in the table
             }

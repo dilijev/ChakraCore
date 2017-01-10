@@ -22,32 +22,54 @@ function main(unicodeDataFile: string, caseFoldingFile: string, outputFile: stri
 
     // read the file all at once, which is okay because this is a simple tool which reads a relatively small file
     let data = fs.readFileSync(unicodeDataFile, 'utf8');
-    let unicodeEquivClasses: EquivClass[] = Algorithm.processUnicodeData(data);
-
-    let rows: Row[] = [];
-    for (const ec of unicodeEquivClasses) {
-        rows = rows.concat(ec.toRows());
-    }
+    const unicodeEquivClasses: EquivClass[] = Algorithm.processUnicodeData(data);
 
     console.log(`reading ${caseFoldingFile}`);
 
     data = fs.readFileSync(caseFoldingFile, 'utf8');
-    let caseFoldingEquivClasses: EquivClass[] = Algorithm.processCaseFoldingData(data);
+    const caseFoldingEquivClasses: EquivClass[] = Algorithm.processCaseFoldingData(data);
 
-    // sanity check
-    // for (const ec of caseFoldingEquivClasses) {
-         // console.log(ec.toString());
-    // }
+    let equivClasses: EquivClass[] = unicodeEquivClasses.concat(caseFoldingEquivClasses);
+    equivClasses = _(equivClasses).sortBy([
+        (x: EquivClass) => x.codePoints[0],
+        (x: EquivClass) => x.codePoints[1],
+        'mappingSource']).value();
 
-    for (const ec of caseFoldingEquivClasses) {
+    equivClasses = EquivClass.foldEntries(equivClasses);
+
+    console.log("-------------");
+    for (const ec of equivClasses) {
+        console.log(ec.toString());
+    }
+
+    //*
+
+    let rows: Row[] = [];
+    for (const ec of equivClasses) {
         rows = rows.concat(ec.toRows());
     }
 
     let a = rows.length;
-    rows = _(rows).sortBy(['beginRange', 'endRange']).sortedUniqBy('beginRange', 'endRange', 'deltas', 'mappingSource', 'skipCount').value();
+    const ordering = ['beginRange', 'endRange', 'mappingSource',
+        (x: Row) => x.deltas[0],
+        (x: Row) => x.deltas[1],
+        (x: Row) => x.deltas[2],
+        (x: Row) => x.deltas[3],
+        'skipCount'];
+
+    rows = _(rows).sortBy(ordering).value();
+
+    console.log("-------------");
+    for (const row of rows) {
+        console.log(row.toString());
+    }
+
+    _(rows).sortedUniqBy(ordering).value();
+
     let b = rows.length;
 
     // sanity check
+    console.log("-------------");
     for (const row of rows) {
         console.log(row.toString());
     }
@@ -55,36 +77,21 @@ function main(unicodeDataFile: string, caseFoldingFile: string, outputFile: stri
     rows = Row.foldRows(rows);
     let c = rows.length;
 
-    // check values
-
-    // for (const row of rows) {
-    //     console.log(row.toString());
-    // }
-
-    // console.log(a);
-    // console.log(b);
-    // console.log(c);
-
-
-
-
-
-    //
-    // old algorithm
-    //
-
-
-    // Tests.indexTests(rows); // FIXME comment out tests
-
     //
     // RENDER OUTPUT
     //
 
+    console.log("-------------");
     console.log(`rendering output to ${outputFile}`);
 
     const blob: string = Row.renderRows(rows);
     // console.log(blob);
     Utils.writeOutput(outputFile, blob);
+
+    const blobLong = Row.renderRowsLong(rows);
+    Utils.writeOutput(outputFile + ".log", blobLong);
+
+    //*/
 }
 
 const args = Utils.getArgs();

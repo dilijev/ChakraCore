@@ -20,6 +20,7 @@ class EquivClass {
 
     static createFromUnicodeDataEntry(line: string): EquivClass {
         const fields = line.trim().split(/\s*;\s*/);
+
         const codePoint = parseInt(fields[0], 16);
         const category: string = fields[2];
 
@@ -32,7 +33,13 @@ class EquivClass {
     }
 
     static createFromCaseFoldingEntry(line: string): EquivClass {
-        const fields = line.trim().split(/\s*;\s*/);
+        const sanitizedLine: string = line.trim().replace(/(; )?#.*$/, "");
+        if (!sanitizedLine) {
+            // handle empty lines
+            return undefined;
+        }
+
+        const fields: string[] = sanitizedLine.split(/;\s*/);
 
         const codePoint = parseInt(fields[0], 16);
         const category = fields[1];
@@ -51,7 +58,7 @@ class EquivClass {
 
     private normalize(): void {
         this.codePoints = _(this.codePoints)
-            .filter(x => typeof x === "number")
+            .filter(x => typeof x === "number" && x !== 0x131 && x !== 0x130) // explicitly remove Turkish mappings
             .sort(Utils.NumericOrder)
             .uniq().value();
     }
@@ -101,6 +108,10 @@ class EquivClass {
     }
 
     toString(): string {
+        return `${this.category}, ${Utils.MappingSourceToString(this.mappingSource)}, ${this.render()}`;
+    }
+
+    render(): string {
         let s = "";
         for (const codePoint of this.codePoints) {
             s += codePoint.toCppUnicodeHexString() + ",";
@@ -124,6 +135,91 @@ class EquivClass {
             deltas.push(x - baseCodePoint);
         }
         return deltas;
+    }
+
+    private codePointsEqual(other: EquivClass): boolean {
+        if (this.codePoints.length !== other.codePoints.length) {
+            return false;
+        }
+
+        for (const i in this.codePoints) {
+            if (this.codePoints[i] !== other.codePoints[i]) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private dropCodePoint(codePoint: number): void {
+        this.codePoints = _(this.codePoints).filter(x => x !== codePoint).value();
+    }
+
+    private extendSet(other: EquivClass): boolean {
+        const startLength = this.codePoints.length;
+        const origSet = this.codePoints;
+        this.codePoints = this.codePoints.concat(other.codePoints);
+        this.normalize();
+        const endLength = this.codePoints.length;
+
+        if (endLength > startLength) {
+            return true;
+        } else {
+            this.codePoints = origSet;
+            return false;
+        }
+    }
+
+    private isCompatibleWith(other: EquivClass): boolean {
+        return this.codePoints[0] === other.codePoints[0];
+    }
+
+    private fold(other: EquivClass): boolean {
+        if (!this.isCompatibleWith(other)) {
+            return false;
+        }
+
+        // if codepoints equal, fold trivially by ignoring other
+        if (this.codePointsEqual(other)) {
+            return true;
+        }
+
+        // Drop the Turkish mapping from the set when folding
+        if (other.category === "T") {
+            this.dropCodePoint(other.codePoints[1]);
+            return true;
+        }
+
+        if (this.extendSet(other)) {
+            this.mappingSource = Utils.chooseMappingSource(this, other);
+            return true;
+        }
+
+        return false;
+    }
+
+    static foldEntries(equivClasses: EquivClass[]): EquivClass[] {
+        const folded: EquivClass[] = [];
+
+        let current: EquivClass = undefined;
+        for (const ec of equivClasses) {
+            if (current) {
+                const success = current.fold(ec);
+                if (!success) {
+                    folded.push(current);
+                    current = ec;
+                }
+            } else {
+                current = ec;
+            }
+        }
+
+        if (current) {
+            folded.push(current);
+            current = undefined;
+        }
+
+        return folded;
     }
 }
 

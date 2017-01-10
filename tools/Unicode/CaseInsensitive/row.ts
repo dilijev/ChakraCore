@@ -24,9 +24,8 @@ class Row {
         this.deltas = Utils.canonicalizeDeltas(deltas);
     }
 
-    isCompatibleWith(other: Row | UnicodeDataRecord): boolean {
-        return this.skipCount === other.skipCount &&
-            this.deltas[0] === other.deltas[0] &&
+    private deltasEqual(other: Row | UnicodeDataRecord): boolean {
+        return this.deltas[0] === other.deltas[0] &&
             this.deltas[1] === other.deltas[1] &&
             this.deltas[2] === other.deltas[2] &&
             this.deltas[3] === other.deltas[3];
@@ -36,7 +35,8 @@ class Row {
         return this.beginRange == other.beginRange &&
             this.endRange === other.endRange &&
             this.mappingSource === other.mappingSource &&
-            this.isCompatibleWith(other);
+            this.skipCount === other.skipCount &&
+            this.deltasEqual(other);
     }
 
     toString(): string {
@@ -45,29 +45,51 @@ class Row {
             `${this.deltas[0]}, ${this.deltas[1]}, ${this.deltas[2]}, ${this.deltas[3]},`;
     }
 
+    toStringLong(): string {
+        const longs: string[] = this.deltas.map(x => (x + this.beginRange).toCppUnicodeHexString());
+        return `${this.skipCount}, ${Utils.MappingSourceToString(this.mappingSource)}, ` +
+            `${this.beginRange.toCppUnicodeHexString()}, ${this.endRange.toCppUnicodeHexString()}, ` +
+            `${this.deltas[0]}, ${this.deltas[1]}, ${this.deltas[2]}, ${this.deltas[3]},` +
+            `# ${longs[0]}, ${longs[1]}, ${longs[2]}, ${longs[3]},`;
+    }
+
     private static areSubsequentRows(a: Row, b: Row): boolean {
         return b.beginRange === (a.endRange + 1);
     }
 
-    private static chooseMappingSource(a: Row, b: Row): MappingSource {
-        if (a.mappingSource === MappingSource.CaseFolding ||
-            b.mappingSource === MappingSource.CaseFolding) {
-            return MappingSource.CaseFolding;
-        } else {
-            return MappingSource.UnicodeData;
-        }
+    private canExtendRange(other: Row | UnicodeDataRecord): boolean {
+        return this.skipCount === other.skipCount &&
+            this.deltasEqual(other);
     }
 
-    foldRow(other: Row): boolean {
+    private canMergeDeltas(other: Row): boolean {
+        return this.beginRange === other.beginRange &&
+            this.endRange === other.endRange &&
+            this.skipCount === other.skipCount;
+    }
+
+    private mergeDeltas(other: Row): void {
+        this.deltas = Utils.canonicalizeDeltas(_(this.deltas.concat(other.deltas)).sort(Utils.NumericOrder).uniq().value());
+        // TODO REVIEW this will always choose CaseFolding if it was involved, even if it didn't add anything
+        this.mappingSource = Utils.chooseMappingSource(this, other);
+    }
+
+    private fold(other: Row): boolean {
         if (this.equals(other)) {
             // "fold" these together by making no changes
             return true;
         }
 
+        // fold entries with the same range by merging the delta lists
+        if (this.canMergeDeltas(other)) {
+            this.mergeDeltas(other);
+            return true;
+        }
+
         // can only fold subsequent, compatible entries
-        if (Row.areSubsequentRows(this, other) && this.isCompatibleWith(other)) {
+        if (Row.areSubsequentRows(this, other) && this.canExtendRange(other)) {
             this.endRange = other.endRange;
-            this.mappingSource = Row.chooseMappingSource(this, other);
+            this.mappingSource = Utils.chooseMappingSource(this, other);
             return true;
         }
 
@@ -80,7 +102,7 @@ class Row {
         let currentRow: Row = undefined;
         for (const row of rows) {
             if (currentRow) {
-                const success = currentRow.foldRow(row);
+                const success = currentRow.fold(row);
                 if (!success) {
                     folded.push(currentRow);
                     currentRow = row;
@@ -102,6 +124,14 @@ class Row {
         let out: string = "";
         for (let row of rows) {
             out += row.toString() + "\n";
+        }
+        return out;
+    }
+
+    static renderRowsLong(rows: Row[]): string {
+        let out: string = "";
+        for (let row of rows) {
+            out += row.toStringLong() + "\n";
         }
         return out;
     }
@@ -172,7 +202,7 @@ class Row {
             return false;
         }
 
-        if (!this.isCompatibleWith(record)) {
+        if (!this.canExtendRange(record)) {
             return false;
         }
 
