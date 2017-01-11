@@ -10,6 +10,9 @@ function main(inFile: string, outFile: string) {
 
     const rows: Row[] = [];
     for (const line of lines) {
+        if (!line.trim()) {
+            continue;
+        }
         const row : Row = Row.createFromSourceLine(line);
         rows.push(row);
     }

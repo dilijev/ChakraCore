@@ -107,7 +107,7 @@ class EquivClass {
         if (this.isSpecialPairFormat()) {
             // TODO this is probably the wrong place to make this decision (needs to be done when folding rows)
             const deltas = [-1, 1]; // special value for deltas for skipCount === 2
-            const skipCount = 1;
+            const skipCount = 2;
 
             const row = new Row(this.mappingSource, this.codePoints[0], deltas, skipCount)
             // this Row now represents 2 entries to adjust the range so folding works correctly

@@ -31,6 +31,10 @@ class Row {
         (x: Row) => x.deltas[3],
         'skipCount'];
 
+    private uniqueDeltaCount() : number {
+        return _(this.deltas).uniq().value().length;
+    }
+
     private deltasEqual(other: Row | UnicodeDataRecord): boolean {
         return this.deltas[0] === other.deltas[0] &&
             this.deltas[1] === other.deltas[1] &&
@@ -215,6 +219,12 @@ class Row {
 
         ++this.endRange;
         return true;
+    }
+
+    adjustForTriviality(): void {
+        if (this.uniqueDeltaCount() > 2) {
+            this.mappingSource = MappingSource.CaseFolding;
+        }
     }
 
     static createFromSourceLine(line: string): Row {

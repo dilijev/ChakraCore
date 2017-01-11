@@ -80,6 +80,13 @@ function main(unicodeDataFile: string, caseFoldingFile: string, outputFile: stri
     }
 
     rows = Row.foldRows(rows);
+
+    // REVIEW: this is a normalization change to keep format as close as possible to the original with a focus on intent of the encoding
+    // handling the "non-trivial" case here (use CaseFolding for non-trivial >2 equivalence classes)
+    for (const row of rows) {
+        row.adjustForTriviality();
+    }
+
     let c = rows.length;
 
     //
