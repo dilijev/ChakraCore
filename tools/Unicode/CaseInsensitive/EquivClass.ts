@@ -14,6 +14,14 @@ class EquivClass {
     mappingSource: MappingSource;
     category: string;
 
+    static SortBy = [
+        (x: EquivClass) => x.codePoints[0],
+        (x: EquivClass) => x.codePoints[1],
+        (x: EquivClass) => x.codePoints[2],
+        (x: EquivClass) => x.codePoints[3],
+        // 'mappingSource'
+        ];
+
     // TODO is it useful to define Order? Do we need to sort a collection of these?
     // static Order() {
     // }
@@ -63,6 +71,14 @@ class EquivClass {
             .uniq().value();
     }
 
+    /*
+    Retrieves the key for this EquivClass, which is the smallest codePoint of the equivalence class.
+    This codepoint is guaranteed to be the first in the list because that list is sorted by Utils.NumericOrder
+    */
+    getKey() : number {
+        return this.codePoints[0];
+    }
+
     isSingleton(): boolean {
         return this.codePoints.length === 1;
     }
@@ -89,6 +105,7 @@ class EquivClass {
 
         // special case to produce rows with skipCount == 2
         if (this.isSpecialPairFormat()) {
+            // TODO this is probably the wrong place to make this decision (needs to be done when folding rows)
             const deltas = [-1, 1]; // special value for deltas for skipCount === 2
             const skipCount = 1;
 
@@ -155,7 +172,7 @@ class EquivClass {
         this.codePoints = _(this.codePoints).filter(x => x !== codePoint).value();
     }
 
-    private extendSet(other: EquivClass): boolean {
+    extendSet(other: EquivClass): boolean {
         const startLength = this.codePoints.length;
         const origSet = this.codePoints;
         this.codePoints = this.codePoints.concat(other.codePoints);
@@ -163,6 +180,8 @@ class EquivClass {
         const endLength = this.codePoints.length;
 
         if (endLength > startLength) {
+            // if it was extended then go ahead and update the mapping source
+            // this.mappingSource = Utils.chooseMappingSource(this, other); // TODO REVIEW does this make sense here?
             return true;
         } else {
             this.codePoints = origSet;
@@ -174,7 +193,7 @@ class EquivClass {
         return this.codePoints[0] === other.codePoints[0];
     }
 
-    private fold(other: EquivClass): boolean {
+    fold(other: EquivClass): boolean {
         if (!this.isCompatibleWith(other)) {
             return false;
         }
@@ -191,36 +210,13 @@ class EquivClass {
         }
 
         if (this.extendSet(other)) {
-            this.mappingSource = Utils.chooseMappingSource(this, other);
+            this.mappingSource = Utils.chooseMappingSource(this, other); // TODO REVIEW does this make sense here?
             return true;
         }
 
         return false;
     }
 
-    static foldEntries(equivClasses: EquivClass[]): EquivClass[] {
-        const folded: EquivClass[] = [];
-
-        let current: EquivClass = undefined;
-        for (const ec of equivClasses) {
-            if (current) {
-                const success = current.fold(ec);
-                if (!success) {
-                    folded.push(current);
-                    current = ec;
-                }
-            } else {
-                current = ec;
-            }
-        }
-
-        if (current) {
-            folded.push(current);
-            current = undefined;
-        }
-
-        return folded;
-    }
 }
 
 export default EquivClass;

@@ -13,30 +13,43 @@ import * as Tests from './tests';
 import * as Algorithm from './algorithm';
 import Row from './row';
 import EquivClass from './EquivClass'
+import EquivClassTable from './EquivClassTable'
 
 function main(unicodeDataFile: string, caseFoldingFile: string, outputFile: string) {
-    // var stream = fs.createReadStream('sourcetable.csv').on('end', afterProcess);
-    // new lazy(stream.data).lines.forEach(processLine);
-
     console.log(`reading ${unicodeDataFile}`);
-
-    // read the file all at once, which is okay because this is a simple tool which reads a relatively small file
     let data = fs.readFileSync(unicodeDataFile, 'utf8');
     const unicodeEquivClasses: EquivClass[] = Algorithm.processUnicodeData(data);
 
     console.log(`reading ${caseFoldingFile}`);
-
     data = fs.readFileSync(caseFoldingFile, 'utf8');
     const caseFoldingEquivClasses: EquivClass[] = Algorithm.processCaseFoldingData(data);
 
     let equivClasses: EquivClass[] = unicodeEquivClasses.concat(caseFoldingEquivClasses);
-    equivClasses = _(equivClasses).sortBy([
-        (x: EquivClass) => x.codePoints[0],
-        (x: EquivClass) => x.codePoints[1],
-        'mappingSource']).value();
 
-    equivClasses = EquivClass.foldEntries(equivClasses);
+    let ecTable: EquivClassTable = new EquivClassTable(equivClasses);
+    ecTable.sort();
 
+    // sanity check
+    equivClasses = ecTable.getClasses();
+    console.log("-------------");
+    for (const ec of equivClasses) {
+        console.log(ec.toString());
+    }
+
+    ecTable.foldEntries();
+
+    // sanity check
+    equivClasses = ecTable.getClasses();
+    console.log("-------------");
+    for (const ec of equivClasses) {
+        console.log(ec.toString());
+    }
+
+    console.log("transitiveClosure:");
+    ecTable.transitiveClosure();
+
+    // sanity check
+    equivClasses = ecTable.getClasses();
     console.log("-------------");
     for (const ec of equivClasses) {
         console.log(ec.toString());
@@ -44,27 +57,19 @@ function main(unicodeDataFile: string, caseFoldingFile: string, outputFile: stri
 
     //*
 
-    let rows: Row[] = [];
-    for (const ec of equivClasses) {
-        rows = rows.concat(ec.toRows());
-    }
+    let rows: Row[] = ecTable.getRows();
 
     let a = rows.length;
-    const ordering = ['beginRange', 'endRange', 'mappingSource',
-        (x: Row) => x.deltas[0],
-        (x: Row) => x.deltas[1],
-        (x: Row) => x.deltas[2],
-        (x: Row) => x.deltas[3],
-        'skipCount'];
 
-    rows = _(rows).sortBy(ordering).value();
+    rows = _(rows).sortBy([Row.orderBy]).value();
 
     console.log("-------------");
     for (const row of rows) {
         console.log(row.toString());
     }
 
-    _(rows).sortedUniqBy(ordering).value();
+    // TODO this doesn't seem to actually work -- need to make a single function to return a value which can be used to figure out the uniqness issue.
+    // _(rows).sortedUniqBy(ordering).value();
 
     let b = rows.length;
 

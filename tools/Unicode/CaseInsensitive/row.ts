@@ -24,6 +24,13 @@ class Row {
         this.deltas = Utils.canonicalizeDeltas(deltas);
     }
 
+    static SortBy = ['beginRange', 'endRange', 'mappingSource',
+        (x: Row) => x.deltas[0],
+        (x: Row) => x.deltas[1],
+        (x: Row) => x.deltas[2],
+        (x: Row) => x.deltas[3],
+        'skipCount'];
+
     private deltasEqual(other: Row | UnicodeDataRecord): boolean {
         return this.deltas[0] === other.deltas[0] &&
             this.deltas[1] === other.deltas[1] &&
@@ -208,6 +215,22 @@ class Row {
 
         ++this.endRange;
         return true;
+    }
+
+    static createFromSourceLine(line: string): Row {
+        const fields: string[] = line.trim().split(/,\s*/);
+
+        let skipCount: number = parseInt(fields[0]);
+        let mappingSource: MappingSource = Utils.StringToMappingSource(fields[1]);
+        let beginRange: number = parseInt(fields[2], 16);
+        let endRange = parseInt(fields[3], 16);
+        let deltas = [parseInt(fields[4]), parseInt(fields[5]), parseInt(fields[6]), parseInt(fields[7])];
+        deltas = Utils.canonicalizeDeltas(deltas);
+
+        let row = new Row(mappingSource, beginRange, deltas, skipCount);
+        row.endRange = endRange;
+
+        return row;
     }
 
     static createFromUnicodeDataRecord(record: UnicodeDataRecord): Row {

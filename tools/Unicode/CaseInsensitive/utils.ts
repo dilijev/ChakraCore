@@ -33,6 +33,16 @@ export function getArgs(): string[] {
     return args;
 }
 
+export function StringToMappingSource(str: string): MappingSource {
+    if (str == "MappingSource::CaseFolding") {
+        return MappingSource.CaseFolding;
+    } else if (str == "MappingSource::UnicodeData") {
+        return MappingSource.UnicodeData;
+    } else {
+        return undefined;
+    }
+}
+
 export function MappingSourceToString(source: MappingSource): string {
     switch (source) {
         case MappingSource.CaseFolding:
