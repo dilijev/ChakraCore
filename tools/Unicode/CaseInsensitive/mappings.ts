@@ -80,6 +80,7 @@ function main(unicodeDataFile: string, caseFoldingFile: string, outputFile: stri
     }
 
     rows = Row.foldRows(rows);
+    rows = Row.expandRows(rows);
 
     // REVIEW: this is a normalization change to keep format as close as possible to the original with a focus on intent of the encoding
     // handling the "non-trivial" case here (use CaseFolding for non-trivial >2 equivalence classes)

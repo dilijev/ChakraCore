@@ -31,8 +31,12 @@ class Row {
         (x: Row) => x.deltas[3],
         'skipCount'];
 
-    private uniqueDeltaCount() : number {
-        return _(this.deltas).uniq().value().length;
+    private getUniqueDeltas(): number[] {
+        return _(this.deltas).uniq().value();
+    }
+
+    private getUniqueDeltaCount(): number {
+        return this.getUniqueDeltas().length;
     }
 
     private deltasEqual(other: Row | UnicodeDataRecord): boolean {
@@ -131,6 +135,34 @@ class Row {
         return folded;
     }
 
+    private containsSinglePair(): boolean {
+        return (this.beginRange + 1) === this.endRange;
+    }
+
+    private isPairFormat(): boolean {
+        const uniqueDeltas: number[] = this.getUniqueDeltas();
+        return this.skipCount == 2 &&
+            this.getUniqueDeltaCount() == 2 &&
+            uniqueDeltas[0] == -1 && uniqueDeltas[1] == 1;
+    }
+
+    // REVIEW: format normalization: skipCount==2 entries which contain only a single pair should be unrolled.
+    static expandRows(rows: Row[]): Row[] {
+        const expanded: Row[] = [];
+        let currentRow: Row = undefined;
+        for (const row of rows) {
+            if (row.isPairFormat() && row.containsSinglePair()) {
+                const row1 = new Row(row.mappingSource, row.beginRange, [0, 1], 1);
+                const row2 = new Row(row.mappingSource, row.endRange, [-1, 0], 1);
+                expanded.push(row1);
+                expanded.push(row2);
+            } else {
+                expanded.push(row);
+            }
+        }
+        return expanded;
+    }
+
     static renderRows(rows: Row[]): string {
         let out: string = "";
         for (let row of rows) {
@@ -221,10 +253,17 @@ class Row {
         return true;
     }
 
+    // REVIEW: format normalization: try to determine "mappingSource" based on complexity to match previously-generated table
     adjustForTriviality(): void {
-        if (this.uniqueDeltaCount() > 2) {
-            this.mappingSource = MappingSource.CaseFolding;
-        }
+        // option 1
+        // if (this.uniqueDeltaCount() > 2) {
+        //     // this.mappingSource = MappingSource.CaseFolding;
+        // }
+
+        // option 2
+        // if (this.uniqueDeltaCount() == 2) {
+        //     this.mappingSource = MappingSource.UnicodeData;
+        // }
     }
 
     static createFromSourceLine(line: string): Row {
