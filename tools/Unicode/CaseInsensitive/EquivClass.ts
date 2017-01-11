@@ -136,6 +136,17 @@ class EquivClass {
         return s;
     }
 
+    renderRegressionTests(): string {
+        let s = "";
+        for (const codePoint of this.codePoints) {
+            for (const testPoint of this.codePoints) {
+                // s += `assertCaseInsensitiveMatch(/\\u{${codePoint.toUnicodeHexString()}}/iu, '\\u{${testPoint.toUnicodeHexString()}}');\n`
+                s += `assertCaseInsensitiveMatch(/\\u{${codePoint.toUnicodeHexString()}}/iu, ${testPoint}, '\\u{${testPoint.toUnicodeHexString()}}');\n`
+            }
+        }
+        return s;
+    }
+
     private isSpecialPairFormat(): boolean {
         const deltas = this.createDeltas(this.codePoints[0]);
         if (deltas.length === 2) {

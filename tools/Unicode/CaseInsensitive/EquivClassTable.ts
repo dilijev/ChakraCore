@@ -105,6 +105,25 @@ class EquivClassTable {
     getClasses(): EquivClass[] {
         return this.equivClasses;
     }
+
+    renderRegressionSuite(): string {
+        let out = `
+function assertCaseInsensitiveMatch(re, codepoint, str) {
+    // let str = String.fromCharCode(codepoint);
+    // let str = \`\\\\u{\${codepoint.toString(16)}}\`;
+    let passed = re.test(str);
+    if (!passed) {
+        console.log("FAILED -- regex: " + re.toString() + " codepoint: " + codepoint.toString(16));
+    }
+}\n\n`;
+
+        for (const ec of this.equivClasses) {
+            out += ec.renderRegressionTests();
+        }
+
+        out += "\nconsole.log('PASS')\n";
+        return out;
+    }
 }
 
 export default EquivClassTable;

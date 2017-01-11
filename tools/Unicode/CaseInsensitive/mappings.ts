@@ -104,6 +104,9 @@ function main(unicodeDataFile: string, caseFoldingFile: string, outputFile: stri
     const blobLong = Row.renderRowsLong(rows);
     Utils.writeOutput(outputFile + ".log", blobLong);
 
+    const blogRegress = ecTable.renderRegressionSuite();
+    Utils.writeOutput(outputFile + ".js", blogRegress);
+
     //*/
 }
 
