@@ -20,7 +20,7 @@ class EquivClass {
         (x: EquivClass) => x.codePoints[2],
         (x: EquivClass) => x.codePoints[3],
         // 'mappingSource'
-        ];
+    ];
 
     // TODO is it useful to define Order? Do we need to sort a collection of these?
     // static Order() {
@@ -75,7 +75,7 @@ class EquivClass {
     Retrieves the key for this EquivClass, which is the smallest codePoint of the equivalence class.
     This codepoint is guaranteed to be the first in the list because that list is sorted by Utils.NumericOrder
     */
-    getKey() : number {
+    getKey(): number {
         return this.codePoints[0];
     }
 
@@ -143,7 +143,10 @@ class EquivClass {
                 if (codePoint !== testPoint) {
                     let codePointString = Utils.maybeWrapInBrackets(codePoint.toUnicodeHexString());
                     let testPointString = Utils.maybeWrapInBrackets(testPoint.toUnicodeHexString());
-                    s += `assertMatches(/\\u${codePointString}/iu, 0x${testPoint.toUnicodeHexString()}, '\\u${testPointString}');\n`
+                    if (codePointString.length <= 4 && testPointString.length <= 4) {
+                        s += `assertMatches(/\\u${codePointString}/i, 0x${testPoint.toUnicodeHexString()}, '\\u${testPointString}');\n`;
+                    }
+                    s += `assertMatches(/\\u${codePointString}/iu, 0x${testPoint.toUnicodeHexString()}, '\\u${testPointString}');\n`;
                 }
             }
         }
