@@ -108,12 +108,10 @@ class EquivClassTable {
 
     renderRegressionSuite(): string {
         let out = `
-function assertCaseInsensitiveMatch(re, codepoint, str) {
-    // let str = String.fromCharCode(codepoint);
-    // let str = \`\\\\u{\${codepoint.toString(16)}}\`;
+function assertMatches(re, codepoint, str) {
     let passed = re.test(str);
     if (!passed) {
-        console.log("FAILED -- regex: " + re.toString() + " codepoint: " + codepoint.toString(16));
+        console.log("FAILED -- regex: " + re.toString() + " should match codepoint: " + codepoint.toString(16));
     }
 }\n\n`;
 

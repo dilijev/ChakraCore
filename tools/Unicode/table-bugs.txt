@@ -1,3 +1,33 @@
+FOLLOW UP
+
+BEFORE
+2, MappingSource::UnicodeData, 0x01de, 0x01f5, -1, 1, 1, 1,
+AFTER
+2, MappingSource::UnicodeData, 0x01de, 0x01ef, -1, 1, 1, 1,
+
+ADDED
+1, MappingSource::UnicodeData, 0x037f, 0x037f, 0, 116, 116, 116,
+1, MappingSource::UnicodeData, 0x03f3, 0x03f3, -116, 0, 0, 0,
+
+BEFORE
+2, MappingSource::UnicodeData, 0x04d0, 0x0527, -1, 1, 1, 1,
+AFTER
+2, MappingSource::UnicodeData, 0x04d0, 0x052f, -1, 1, 1, 1,
+
+BEFORE
+2, MappingSource::UnicodeData, 0xa680, 0xa697, -1, 1, 1, 1,
+AFTER
+2, MappingSource::UnicodeData, 0xa680, 0xa69b, -1, 1, 1, 1,
+
+BEFORE
+2, MappingSource::UnicodeData, 0xa7a0, 0xa7a9, -1, 1, 1, 1,
+AFTER
+2, MappingSource::UnicodeData, 0xa796, 0xa7a9, -1, 1, 1, 1,
+
+
+
+
+
 # Make transitive closure of equivalence classes
 
 
@@ -140,5 +170,50 @@ Lu, MappingSource::UnicodeData, 0x1e60,0x1e61,0x1e9b,
 1, MappingSource::CaseFolding, 0x0345, 0x0345, 0, 116, 7289, 7289,
 
 
+
 generate a regression suite from EquivClass repr
 check against V8
+
+
+
+# INCORRECTLY CHANGED (script bug)
+
+OLD
+
+1, MappingSource::UnicodeData, 0x03a3, 0x03a3, 0, 31, 32, 32,
+1, MappingSource::UnicodeData, 0x03a4, 0x03a5, 0, 32, 32, 32,
+
+1, MappingSource::UnicodeData, 0x03c2, 0x03c2, -31, 0, 1, 1,
+1, MappingSource::UnicodeData, 0x03c3, 0x03c3, -32, -1, 0, 0,
+
+NEW
+
+1, MappingSource::UnicodeData, 0x03a3, 0x03a5, 0, 32, 32, 32,
+
+1, MappingSource::CaseFolding, 0x03c2, 0x03c2, 0, 1, 1, 1,
+1, MappingSource::CaseFolding, 0x03c3, 0x03c3, -1, 0, 0, 0,
+
+SEE CaseFolding:
+
+03A3; C; 03C3; # GREEK CAPITAL LETTER SIGMA
+03C2; C; 03C3; # GREEK SMALL LETTER FINAL SIGMA
+
+CORRECT:
+
+03A3 == 03C2 == 03C3
+
+
+
+# DOUBLE CHECK
+
+1, MappingSource::CaseFolding, 0x0345, 0x0345, 0, 84, 116, 7289,
+
+1, MappingSource::CaseFolding, 0x0399, 0x0399, -84, 0, 32, 7205,
+1, MappingSource::UnicodeData, 0x0399, 0x0399, 0, 32, 7205, 7205,
+
+1, MappingSource::CaseFolding, 0x03b9, 0x03b9, -116, -32, 0, 7173,
+1, MappingSource::UnicodeData, 0x03b9, 0x03b9, -32, 0, 7173, 7173,
+
+1, MappingSource::CaseFolding, 0x1fbe, 0x1fbe, -7289, -7205, -7173, 0,
+1, MappingSource::UnicodeData, 0x1fbe, 0x1fbe, -7205, -7173, 0, 0,
+
