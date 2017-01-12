@@ -62,3 +62,11 @@ export function chooseMappingSource(a: Row | EquivClass, b: Row | EquivClass): M
         return MappingSource.UnicodeData;
     }
 }
+
+export function maybeWrapInBrackets(a: string): string {
+    if (a.length > 4) {
+        return `{${a}}`;
+    } else {
+        return a;
+    }
+}

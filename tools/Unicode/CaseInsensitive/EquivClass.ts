@@ -140,7 +140,11 @@ class EquivClass {
         let s = "";
         for (const codePoint of this.codePoints) {
             for (const testPoint of this.codePoints) {
-                s += `assertMatches(/\\u{${codePoint.toUnicodeHexString()}}/iu, 0x${testPoint.toUnicodeHexString()}, '\\u{${testPoint.toUnicodeHexString()}}');\n`
+                if (codePoint !== testPoint) {
+                    let codePointString = Utils.maybeWrapInBrackets(codePoint.toUnicodeHexString());
+                    let testPointString = Utils.maybeWrapInBrackets(testPoint.toUnicodeHexString());
+                    s += `assertMatches(/\\u${codePointString}/iu, 0x${testPoint.toUnicodeHexString()}, '\\u${testPointString}');\n`
+                }
             }
         }
         return s;
