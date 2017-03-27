@@ -1,0 +1,16 @@
+// Place your settings in this file to overwrite default and user settings.
+{
+    "files.exclude": {
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/.git": true,
+
+        ".gitignore": false,
+        "node_modules/": true,
+        "**/*.js": true,
+        "**/*.js.map": true,
+
+        ".vscode/": false,
+        "**/.DS_Store": true
+    }
+}
