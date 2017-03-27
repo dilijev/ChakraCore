@@ -21,7 +21,7 @@ export function canonicalizeDeltas(deltas: number[]): number[] {
 
 export function writeOutput(outputFile: string, blob: string) {
     let fs = require('fs');
-    fs.writeFile(outputFile, blob); // TODO change to writeFileSync? (not worth the time right now)
+    fs.writeFileSync(outputFile, blob);
 }
 
 export function getArgs(): string[] {
