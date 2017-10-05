@@ -6,6 +6,8 @@
 //     ClassName == TagName##Inst
 // MTemplate(TagName, TemplateDeclaration, GenericClassName, SpecializedClassName)
 
+// TODO (doilij) reorg
+M(Nop) // Opcode byte 0x00 is a NOP (allows for NOP-sleds for alignment if necessary)
 // 0x00
 M(Fail)
 M(Succ)

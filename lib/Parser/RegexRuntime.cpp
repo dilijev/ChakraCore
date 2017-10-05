@@ -836,6 +836,39 @@ namespace UnifiedRegex
 #endif
 
     // ----------------------------------------------------------------------
+    // NopInst
+    // ----------------------------------------------------------------------
+
+    inline bool NopInst::Exec(REGEX_INST_EXEC_PARAMETERS) const
+    {
+        return matcher.Fail(FAIL_PARAMETERS);
+    }
+
+#if ENABLE_REGEX_CONFIG_OPTIONS
+    int NopInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
+    {
+        w->Print(_u("L%04x: "), label);
+
+        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
+        {
+            w->Print(_u("(0x%03x bytes) "), sizeof(*this));
+        }
+
+        w->PrintEOL(_u("Nop()"));
+
+        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
+        {
+            w->Indent();
+            PRINT_BYTES(Inst);
+            PRINT_BYTES(NopInst);
+            w->Unindent();
+        }
+
+        return sizeof(*this);
+    }
+#endif
+
+    // ----------------------------------------------------------------------
     // FailInst
     // ----------------------------------------------------------------------
 

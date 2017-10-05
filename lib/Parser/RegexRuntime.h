@@ -665,6 +665,13 @@ namespace UnifiedRegex
     // Control flow
     //
 
+    struct NopInst : Inst
+    {
+        inline NopInst() : Inst(Nop) {}
+
+        INST_BODY
+    };
+
     struct FailInst : Inst
     {
         inline FailInst() : Inst(Fail) {}
