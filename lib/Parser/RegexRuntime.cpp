@@ -335,6 +335,64 @@ namespace UnifiedRegex
     {
         return IsBaselineMode() ? (Label)0xFFFF : label;
     }
+
+    template <typename T>
+    void Inst::PrintBytes(DebugWriter *w, T *that, char16 *annotation) const
+    {
+        T *start = (T*)that;
+        byte *startByte = (byte *)start;
+        size_t size = sizeof(*((T *)that));
+        byte *endByte = startByte + size;
+        byte *currentByte = startByte;
+        w->Print(_u("0x%p(0x%03x) [%s]:"), startByte, size, annotation);
+
+        if ((T *)this == that)
+        {
+            w->PrintEOL(_u(" (no unique data -- skipping)"));
+            return;
+        }
+
+        for (; currentByte < endByte; ++currentByte)
+        {
+            if ((currentByte - endByte) % 4 == 0)
+            {
+                w->Print(_u(" "), *currentByte);
+            }
+            w->Print(_u("%02x"), *currentByte);
+        }
+        w->PrintEOL(_u(""));
+    }
+
+    template <>
+    void Inst::PrintBytes(DebugWriter *w, Inst *that, char16 *annotation) const
+    {
+        Inst *start = (Inst *)that;
+
+        size_t baseSize = sizeof(*(Inst *)that);
+        ptrdiff_t offsetToData = (byte *)&(start->tag) - ((byte *)start);
+        size_t size = baseSize - offsetToData;
+
+        byte *startByte = (byte *)(&(start->tag)); // skip over the vtable pointer
+        byte *endByte = startByte + size;
+        byte *currentByte = startByte;
+        w->Print(_u("0x%p(0x%03x) [%s]:"), startByte, size, annotation);
+        for (; currentByte < endByte; ++currentByte)
+        {
+            if ((currentByte - endByte) % 4 == 0)
+            {
+                w->Print(_u(" "), *currentByte);
+            }
+            w->Print(_u("%02x"), *currentByte);
+        }
+        w->PrintEOL(_u(""));
+    }
+
+#define PRINT_BYTES(InstType) \
+    Inst::PrintBytes<InstType>(w, (InstType *)this, _u(#InstType));
+
+#define PRINT_BYTES_ANNOTATED(InstType, Annotation) \
+    Inst::PrintBytes<InstType>(w, (InstType *)this, (Annotation));
+
 #endif
 
     // ----------------------------------------------------------------------
@@ -789,7 +847,23 @@ namespace UnifiedRegex
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int FailInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
-        w->PrintEOL(_u("L%04x: Fail()"), label);
+        w->Print(_u("L%04x: "), label);
+
+        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
+        {
+            w->Print(_u("(0x%03x bytes) "), sizeof(*this));
+        }
+
+        w->PrintEOL(_u("Fail()"));
+
+        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
+        {
+            w->Indent();
+            PRINT_BYTES(Inst);
+            PRINT_BYTES(FailInst);
+            w->Unindent();
+        }
+
         return sizeof(*this);
     }
 #endif
@@ -809,7 +883,23 @@ namespace UnifiedRegex
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int SuccInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
-        w->PrintEOL(_u("L%04x: Succ()"), label);
+        w->Print(_u("L%04x: "), label);
+
+        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
+        {
+            w->Print(_u("(0x%03x bytes) "), sizeof(*this));
+        }
+
+        w->PrintEOL(_u("Succ()"));
+
+        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
+        {
+            w->Indent();
+            PRINT_BYTES(Inst);
+            PRINT_BYTES(SuccInst);
+            w->Unindent();
+        }
+
         return sizeof(*this);
     }
 #endif
@@ -2045,11 +2135,28 @@ namespace UnifiedRegex
     template<bool IsNegation>
     int SyncToSetAndBackupInst<IsNegation>::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
-        w->Print(_u("L%04x: SyncToSetAndBackup("), label);
+        w->Print(_u("L%04x: "), label);
+
+        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
+        {
+            w->Print(_u("(0x%03x bytes) "), sizeof(*this));
+        }
+
+        w->Print(_u("SyncToSetAndBackup("));
         SetMixin<IsNegation>::Print(w, litbuf);
         w->Print(_u(", "));
         BackupMixin::Print(w, litbuf);
         w->PrintEOL(_u(")"));
+
+        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
+        {
+            w->Indent();
+            PRINT_BYTES(Inst);
+            PRINT_BYTES(SetMixin<IsNegation>);
+            PRINT_BYTES(BackupMixin);
+            w->Unindent();
+        }
+
         return sizeof(*this);
     }
 #endif

@@ -639,6 +639,8 @@ namespace UnifiedRegex
         static bool IsBaselineMode();
         static Label GetPrintLabel(Label label);
         virtual int Print(DebugWriter*w, Label label, const Char* litbuf) const = 0;
+        template <typename T>
+        void PrintBytes(DebugWriter *w, T *that, char16 *annotation) const;
 #endif
     };
 
