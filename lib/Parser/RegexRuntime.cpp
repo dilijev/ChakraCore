@@ -428,10 +428,10 @@ namespace UnifiedRegex
     }
 
 #define PRINT_BYTES(InstType) \
-    Inst::PrintBytes<InstType>(w, (Inst *)this, (InstType *)this, _u(#InstType));
+    Inst::PrintBytes<InstType>(w, (Inst *)this, (InstType *)this, _u(#InstType))
 
 #define PRINT_BYTES_ANNOTATED(InstType, Annotation) \
-    Inst::PrintBytes<InstType>(w, (Inst *)this, (InstType *)this, (Annotation));
+    Inst::PrintBytes<InstType>(w, (Inst *)this, (InstType *)this, (Annotation))
 
 #endif
 
@@ -2144,9 +2144,25 @@ namespace UnifiedRegex
     template<bool IsNegation>
     int SyncToSetAndConsumeInst<IsNegation>::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
-        w->Print(_u("L%04x: SyncToSetAndConsume("), label);
+        w->Print(_u("L%04x: "), label);
+
+        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
+        {
+            w->Print(_u("(0x%03x bytes) "), sizeof(*this));
+        }
+
+        w->Print(_u("SyncToSetAndConsume("));
         SetMixin<IsNegation>::Print(w, litbuf);
         w->PrintEOL(_u(")"));
+
+        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
+        {
+            w->Indent();
+            PRINT_BYTES(Inst);
+            IsNegation ? PRINT_BYTES(SetMixin<true>) : PRINT_BYTES(SetMixin<false>);
+            w->Unindent();
+        }
+
         return sizeof(*this);
     }
 #endif
@@ -2333,7 +2349,7 @@ namespace UnifiedRegex
         {
             w->Indent();
             PRINT_BYTES(Inst);
-            PRINT_BYTES(SetMixin<IsNegation>);
+            IsNegation ? PRINT_BYTES(SetMixin<true>) : PRINT_BYTES(SetMixin<false>);
             PRINT_BYTES(BackupMixin);
             w->Unindent();
         }
@@ -3744,9 +3760,25 @@ namespace UnifiedRegex
     template<ChompMode Mode>
     int ChompSetInst<Mode>::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
-        w->Print(_u("L%04x: ChompSet<%S>("), label, Mode == ChompMode::Star ? "Star" : "Plus");
+        w->Print(_u("L%04x: "), label);
+
+        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
+        {
+            w->Print(_u("(0x%03x bytes) "), sizeof(*this));
+        }
+
+        w->Print(_u("ChompSet<%S>("), Mode == ChompMode::Star ? "Star" : "Plus");
         SetMixin::Print(w, litbuf);
         w->PrintEOL(_u(")"));
+
+        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
+        {
+            w->Indent();
+            PRINT_BYTES(Inst);
+            PRINT_BYTES(SetMixin<false>);
+            w->Unindent();
+        }
+
         return sizeof(*this);
     }
 #endif
