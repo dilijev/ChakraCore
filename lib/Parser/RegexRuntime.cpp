@@ -1004,9 +1004,25 @@ namespace UnifiedRegex
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int JumpInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
-        w->Print(_u("L%04x: Jump("), label);
+        w->Print(_u("L%04x: "), label);
+
+        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
+        {
+            w->Print(_u("(0x%03x bytes) "), sizeof(*this));
+        }
+
+        w->Print(_u("Jump("));
         JumpMixin::Print(w, litbuf);
         w->PrintEOL(_u(")"));
+
+        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
+        {
+            w->Indent();
+            PRINT_BYTES(Inst);
+            PRINT_BYTES(JumpMixin);
+            w->Unindent();
+        }
+
         return sizeof(*this);
     }
 #endif
@@ -1746,9 +1762,25 @@ namespace UnifiedRegex
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int MatchLiteralInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
-        w->Print(_u("L%04x: MatchLiteral("), label);
+        w->Print(_u("L%04x: "), label);
+
+        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
+        {
+            w->Print(_u("(0x%03x bytes) "), sizeof(*this));
+        }
+
+        w->Print(_u("MatchLiteral("));
         LiteralMixin::Print(w, litbuf, false);
         w->PrintEOL(_u(")"));
+
+        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
+        {
+            w->Indent();
+            PRINT_BYTES(Inst);
+            PRINT_BYTES(LiteralMixin);
+            w->Unindent();
+        }
+
         return sizeof(*this);
     }
 #endif
@@ -2790,7 +2822,7 @@ namespace UnifiedRegex
             w->Print(_u("(0x%03x bytes) "), sizeof(*this));
         }
 
-        w->Print(_u("DefineGroupFixed("), label);
+        w->Print(_u("DefineGroupFixed("));
         GroupMixin::Print(w, litbuf);
         w->Print(_u(", "));
         FixedLengthMixin::Print(w, litbuf);

@@ -11,7 +11,7 @@ M(Nop) // Opcode byte 0x00 is a NOP (allows for NOP-sleds for alignment if neces
 // 0x00
 M(Fail) // REMOVE (doilij): tested
 M(Succ) // REMOVE (doilij): tested
-M(Jump)
+M(Jump) // REMOVE (doilij): tested
 M(JumpIfNotChar)
 M(MatchCharOrJump)
 M(JumpIfNotSet)
@@ -33,7 +33,7 @@ M(MatchChar3)
 M(MatchChar4)
 MTemplate(MatchSet, template<bool IsNegation>, MatchSetInst, MatchSetInst<false>)
 MTemplate(MatchNegatedSet, template<bool IsNegation>, MatchSetInst, MatchSetInst<true>)
-M(MatchLiteral)
+M(MatchLiteral) // REMOVE (doilij): tested
 M(MatchLiteralEquiv)
 // 0x18
 M(MatchTrie)
