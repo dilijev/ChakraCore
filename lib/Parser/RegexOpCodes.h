@@ -9,8 +9,8 @@
 // TODO (doilij) reorg
 M(Nop) // Opcode byte 0x00 is a NOP (allows for NOP-sleds for alignment if necessary)
 // 0x00
-M(Fail)
-M(Succ)
+M(Fail) // REMOVE (doilij): tested
+M(Succ) // REMOVE (doilij): tested
 M(Jump)
 M(JumpIfNotChar)
 M(MatchCharOrJump)
@@ -51,7 +51,7 @@ M(SyncToLiteralEquivAndContinue)
 M(SyncToLiteralEquivTrivialLastPatCharAndContinue)
 M(SyncToCharAndConsume)
 M(SyncToChar2SetAndConsume)
-MTemplate(SyncToSetAndConsume, template<bool IsNegation>, SyncToSetAndConsumeInst, SyncToSetAndConsumeInst<false>)
+MTemplate(SyncToSetAndConsume, template<bool IsNegation>, SyncToSetAndConsumeInst, SyncToSetAndConsumeInst<false>) // REMOVE (doilij): tested
 MTemplate(SyncToNegatedSetAndConsume, template<bool IsNegation>, SyncToSetAndConsumeInst, SyncToSetAndConsumeInst<true>)
 // 0x28
 M(SyncToChar2LiteralAndConsume)
@@ -60,7 +60,7 @@ M(SyncToLinearLiteralAndConsume)
 M(SyncToLiteralEquivAndConsume)
 M(SyncToLiteralEquivTrivialLastPatCharAndConsume)
 M(SyncToCharAndBackup)
-MTemplate(SyncToSetAndBackup, template<bool IsNegation>, SyncToSetAndBackupInst, SyncToSetAndBackupInst<false>)
+MTemplate(SyncToSetAndBackup, template<bool IsNegation>, SyncToSetAndBackupInst, SyncToSetAndBackupInst<false>) // REMOVE (doilij): tested
 MTemplate(SyncToNegatedSetAndBackup, template<bool IsNegation>, SyncToSetAndBackupInst, SyncToSetAndBackupInst<true>)
 // 0x30
 M(SyncToChar2LiteralAndBackup)
@@ -73,7 +73,7 @@ M(MatchGroup)
 M(BeginDefineGroup)
 // 0x38
 M(EndDefineGroup)
-M(DefineGroupFixed)
+M(DefineGroupFixed) // REMOVE (doilij): tested
 M(BeginLoop)
 M(RepeatLoop)
 M(BeginLoopIfChar)
@@ -93,7 +93,7 @@ M(RepeatGreedyLoopNoBacktrack)
 MTemplate(ChompCharStar, template<ChompMode Mode>, ChompCharInst, ChompCharInst<ChompMode::Star>)
 MTemplate(ChompCharPlus, template<ChompMode Mode>, ChompCharInst, ChompCharInst<ChompMode::Plus>)
 MTemplate(ChompSetStar, template<ChompMode Mode>, ChompSetInst, ChompSetInst<ChompMode::Star>)
-MTemplate(ChompSetPlus, template<ChompMode Mode>, ChompSetInst, ChompSetInst<ChompMode::Plus>)
+MTemplate(ChompSetPlus, template<ChompMode Mode>, ChompSetInst, ChompSetInst<ChompMode::Plus>) // REMOVE (doilij): tested
 MTemplate(ChompCharGroupStar, template<ChompMode Mode>, ChompCharGroupInst, ChompCharGroupInst<ChompMode::Star>)
 MTemplate(ChompCharGroupPlus, template<ChompMode Mode>, ChompCharGroupInst, ChompCharGroupInst<ChompMode::Plus>)
 MTemplate(ChompSetGroupStar, template<ChompMode Mode>, ChompSetGroupInst, ChompSetGroupInst<ChompMode::Star>)
@@ -106,7 +106,7 @@ M(Try)
 M(TryIfChar)
 M(TryMatchChar)
 M(TryIfSet)
-M(TryMatchSet)
+M(TryMatchSet) // REMOVE (doilij): tested
 // 0x58
 M(BeginAssertion)
 M(EndAssertion)

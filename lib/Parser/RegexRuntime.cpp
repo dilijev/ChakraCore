@@ -2783,13 +2783,31 @@ namespace UnifiedRegex
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int DefineGroupFixedInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
-        w->Print(_u("L%04x: DefineGroupFixed("), label);
+        w->Print(_u("L%04x: "), label);
+
+        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
+        {
+            w->Print(_u("(0x%03x bytes) "), sizeof(*this));
+        }
+
+        w->Print(_u("DefineGroupFixed("), label);
         GroupMixin::Print(w, litbuf);
         w->Print(_u(", "));
         FixedLengthMixin::Print(w, litbuf);
         w->Print(_u(", "));
         NoNeedToSaveMixin::Print(w, litbuf);
         w->PrintEOL(_u(")"));
+
+        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
+        {
+            w->Indent();
+            PRINT_BYTES(Inst);
+            PRINT_BYTES(GroupMixin);
+            PRINT_BYTES(FixedLengthMixin);
+            PRINT_BYTES(NoNeedToSaveMixin);
+            w->Unindent();
+        }
+
         return sizeof(*this);
     }
 #endif
@@ -4248,11 +4266,28 @@ namespace UnifiedRegex
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int TryMatchSetInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
-        w->Print(_u("L%04x: TryMatchSet("), label);
+        w->Print(_u("L%04x: "), label);
+
+        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
+        {
+            w->Print(_u("(0x%03x bytes) "), sizeof(*this));
+        }
+
+        w->Print(_u("TryMatchSet("));
         SetMixin::Print(w, litbuf);
         w->Print(_u(", "));
         TryMixin::Print(w, litbuf);
         w->PrintEOL(_u(")"));
+
+        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
+        {
+            w->Indent();
+            PRINT_BYTES(Inst);
+            PRINT_BYTES(SetMixin<false>);
+            PRINT_BYTES(TryMixin);
+            w->Unindent();
+        }
+
         return sizeof(*this);
     }
 #endif
