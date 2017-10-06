@@ -1347,9 +1347,25 @@ namespace UnifiedRegex
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int SwitchAndConsume10Inst::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
-        w->Print(_u("L%04x: SwitchAndConsume10("), label);
+        w->Print(_u("L%04x: "), label);
+
+        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
+        {
+            w->Print(_u("(0x%03x bytes) "), sizeof(*this));
+        }
+
+        w->Print(_u("SwitchAndConsume10("));
         SwitchMixin<MaxCases>::Print(w, litbuf);
         w->PrintEOL(_u(")"));
+
+        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
+        {
+            w->Indent();
+            PRINT_BYTES(Inst);
+            PRINT_BYTES(SwitchMixin<MaxCases>);
+            w->Unindent();
+        }
+
         return sizeof(*this);
     }
 #endif
@@ -2572,11 +2588,28 @@ namespace UnifiedRegex
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int SyncToLiteralsAndBackupInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
-        w->Print(_u("L%04x: SyncToLiteralsAndBackup("), label);
+        w->Print(_u("L%04x: "), label);
+
+        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
+        {
+            w->Print(_u("(0x%03x bytes) "), sizeof(*this));
+        }
+
+        w->Print(_u("SyncToLiteralsAndBackup("));
         ScannersMixin::Print(w, litbuf);
         w->Print(_u(", "));
         BackupMixin::Print(w, litbuf);
         w->PrintEOL(_u(")"));
+
+        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
+        {
+            w->Indent();
+            PRINT_BYTES(Inst);
+            PRINT_BYTES(ScannersMixin);
+            PRINT_BYTES(BackupMixin);
+            w->Unindent();
+        }
+
         return sizeof(*this);
     }
 #endif

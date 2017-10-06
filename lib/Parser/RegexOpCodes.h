@@ -19,7 +19,7 @@ M(MatchSetOrJump)
 M(Switch10)
 // 0x08
 M(Switch20)
-M(SwitchAndConsume10)
+M(SwitchAndConsume10) // REMOVE (doilij): tested
 M(SwitchAndConsume20)
 M(BOITest)
 M(EOITest)
@@ -68,7 +68,7 @@ M(SyncToLiteralAndBackup)
 M(SyncToLinearLiteralAndBackup)
 M(SyncToLiteralEquivAndBackup)
 M(SyncToLiteralEquivTrivialLastPatCharAndBackup)
-M(SyncToLiteralsAndBackup)
+M(SyncToLiteralsAndBackup) // REMOVE (doilij): tested
 M(MatchGroup)
 M(BeginDefineGroup)
 // 0x38
