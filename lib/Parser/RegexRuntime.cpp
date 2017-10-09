@@ -2450,21 +2450,133 @@ namespace UnifiedRegex
     }
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
-    template <typename ScannerT>
-    int SyncToLiteralAndContinueInstT<ScannerT>::Print(DebugWriter* w, Label label, const Char* litbuf) const
-    {
-        w->Print(_u("L%04x: SyncToLiteralAndContinue("), label);
-        ScannerT::Print(w, litbuf);
-        w->PrintEOL(_u(")"));
-        return sizeof(*this);
-    }
-
     // explicit instantiation
     template struct SyncToLiteralAndContinueInstT<Char2LiteralScannerMixin>;
     template struct SyncToLiteralAndContinueInstT<ScannerMixin>;
     template struct SyncToLiteralAndContinueInstT<ScannerMixin_WithLinearCharMap>;
     template struct SyncToLiteralAndContinueInstT<EquivScannerMixin>;
     template struct SyncToLiteralAndContinueInstT<EquivTrivialLastPatCharScannerMixin>;
+
+    int SyncToLiteralAndContinueInstT<Char2LiteralScannerMixin>::Print(DebugWriter* w, Label label, const Char* litbuf) const
+    {
+        w->Print(_u("L%04x: "), label);
+
+        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
+        {
+            w->Print(_u("(0x%03x bytes) "), sizeof(*this));
+        }
+
+        w->Print(_u("SyncToLiteralAndContinueInstT<Char2LiteralScannerMixin> aka SyncToChar2LiteralAndContinue("), label);
+        Char2LiteralScannerMixin::Print(w, litbuf);
+        w->PrintEOL(_u(")"));
+
+        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
+        {
+            w->Indent();
+            PRINT_BYTES(Inst);
+            PRINT_BYTES(Char2LiteralScannerMixin);
+            w->Unindent();
+        }
+
+        return sizeof(*this);
+    }
+
+    int SyncToLiteralAndContinueInstT<ScannerMixin>::Print(DebugWriter* w, Label label, const Char* litbuf) const
+    {
+        w->Print(_u("L%04x: "), label);
+
+        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
+        {
+            w->Print(_u("(0x%03x bytes) "), sizeof(*this));
+        }
+
+        w->Print(_u("SyncToLiteralAndContinueInstT<ScannerMixin> aka SyncToLiteralAndContinue("), label);
+        ScannerMixin::Print(w, litbuf);
+        w->PrintEOL(_u(")"));
+
+        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
+        {
+            w->Indent();
+            PRINT_BYTES(Inst);
+            PRINT_BYTES(ScannerMixin);
+            w->Unindent();
+        }
+
+        return sizeof(*this);
+    }
+
+    int SyncToLiteralAndContinueInstT<ScannerMixin_WithLinearCharMap>::Print(DebugWriter* w, Label label, const Char* litbuf) const
+    {
+        w->Print(_u("L%04x: "), label);
+
+        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
+        {
+            w->Print(_u("(0x%03x bytes) "), sizeof(*this));
+        }
+
+        w->Print(_u("SyncToLiteralAndContinueInstT<ScannerMixin_WithLinearCharMap> aka SyncToLinearLiteralAndContinue("), label);
+        ScannerMixin_WithLinearCharMap::Print(w, litbuf);
+        w->PrintEOL(_u(")"));
+
+        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
+        {
+            w->Indent();
+            PRINT_BYTES(Inst);
+            PRINT_BYTES(ScannerMixin_WithLinearCharMap);
+            w->Unindent();
+        }
+
+        return sizeof(*this);
+    }
+
+    int SyncToLiteralAndContinueInstT<EquivScannerMixin>::Print(DebugWriter* w, Label label, const Char* litbuf) const
+    {
+        w->Print(_u("L%04x: "), label);
+
+        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
+        {
+            w->Print(_u("(0x%03x bytes) "), sizeof(*this));
+        }
+
+        w->Print(_u("SyncToLiteralAndContinueInstT<EquivScannerMixin> aka SyncToLiteralEquivAndContinue("), label);
+        EquivScannerMixin::Print(w, litbuf);
+        w->PrintEOL(_u(")"));
+
+        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
+        {
+            w->Indent();
+            PRINT_BYTES(Inst);
+            PRINT_BYTES(EquivScannerMixin);
+            w->Unindent();
+        }
+
+        return sizeof(*this);
+    }
+
+    int SyncToLiteralAndContinueInstT<EquivTrivialLastPatCharScannerMixin>::Print(DebugWriter* w, Label label, const Char* litbuf) const
+    {
+        w->Print(_u("L%04x: "), label);
+
+        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
+        {
+            w->Print(_u("(0x%03x bytes) "), sizeof(*this));
+        }
+
+        w->Print(_u("SyncToLiteralAndContinueInstT<EquivTrivialLastPatCharScannerMixin> aka SyncToLiteralEquivTrivialLastPatCharAndContinue("), label);
+        EquivTrivialLastPatCharScannerMixin::Print(w, litbuf);
+        w->PrintEOL(_u(")"));
+
+        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
+        {
+            w->Indent();
+            PRINT_BYTES(Inst);
+            PRINT_BYTES(EquivTrivialLastPatCharScannerMixin);
+            w->Unindent();
+        }
+
+        return sizeof(*this);
+    }
+
 #endif
 
     // ----------------------------------------------------------------------

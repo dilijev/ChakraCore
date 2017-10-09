@@ -43,11 +43,11 @@ M(SyncToChar2SetAndContinue) // TODO (doilij): not tested
 MTemplate(SyncToSetAndContinue, template<bool IsNegation>, SyncToSetAndContinueInst, SyncToSetAndContinueInst<false>) // TODO (doilij): not tested
 MTemplate(SyncToNegatedSetAndContinue, template<bool IsNegation>, SyncToSetAndContinueInst, SyncToSetAndContinueInst<true>) // TODO (doilij): not tested
 // 0x20
-M(SyncToChar2LiteralAndContinue)
-M(SyncToLiteralAndContinue)
-M(SyncToLinearLiteralAndContinue)
-M(SyncToLiteralEquivAndContinue)
-M(SyncToLiteralEquivTrivialLastPatCharAndContinue)
+M(SyncToChar2LiteralAndContinue) // SyncToLiteralAndContinueInstT<Char2LiteralScannerMixin> // TODO (doilij): not tested
+M(SyncToLiteralAndContinue) // SyncToLiteralAndContinueInstT<ScannerMixin> // TODO (doilij): not tested
+M(SyncToLinearLiteralAndContinue) // SyncToLiteralAndContinueInstT<ScannerMixin_WithLinearCharMap> // TODO (doilij): not tested
+M(SyncToLiteralEquivAndContinue) // SyncToLiteralAndContinueInstT<EquivScannerMixin> // TODO (doilij): not tested
+M(SyncToLiteralEquivTrivialLastPatCharAndContinue) // SyncToLiteralAndContinueInstT<EquivTrivialLastPatCharScannerMixin> // TODO (doilij): not tested
 M(SyncToCharAndConsume)
 M(SyncToChar2SetAndConsume)
 MTemplate(SyncToSetAndConsume, template<bool IsNegation>, SyncToSetAndConsumeInst, SyncToSetAndConsumeInst<false>) // REMOVE (doilij): tested
