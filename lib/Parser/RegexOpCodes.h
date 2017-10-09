@@ -20,14 +20,14 @@ M(Switch10)
 // 0x08
 M(Switch20)
 M(SwitchAndConsume10) // REMOVE (doilij): tested
-M(SwitchAndConsume20)
+M(SwitchAndConsume20) // REMOVE (doilij): tested
 M(BOITest)
 M(EOITest)
 M(BOLTest)
 M(EOLTest)
 M(WordBoundaryTest)
 // 0x10
-M(MatchChar)
+M(MatchChar) // REMOVE (doilij): tested
 M(MatchChar2)
 M(MatchChar3)
 M(MatchChar4)

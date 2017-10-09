@@ -1429,9 +1429,25 @@ namespace UnifiedRegex
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int SwitchAndConsume20Inst::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
-        w->Print(_u("L%04x: SwitchAndConsume20("), label);
+        w->Print(_u("L%04x: "), label);
+
+        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
+        {
+            w->Print(_u("(0x%03x bytes) "), sizeof(*this));
+        }
+
+        w->Print(_u("SwitchAndConsume20("));
         SwitchMixin<MaxCases>::Print(w, litbuf);
         w->PrintEOL(_u(")"));
+
+        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
+        {
+            w->Indent();
+            PRINT_BYTES(Inst);
+            PRINT_BYTES(SwitchMixin<MaxCases>);
+            w->Unindent();
+        }
+
         return sizeof(*this);
     }
 #endif
@@ -1602,9 +1618,25 @@ namespace UnifiedRegex
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int MatchCharInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
-        w->Print(_u("L%04x: MatchChar("), label);
+        w->Print(_u("L%04x: "), label);
+
+        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
+        {
+            w->Print(_u("(0x%03x bytes) "), sizeof(*this));
+        }
+
+        w->Print(_u("MatchChar("), label);
         CharMixin::Print(w, litbuf);
         w->PrintEOL(_u(")"));
+
+        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
+        {
+            w->Indent();
+            PRINT_BYTES(Inst);
+            PRINT_BYTES(CharMixin);
+            w->Unindent();
+        }
+
         return sizeof(*this);
     }
 #endif
