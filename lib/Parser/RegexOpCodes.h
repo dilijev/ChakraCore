@@ -12,19 +12,19 @@ M(Nop) // Opcode byte 0x00 is a NOP (allows for NOP-sleds for alignment if neces
 M(Fail) // REMOVE (doilij): tested
 M(Succ) // REMOVE (doilij): tested
 M(Jump) // REMOVE (doilij): tested
-M(JumpIfNotChar)
-M(MatchCharOrJump)
-M(JumpIfNotSet)
-M(MatchSetOrJump)
-M(Switch10)
+M(JumpIfNotChar) // TODO (doilij): not tested
+M(MatchCharOrJump) // TODO (doilij): not tested
+M(JumpIfNotSet) // TODO (doilij): not tested
+M(MatchSetOrJump) // TODO (doilij): not tested
+M(Switch10) // TODO (doilij): not tested
 // 0x08
-M(Switch20)
+M(Switch20) // TODO (doilij): not tested
 M(SwitchAndConsume10) // REMOVE (doilij): tested
 M(SwitchAndConsume20) // REMOVE (doilij): tested
-M(BOITest)
-M(EOITest)
-M(BOLTest)
-M(EOLTest)
+M(BOITest) // TODO (doilij): not tested
+M(EOITest) // TODO (doilij): not tested
+M(BOLTest) // TODO (doilij): not tested
+M(EOLTest) // TODO (doilij): not tested
 M(WordBoundaryTest)
 // 0x10
 M(MatchChar) // REMOVE (doilij): tested
