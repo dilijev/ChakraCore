@@ -27,11 +27,11 @@ M(EOLTest) // TODO (doilij): not tested
 // 0x10
 M(WordBoundaryTest) // TODO (doilij): not tested
 M(MatchChar) // REMOVE (doilij): tested
-M(MatchChar2)
-M(MatchChar3)
-M(MatchChar4)
-MTemplate(MatchSet, template<bool IsNegation>, MatchSetInst, MatchSetInst<false>)
-MTemplate(MatchNegatedSet, template<bool IsNegation>, MatchSetInst, MatchSetInst<true>)
+M(MatchChar2) // TODO (doilij): not tested
+M(MatchChar3) // TODO (doilij): not tested
+M(MatchChar4) // TODO (doilij): not tested
+MTemplate(MatchSet, template<bool IsNegation>, MatchSetInst, MatchSetInst<false>) // TODO (doilij): not tested
+MTemplate(MatchNegatedSet, template<bool IsNegation>, MatchSetInst, MatchSetInst<true>) // TODO (doilij): not tested
 M(MatchLiteral) // REMOVE (doilij): tested
 // 0x18
 M(MatchLiteralEquiv)
