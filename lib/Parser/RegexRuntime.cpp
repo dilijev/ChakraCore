@@ -2457,6 +2457,7 @@ namespace UnifiedRegex
     template struct SyncToLiteralAndContinueInstT<EquivScannerMixin>;
     template struct SyncToLiteralAndContinueInstT<EquivTrivialLastPatCharScannerMixin>;
 
+    template <>
     int SyncToLiteralAndContinueInstT<Char2LiteralScannerMixin>::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
         w->Print(_u("L%04x: "), label);
@@ -2481,6 +2482,7 @@ namespace UnifiedRegex
         return sizeof(*this);
     }
 
+    template <>
     int SyncToLiteralAndContinueInstT<ScannerMixin>::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
         w->Print(_u("L%04x: "), label);
@@ -2505,6 +2507,7 @@ namespace UnifiedRegex
         return sizeof(*this);
     }
 
+    template <>
     int SyncToLiteralAndContinueInstT<ScannerMixin_WithLinearCharMap>::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
         w->Print(_u("L%04x: "), label);
@@ -2529,6 +2532,7 @@ namespace UnifiedRegex
         return sizeof(*this);
     }
 
+    template <>
     int SyncToLiteralAndContinueInstT<EquivScannerMixin>::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
         w->Print(_u("L%04x: "), label);
@@ -2553,6 +2557,7 @@ namespace UnifiedRegex
         return sizeof(*this);
     }
 
+    template <>
     int SyncToLiteralAndContinueInstT<EquivTrivialLastPatCharScannerMixin>::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
         w->Print(_u("L%04x: "), label);
