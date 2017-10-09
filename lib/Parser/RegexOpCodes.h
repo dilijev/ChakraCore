@@ -36,12 +36,12 @@ M(MatchLiteral) // REMOVE (doilij): tested
 // 0x18
 M(MatchLiteralEquiv) // REMOVE (doilij): tested
 M(MatchTrie) // TODO (doilij): not tested
-M(OptMatchChar)
-M(OptMatchSet)
-M(SyncToCharAndContinue)
-M(SyncToChar2SetAndContinue)
-MTemplate(SyncToSetAndContinue, template<bool IsNegation>, SyncToSetAndContinueInst, SyncToSetAndContinueInst<false>)
-MTemplate(SyncToNegatedSetAndContinue, template<bool IsNegation>, SyncToSetAndContinueInst, SyncToSetAndContinueInst<true>)
+M(OptMatchChar) // TODO (doilij): not tested
+M(OptMatchSet) // TODO (doilij): not tested
+M(SyncToCharAndContinue) // TODO (doilij): not tested
+M(SyncToChar2SetAndContinue) // TODO (doilij): not tested
+MTemplate(SyncToSetAndContinue, template<bool IsNegation>, SyncToSetAndContinueInst, SyncToSetAndContinueInst<false>) // TODO (doilij): not tested
+MTemplate(SyncToNegatedSetAndContinue, template<bool IsNegation>, SyncToSetAndContinueInst, SyncToSetAndContinueInst<true>) // TODO (doilij): not tested
 // 0x20
 M(SyncToChar2LiteralAndContinue)
 M(SyncToLiteralAndContinue)
