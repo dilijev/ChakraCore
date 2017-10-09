@@ -1753,7 +1753,22 @@ namespace UnifiedRegex
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int WordBoundaryTestInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
-        w->PrintEOL(_u("L%04x: WordBoundaryTest(isNegation: %s)"), label, isNegation ? _u("true") : _u("false"));
+        w->Print(_u("L%04x: "), label);
+
+        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
+        {
+            w->Print(_u("(0x%03x bytes) "), sizeof(*this));
+        }
+
+        w->PrintEOL(_u("WordBoundaryTest(isNegation: %s)"), isNegation ? _u("true") : _u("false"));
+
+        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
+        {
+            w->Indent();
+            PRINT_BYTES(Inst);
+            w->Unindent();
+        }
+
         return sizeof(*this);
     }
 #endif

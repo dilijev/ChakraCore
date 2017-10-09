@@ -26,7 +26,7 @@ M(EOITest) // TODO (doilij): not tested
 M(BOLTest) // TODO (doilij): not tested
 M(EOLTest) // TODO (doilij): not tested
 // 0x10
-M(WordBoundaryTest)
+M(WordBoundaryTest) // TODO (doilij): not tested
 M(MatchChar) // REMOVE (doilij): tested
 M(MatchChar2)
 M(MatchChar3)
