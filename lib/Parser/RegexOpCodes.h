@@ -52,13 +52,13 @@ M(SyncToCharAndConsume) // TODO (doilij): not tested
 M(SyncToChar2SetAndConsume) // TODO (doilij): not tested
 MTemplate(SyncToSetAndConsume, template<bool IsNegation>, SyncToSetAndConsumeInst, SyncToSetAndConsumeInst<false>) // REMOVE (doilij): tested
 // 0x28
-MTemplate(SyncToNegatedSetAndConsume, template<bool IsNegation>, SyncToSetAndConsumeInst, SyncToSetAndConsumeInst<true>)
-M(SyncToChar2LiteralAndConsume)
-M(SyncToLiteralAndConsume)
-M(SyncToLinearLiteralAndConsume)
-M(SyncToLiteralEquivAndConsume)
-M(SyncToLiteralEquivTrivialLastPatCharAndConsume)
-M(SyncToCharAndBackup)
+MTemplate(SyncToNegatedSetAndConsume, template<bool IsNegation>, SyncToSetAndConsumeInst, SyncToSetAndConsumeInst<true>) // TODO (doilij): not tested
+M(SyncToChar2LiteralAndConsume) // SyncToLiteralAndConsumeInstT<Char2LiteralScannerMixin> // TODO (doilij): not tested
+M(SyncToLiteralAndConsume) // SyncToLiteralAndConsumeInstT<ScannerMixin> // TODO (doilij): not tested
+M(SyncToLinearLiteralAndConsume) // SyncToLiteralAndConsumeInstT<ScannerMixin_WithLinearCharMap> // TODO (doilij): not tested
+M(SyncToLiteralEquivAndConsume) // SyncToLiteralAndConsumeInstT<EquivScannerMixin> // TODO (doilij): not tested
+M(SyncToLiteralEquivTrivialLastPatCharAndConsume) // SyncToLiteralAndConsumeInstT<EquivTrivialLastPatCharScannerMixin> // TODO (doilij): not tested
+M(SyncToCharAndBackup) // REMOVE (doilij): tested
 MTemplate(SyncToSetAndBackup, template<bool IsNegation>, SyncToSetAndBackupInst, SyncToSetAndBackupInst<false>) // REMOVE (doilij): tested
 // 0x30
 MTemplate(SyncToNegatedSetAndBackup, template<bool IsNegation>, SyncToSetAndBackupInst, SyncToSetAndBackupInst<true>)
@@ -90,7 +90,7 @@ M(BeginGreedyLoopNoBacktrack)
 // 0x48
 M(RepeatGreedyLoopNoBacktrack)
 MTemplate(ChompCharStar, template<ChompMode Mode>, ChompCharInst, ChompCharInst<ChompMode::Star>)
-MTemplate(ChompCharPlus, template<ChompMode Mode>, ChompCharInst, ChompCharInst<ChompMode::Plus>)
+MTemplate(ChompCharPlus, template<ChompMode Mode>, ChompCharInst, ChompCharInst<ChompMode::Plus>) // REMOVE (doilij): tested
 MTemplate(ChompSetStar, template<ChompMode Mode>, ChompSetInst, ChompSetInst<ChompMode::Star>)
 MTemplate(ChompSetPlus, template<ChompMode Mode>, ChompSetInst, ChompSetInst<ChompMode::Plus>) // REMOVE (doilij): tested
 MTemplate(ChompCharGroupStar, template<ChompMode Mode>, ChompCharGroupInst, ChompCharGroupInst<ChompMode::Star>)
