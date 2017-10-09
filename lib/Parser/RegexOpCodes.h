@@ -48,8 +48,8 @@ M(SyncToLiteralAndContinue) // SyncToLiteralAndContinueInstT<ScannerMixin> // TO
 M(SyncToLinearLiteralAndContinue) // SyncToLiteralAndContinueInstT<ScannerMixin_WithLinearCharMap> // TODO (doilij): not tested
 M(SyncToLiteralEquivAndContinue) // SyncToLiteralAndContinueInstT<EquivScannerMixin> // TODO (doilij): not tested
 M(SyncToLiteralEquivTrivialLastPatCharAndContinue) // SyncToLiteralAndContinueInstT<EquivTrivialLastPatCharScannerMixin> // TODO (doilij): not tested
-M(SyncToCharAndConsume)
-M(SyncToChar2SetAndConsume)
+M(SyncToCharAndConsume) // TODO (doilij): not tested
+M(SyncToChar2SetAndConsume) // TODO (doilij): not tested
 MTemplate(SyncToSetAndConsume, template<bool IsNegation>, SyncToSetAndConsumeInst, SyncToSetAndConsumeInst<false>) // REMOVE (doilij): tested
 // 0x28
 MTemplate(SyncToNegatedSetAndConsume, template<bool IsNegation>, SyncToSetAndConsumeInst, SyncToSetAndConsumeInst<true>)
