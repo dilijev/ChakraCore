@@ -68,11 +68,11 @@ M(SyncToLiteralAndBackup) // SyncToLiteralAndBackupInstT<ScannerMixin> // TODO (
 M(SyncToLinearLiteralAndBackup) // SyncToLiteralAndBackupInstT<ScannerMixin_WithLinearCharMap> // TODO (doilij): not tested // DONE MACROS
 M(SyncToLiteralEquivAndBackup) // SyncToLiteralAndBackupInstT<EquivScannerMixin> // TODO (doilij): not tested // DONE MACROS
 M(SyncToLiteralEquivTrivialLastPatCharAndBackup) // SyncToLiteralAndBackupInstT<EquivTrivialLastPatCharScannerMixin> // TODO (doilij): not tested // DONE MACROS
-M(SyncToLiteralsAndBackup) // REMOVE (doilij): tested
-M(MatchGroup) // TODO (doilij): not tested
+M(SyncToLiteralsAndBackup) // REMOVE (doilij): tested // DONE MACROS
+M(MatchGroup) // TODO (doilij): not tested // DONE MACROS
 // 0x38
-M(BeginDefineGroup) // TODO (doilij): not tested
-M(EndDefineGroup) // TODO (doilij): not tested
+M(BeginDefineGroup) // TODO (doilij): not tested // DONE MACROS
+M(EndDefineGroup) // TODO (doilij): not tested // DONE MACROS
 M(DefineGroupFixed) // REMOVE (doilij): tested // DONE MACROS
 M(BeginLoop) // REMOVE (doilij): tested // DONE MACROS
 M(RepeatLoop) // TODO (doilij): not tested // DONE MACROS
