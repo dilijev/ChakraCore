@@ -82,8 +82,8 @@ M(RepeatLoopIfChar) // TODO (doilij): not tested // DONE MACROS
 M(RepeatLoopIfSet) // TODO (doilij): not tested // DONE MACROS
 M(BeginLoopFixed) // TODO (doilij): not tested // DONE MACROS
 M(RepeatLoopFixed) // TODO (doilij): not tested // DONE MACROS
-M(LoopSet)
-M(LoopSetWithFollowFirst)
+M(LoopSet) // TODO (doilij): not tested // DONE MACROS
+M(LoopSetWithFollowFirst) // TODO (doilij): not tested // DONE MACROS
 M(BeginLoopFixedGroupLastIteration)
 M(RepeatLoopFixedGroupLastIteration)
 M(BeginGreedyLoopNoBacktrack)

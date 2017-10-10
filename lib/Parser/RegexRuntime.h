@@ -587,6 +587,17 @@ namespace UnifiedRegex
 #endif
     };
 
+    struct FollowFirstMixin : private Chars<char16>
+    {
+        Char followFirst;
+
+        inline FollowFirstMixin(Char followFirst) : followFirst(followFirst) {}
+
+#if ENABLE_REGEX_CONFIG_OPTIONS
+        void Print(DebugWriter* w, const char16* litbuf) const;
+#endif
+    };
+
     struct NoNeedToSaveMixin
     {
         bool noNeedToSave;
@@ -1266,12 +1277,10 @@ namespace UnifiedRegex
     };
 
     // Loop is greedy, contains a MatchSet only, first character in its follow set is known
-    struct LoopSetWithFollowFirstInst : LoopSetInst
+    struct LoopSetWithFollowFirstInst : LoopSetInst, FollowFirstMixin
     {
-        Char followFirst;
-
         inline LoopSetWithFollowFirstInst(int loopId, const CountDomain& repeats, bool hasOuterLoops, Char followFirst)
-            : LoopSetInst(InstTag::LoopSetWithFollowFirst, loopId, repeats, hasOuterLoops), followFirst(followFirst) {}
+            : LoopSetInst(InstTag::LoopSetWithFollowFirst, loopId, repeats, hasOuterLoops), FollowFirstMixin(followFirst) {}
 
         INST_BODY
     };

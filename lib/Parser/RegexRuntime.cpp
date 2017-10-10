@@ -815,7 +815,6 @@ namespace UnifiedRegex
 #endif
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
-
     void BeginLoopBasicsMixin::Print(DebugWriter* w, const char16* litbuf) const
     {
         w->Print(_u("loopId: %d, repeats: "), loopId);
@@ -858,6 +857,13 @@ namespace UnifiedRegex
     void FixedLengthMixin::Print(DebugWriter* w, const char16* litbuf) const
     {
         w->Print(_u("length: %u"), length);
+    }
+#endif
+
+#if ENABLE_REGEX_CONFIG_OPTIONS
+    void FollowFirstMixin::Print(DebugWriter* w, const char16* litbuf) const
+    {
+        w->Print(_u("followFirst: %c"), followFirst);
     }
 #endif
 
@@ -4363,7 +4369,7 @@ namespace UnifiedRegex
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int LoopSetInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
-        PRINT_RE_BYTECODE_BEGIN("RepeatLoopFixed");
+        PRINT_RE_BYTECODE_BEGIN("LoopSetInst");
         PRINT_MIXIN_COMMA(SetMixin<false>);
         PRINT_MIXIN(BeginLoopBasicsMixin);
         PRINT_RE_BYTECODE_MID();
@@ -4443,12 +4449,15 @@ namespace UnifiedRegex
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int LoopSetWithFollowFirstInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
-        w->Print(_u("L%04x: LoopSet(loopId: %d, followFirst: %c, "), label, loopId, followFirst);
-        repeats.Print(w);
-        w->Print(_u(", hasOuterLoops: %s, "), hasOuterLoops ? _u("true") : _u("false"));
-        SetMixin::Print(w, litbuf);
-        w->PrintEOL(_u(")"));
-        return sizeof(*this);
+        PRINT_RE_BYTECODE_BEGIN("LoopSetWithFollowFirstInst");
+        PRINT_MIXIN_COMMA(SetMixin<false>);
+        PRINT_MIXIN_COMMA(BeginLoopBasicsMixin);
+        PRINT_MIXIN(FollowFirstMixin);
+        PRINT_RE_BYTECODE_MID();
+        PRINT_BYTES(SetMixin);
+        PRINT_BYTES(BeginLoopBasicsMixin);
+        PRINT_MIXIN(FollowFirstMixin);
+        PRINT_RE_BYTECODE_END();
     }
 #endif
 
