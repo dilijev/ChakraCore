@@ -504,17 +504,29 @@ namespace UnifiedRegex
 #endif
     };
 
-    struct BeginLoopMixin
+    struct BeginLoopBasicsMixin
     {
         int loopId;
         const CountDomain repeats;
         bool hasOuterLoops;
+
+        inline BeginLoopBasicsMixin(int loopId, const CountDomain& repeats, bool hasOuterLoops)
+            : loopId(loopId), repeats(repeats), hasOuterLoops(hasOuterLoops)
+        {}
+
+#if ENABLE_REGEX_CONFIG_OPTIONS
+        void Print(DebugWriter* w, const char16* litbuf) const;
+#endif
+    };
+
+    struct BeginLoopMixin : BeginLoopBasicsMixin
+    {
         bool hasInnerNondet;
         Label exitLabel;
 
         // exitLabel must always be fixed up
         inline BeginLoopMixin(int loopId, const CountDomain& repeats, bool hasOuterLoops, bool hasInnerNondet)
-            : loopId(loopId), repeats(repeats), hasOuterLoops(hasOuterLoops), hasInnerNondet(hasInnerNondet)
+            : BeginLoopBasicsMixin(loopId, repeats, hasOuterLoops), hasInnerNondet(hasInnerNondet)
         {
 #if DBG
             exitLabel = (Label)-1;
@@ -1240,18 +1252,14 @@ namespace UnifiedRegex
     };
 
     // Loop is greedy, contains a MatchSet only
-    struct LoopSetInst : Inst, SetMixin<false>
+    struct LoopSetInst : Inst, SetMixin<false>, BeginLoopBasicsMixin
     {
-        int loopId;
-        const CountDomain repeats;
-        bool hasOuterLoops;
-
         // set must always be cloned from source
         inline LoopSetInst(int loopId, const CountDomain& repeats, bool hasOuterLoops)
-            : Inst(LoopSet), loopId(loopId), repeats(repeats), hasOuterLoops(hasOuterLoops) {}
+            : Inst(LoopSet), BeginLoopBasicsMixin(loopId, repeats, hasOuterLoops) {}
 
         inline LoopSetInst(InstTag tag, int loopId, const CountDomain& repeats, bool hasOuterLoops)
-            : Inst(tag), loopId(loopId), repeats(repeats), hasOuterLoops(hasOuterLoops) {}
+            : Inst(tag), BeginLoopBasicsMixin(loopId, repeats, hasOuterLoops) {}
 
         INST_BODY
         INST_BODY_FREE(SetMixin)

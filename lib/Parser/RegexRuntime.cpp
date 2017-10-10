@@ -815,12 +815,21 @@ namespace UnifiedRegex
 #endif
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
-    void BeginLoopMixin::Print(DebugWriter* w, const char16* litbuf) const
+
+    void BeginLoopBasicsMixin::Print(DebugWriter* w, const char16* litbuf) const
     {
         w->Print(_u("loopId: %d, repeats: "), loopId);
         repeats.Print(w);
-        w->Print(_u(", exitLabel: L%04x, hasOuterLoops: %s, hasInnerNondet: %s"),
-            Inst::GetPrintLabel(exitLabel), hasOuterLoops ? _u("true") : _u("false"), hasInnerNondet ? _u("true") : _u("false"));
+        w->Print(_u(", hasOuterLoops: %s"), hasOuterLoops ? _u("true") : _u("false"));
+    }
+#endif
+
+#if ENABLE_REGEX_CONFIG_OPTIONS
+    void BeginLoopMixin::Print(DebugWriter* w, const char16* litbuf) const
+    {
+        BeginLoopBasicsMixin::Print(w, litbuf);
+        w->Print(_u(", hasInnerNondet: %s, exitLabel: L%04x, "),
+            hasInnerNondet ? _u("true") : _u("false"), Inst::GetPrintLabel(exitLabel));
     }
 #endif
 
@@ -4354,12 +4363,13 @@ namespace UnifiedRegex
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int LoopSetInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
-        w->Print(_u("L%04x: LoopSet(loopId: %d, "), label, loopId);
-        repeats.Print(w);
-        w->Print(_u(", hasOuterLoops: %s, "), hasOuterLoops ? _u("true") : _u("false"));
-        SetMixin::Print(w, litbuf);
-        w->PrintEOL(_u(")"));
-        return sizeof(*this);
+        PRINT_RE_BYTECODE_BEGIN("RepeatLoopFixed");
+        PRINT_MIXIN_COMMA(SetMixin<false>);
+        PRINT_MIXIN(BeginLoopBasicsMixin);
+        PRINT_RE_BYTECODE_MID();
+        PRINT_BYTES(SetMixin);
+        PRINT_BYTES(BeginLoopBasicsMixin);
+        PRINT_RE_BYTECODE_END();
     }
 #endif
 
