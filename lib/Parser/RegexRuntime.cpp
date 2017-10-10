@@ -4774,26 +4774,13 @@ namespace UnifiedRegex
     template<ChompMode Mode>
     int ChompSetInst<Mode>::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
-        w->Print(_u("L%04x: "), label);
-
-        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
-        {
-            w->Print(_u("(0x%03x bytes) "), sizeof(*this));
-        }
-
-        w->Print(_u("ChompSet<%S>("), Mode == ChompMode::Star ? "Star" : "Plus");
-        SetMixin::Print(w, litbuf);
-        w->PrintEOL(_u(")"));
-
-        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
-        {
-            w->Indent();
-            PRINT_BYTES(Inst);
-            PRINT_BYTES(SetMixin<false>);
-            w->Unindent();
-        }
-
-        return sizeof(*this);
+        Mode == ChompMode::Star
+            ? PRINT_RE_BYTECODE_BEGIN("ChompSet<Star>")
+            : PRINT_RE_BYTECODE_BEGIN("ChompSet<Plus>");
+        PRINT_MIXIN(SetMixin);
+        PRINT_RE_BYTECODE_MID();
+        PRINT_BYTES(SetMixin);
+        PRINT_RE_BYTECODE_END();
     }
 #endif
 
