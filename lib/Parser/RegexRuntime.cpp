@@ -1466,26 +1466,11 @@ namespace UnifiedRegex
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int BOITestInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
-        w->Print(_u("L%04x: "), label);
-
-        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
-        {
-            w->Print(_u("(0x%03x bytes) "), sizeof(*this));
-        }
-
-        w->Print(_u("BOITest("));
-        HardFailMixin::Print(w, litbuf);
-        w->PrintEOL(_u(")"));
-
-        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
-        {
-            w->Indent();
-            PRINT_BYTES(Inst);
-            PRINT_BYTES(HardFailMixin);
-            w->Unindent();
-        }
-
-        return sizeof(*this);
+        PRINT_RE_BYTECODE_BEGIN("BOITest");
+        PRINT_MIXIN(HardFailMixin);
+        PRINT_RE_BYTECODE_MID();
+        PRINT_BYTES(HardFailMixin);
+        PRINT_RE_BYTECODE_END();
     }
 #endif
 
@@ -1514,26 +1499,11 @@ namespace UnifiedRegex
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int EOITestInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
-        w->Print(_u("L%04x: "), label);
-
-        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
-        {
-            w->Print(_u("(0x%03x bytes) "), sizeof(*this));
-        }
-
-        w->Print(_u("EOITest("));
-        HardFailMixin::Print(w, litbuf);
-        w->PrintEOL(_u(")"));
-
-        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
-        {
-            w->Indent();
-            PRINT_BYTES(Inst);
-            PRINT_BYTES(HardFailMixin);
-            w->Unindent();
-        }
-
-        return sizeof(*this);
+        PRINT_RE_BYTECODE_BEGIN("EOITest");
+        PRINT_MIXIN(HardFailMixin);
+        PRINT_RE_BYTECODE_MID();
+        PRINT_BYTES(HardFailMixin);
+        PRINT_RE_BYTECODE_END();
     }
 #endif
 
@@ -1558,23 +1528,10 @@ namespace UnifiedRegex
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int BOLTestInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
-        w->Print(_u("L%04x: "), label);
-
-        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
-        {
-            w->Print(_u("(0x%03x bytes) "), sizeof(*this));
-        }
-
-        w->Print(_u("BOLTest()"));
-
-        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
-        {
-            w->Indent();
-            PRINT_BYTES(Inst);
-            w->Unindent();
-        }
-
-        return sizeof(*this);
+        PRINT_RE_BYTECODE_BEGIN("BOLTest");
+        PRINT_RE_BYTECODE_MID();
+        PRINT_BYTES(BOLTestInst);
+        PRINT_RE_BYTECODE_END();
     }
 #endif
 
@@ -1599,23 +1556,10 @@ namespace UnifiedRegex
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int EOLTestInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
-        w->Print(_u("L%04x: "), label);
-
-        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
-        {
-            w->Print(_u("(0x%03x bytes) "), sizeof(*this));
-        }
-
-        w->Print(_u("EOLTest()"));
-
-        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
-        {
-            w->Indent();
-            PRINT_BYTES(Inst);
-            w->Unindent();
-        }
-
-        return sizeof(*this);
+        PRINT_RE_BYTECODE_BEGIN("EOLTest");
+        PRINT_RE_BYTECODE_MID();
+        PRINT_BYTES(EOLTestInst);
+        PRINT_RE_BYTECODE_END();
     }
 #endif
 
@@ -1642,23 +1586,10 @@ namespace UnifiedRegex
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int WordBoundaryTestInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
-        w->Print(_u("L%04x: "), label);
-
-        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
-        {
-            w->Print(_u("(0x%03x bytes) "), sizeof(*this));
-        }
-
-        w->PrintEOL(_u("WordBoundaryTest(isNegation: %s)"), isNegation ? _u("true") : _u("false"));
-
-        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
-        {
-            w->Indent();
-            PRINT_BYTES(Inst);
-            w->Unindent();
-        }
-
-        return sizeof(*this);
+        PRINT_RE_BYTECODE_BEGIN("WordBoundaryTest");
+        PRINT_RE_BYTECODE_MID();
+        PRINT_BYTES(WordBoundaryTestInst);
+        PRINT_RE_BYTECODE_END();
     }
 #endif
 

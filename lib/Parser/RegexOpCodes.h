@@ -20,12 +20,12 @@ M(Switch10) // TODO (doilij): not tested // DONE MACROS
 M(Switch20) // TODO (doilij): not tested // DONE MACROS
 M(SwitchAndConsume10) // REMOVE (doilij): tested // DONE MACROS
 M(SwitchAndConsume20) // REMOVE (doilij): tested // DONE MACROS
-M(BOITest) // TODO (doilij): not tested
-M(EOITest) // TODO (doilij): not tested
-M(BOLTest) // TODO (doilij): not tested
-M(EOLTest) // TODO (doilij): not tested
+M(BOITest) // TODO (doilij): not tested // DONE MACROS
+M(EOITest) // TODO (doilij): not tested // DONE MACROS
+M(BOLTest) // TODO (doilij): not tested // DONE MACROS
+M(EOLTest) // TODO (doilij): not tested // DONE MACROS
 // 0x10
-M(WordBoundaryTest) // TODO (doilij): not tested
+M(WordBoundaryTest) // TODO (doilij): not tested // DONE MACROS
 M(MatchChar) // REMOVE (doilij): tested
 M(MatchChar2) // TODO (doilij): not tested
 M(MatchChar3) // TODO (doilij): not tested
