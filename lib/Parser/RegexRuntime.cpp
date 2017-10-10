@@ -2066,26 +2066,19 @@ namespace UnifiedRegex
     template<bool IsNegation>
     int SyncToSetAndContinueInst<IsNegation>::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
-        w->Print(_u("L%04x: "), label);
-
-        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
+        if (IsNegation)
         {
-            w->Print(_u("(0x%03x bytes) "), sizeof(*this));
+            PRINT_RE_BYTECODE_BEGIN("SyncToSetAndContinue");
+        }
+        else
+        {
+            PRINT_RE_BYTECODE_BEGIN("SyncToNegatedSetAndContinue");
         }
 
-        w->Print(_u("SyncToSetAndContinue("), label);
-        SetMixin<IsNegation>::Print(w, litbuf);
-        w->PrintEOL(_u(")"));
-
-        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
-        {
-            w->Indent();
-            PRINT_BYTES(Inst);
-            IsNegation ? PRINT_BYTES(SetMixin<true>) : PRINT_BYTES(SetMixin<false>);
-            w->Unindent();
-        }
-
-        return sizeof(*this);
+        PRINT_MIXIN(SetMixin);
+        PRINT_RE_BYTECODE_MID();
+        IsNegation ? PRINT_BYTES(SetMixin<true>) : PRINT_BYTES(SetMixin<false>);
+        PRINT_RE_BYTECODE_END();
     }
 #endif
 
@@ -2390,26 +2383,19 @@ namespace UnifiedRegex
     template<bool IsNegation>
     int SyncToSetAndConsumeInst<IsNegation>::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
-        w->Print(_u("L%04x: "), label);
-
-        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
+        if (IsNegation)
         {
-            w->Print(_u("(0x%03x bytes) "), sizeof(*this));
+            PRINT_RE_BYTECODE_BEGIN("SyncToSetAndConsume");
+        }
+        else
+        {
+            PRINT_RE_BYTECODE_BEGIN("SyncToNegatedSetAndConsume");
         }
 
-        w->Print(_u("SyncToSetAndConsume("));
-        SetMixin<IsNegation>::Print(w, litbuf);
-        w->PrintEOL(_u(")"));
-
-        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
-        {
-            w->Indent();
-            PRINT_BYTES(Inst);
-            IsNegation ? PRINT_BYTES(SetMixin<true>) : PRINT_BYTES(SetMixin<false>);
-            w->Unindent();
-        }
-
-        return sizeof(*this);
+        PRINT_MIXIN(SetMixin);
+        PRINT_RE_BYTECODE_MID();
+        IsNegation ? PRINT_BYTES(SetMixin<true>) : PRINT_BYTES(SetMixin<false>);
+        PRINT_RE_BYTECODE_END();
     }
 #endif
 
@@ -2719,29 +2705,21 @@ namespace UnifiedRegex
     template<bool IsNegation>
     int SyncToSetAndBackupInst<IsNegation>::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
-        w->Print(_u("L%04x: "), label);
-
-        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
+        if (IsNegation)
         {
-            w->Print(_u("(0x%03x bytes) "), sizeof(*this));
+            PRINT_RE_BYTECODE_BEGIN("SyncToSetAndBackup");
+        }
+        else
+        {
+            PRINT_RE_BYTECODE_BEGIN("SyncToNegatedSetAndBackup");
         }
 
-        w->Print(_u("SyncToSetAndBackup("));
-        SetMixin<IsNegation>::Print(w, litbuf);
-        w->Print(_u(", "));
-        BackupMixin::Print(w, litbuf);
-        w->PrintEOL(_u(")"));
-
-        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
-        {
-            w->Indent();
-            PRINT_BYTES(Inst);
-            IsNegation ? PRINT_BYTES(SetMixin<true>) : PRINT_BYTES(SetMixin<false>);
-            PRINT_BYTES(BackupMixin);
-            w->Unindent();
-        }
-
-        return sizeof(*this);
+        PRINT_MIXIN_COMMA(SetMixin);
+        PRINT_MIXIN(BackupMixin);
+        PRINT_RE_BYTECODE_MID();
+        IsNegation ? PRINT_BYTES(SetMixin<true>) : PRINT_BYTES(SetMixin<false>);
+        PRINT_BYTES(BackupMixin);
+        PRINT_RE_BYTECODE_END();
     }
 #endif
 
