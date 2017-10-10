@@ -8,18 +8,18 @@
 
 // 0x00
 M(Nop) // Opcode byte 0x00 is a NOP (allows for NOP-sleds for alignment if necessary)
-M(Fail) // REMOVE (doilij): tested
-M(Succ) // REMOVE (doilij): tested
-M(Jump) // REMOVE (doilij): tested
-M(JumpIfNotChar) // TODO (doilij): not tested
-M(MatchCharOrJump) // TODO (doilij): not tested
-M(JumpIfNotSet) // TODO (doilij): not tested
-M(MatchSetOrJump) // TODO (doilij): not tested
+M(Fail) // REMOVE (doilij): tested // DONE MACROS
+M(Succ) // REMOVE (doilij): tested // DONE MACROS
+M(Jump) // REMOVE (doilij): tested // DONE MACROS
+M(JumpIfNotChar) // TODO (doilij): not tested // DONE MACROS
+M(MatchCharOrJump) // TODO (doilij): not tested // DONE MACROS
+M(JumpIfNotSet) // TODO (doilij): not tested // DONE MACROS
+M(MatchSetOrJump) // TODO (doilij): not tested // DONE MACROS
 // 0x08
-M(Switch10) // TODO (doilij): not tested
-M(Switch20) // TODO (doilij): not tested
-M(SwitchAndConsume10) // REMOVE (doilij): tested
-M(SwitchAndConsume20) // REMOVE (doilij): tested
+M(Switch10) // TODO (doilij): not tested // DONE MACROS
+M(Switch20) // TODO (doilij): not tested // DONE MACROS
+M(SwitchAndConsume10) // REMOVE (doilij): tested // DONE MACROS
+M(SwitchAndConsume20) // REMOVE (doilij): tested // DONE MACROS
 M(BOITest) // TODO (doilij): not tested
 M(EOITest) // TODO (doilij): not tested
 M(BOLTest) // TODO (doilij): not tested
