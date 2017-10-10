@@ -4844,14 +4844,17 @@ namespace UnifiedRegex
     template<ChompMode Mode>
     int ChompCharGroupInst<Mode>::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
-        w->Print(_u("L%04x: ChompCharGroup<%S>("), label, Mode == ChompMode::Star ? "Star" : "Plus");
-        CharMixin::Print(w, litbuf);
-        w->Print(_u(", "));
-        GroupMixin::Print(w, litbuf);
-        w->Print(_u(", "));
-        NoNeedToSaveMixin::Print(w, litbuf);
-        w->PrintEOL(_u(")"));
-        return sizeof(*this);
+        Mode == ChompMode::Star
+            ? PRINT_RE_BYTECODE_BEGIN("ChompCharGroup<Star>")
+            : PRINT_RE_BYTECODE_BEGIN("ChompCharGroup<Plus>");
+        PRINT_MIXIN_COMMA(CharMixin);
+        PRINT_MIXIN_COMMA(GroupMixin);
+        PRINT_MIXIN(NoNeedToSaveMixin);
+        PRINT_RE_BYTECODE_MID();
+        PRINT_BYTES(CharMixin);
+        PRINT_BYTES(GroupMixin);
+        PRINT_BYTES(NoNeedToSaveMixin);
+        PRINT_RE_BYTECODE_END();
     }
 #endif
 
@@ -4915,14 +4918,17 @@ namespace UnifiedRegex
     template<ChompMode Mode>
     int ChompSetGroupInst<Mode>::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
-        w->Print(_u("L%04x: ChompSetGroup<%S>("), label, Mode == ChompMode::Star ? "Star" : "Plus");
-        SetMixin::Print(w, litbuf);
-        w->Print(_u(", "));
-        GroupMixin::Print(w, litbuf);
-        w->Print(_u(", "));
-        NoNeedToSaveMixin::Print(w, litbuf);
-        w->PrintEOL(_u(")"));
-        return sizeof(*this);
+        Mode == ChompMode::Star
+            ? PRINT_RE_BYTECODE_BEGIN("ChompSetGroup<Star>")
+            : PRINT_RE_BYTECODE_BEGIN("ChompSetGroup<Plus>");
+        PRINT_MIXIN_COMMA(SetMixin);
+        PRINT_MIXIN_COMMA(GroupMixin);
+        PRINT_MIXIN(NoNeedToSaveMixin);
+        PRINT_RE_BYTECODE_MID();
+        PRINT_BYTES(SetMixin);
+        PRINT_BYTES(GroupMixin);
+        PRINT_BYTES(NoNeedToSaveMixin);
+        PRINT_RE_BYTECODE_END();
     }
 #endif
 
