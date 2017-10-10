@@ -43,13 +43,13 @@ M(SyncToChar2SetAndContinue) // TODO (doilij): not tested // DONE MACROS
 MTemplate(SyncToSetAndContinue, template<bool IsNegation>, SyncToSetAndContinueInst, SyncToSetAndContinueInst<false>) // TODO (doilij): not tested // DONE MACROS
 MTemplate(SyncToNegatedSetAndContinue, template<bool IsNegation>, SyncToSetAndContinueInst, SyncToSetAndContinueInst<true>) // TODO (doilij): not tested // DONE MACROS
 // 0x20
-M(SyncToChar2LiteralAndContinue) // SyncToLiteralAndContinueInstT<Char2LiteralScannerMixin> // TODO (doilij): not tested
-M(SyncToLiteralAndContinue) // SyncToLiteralAndContinueInstT<ScannerMixin> // TODO (doilij): not tested
-M(SyncToLinearLiteralAndContinue) // SyncToLiteralAndContinueInstT<ScannerMixin_WithLinearCharMap> // TODO (doilij): not tested
-M(SyncToLiteralEquivAndContinue) // SyncToLiteralAndContinueInstT<EquivScannerMixin> // TODO (doilij): not tested
-M(SyncToLiteralEquivTrivialLastPatCharAndContinue) // SyncToLiteralAndContinueInstT<EquivTrivialLastPatCharScannerMixin> // TODO (doilij): not tested
-M(SyncToCharAndConsume) // TODO (doilij): not tested
-M(SyncToChar2SetAndConsume) // TODO (doilij): not tested
+M(SyncToChar2LiteralAndContinue) // SyncToLiteralAndContinueInstT<Char2LiteralScannerMixin> // TODO (doilij): not tested // DONE MACROS
+M(SyncToLiteralAndContinue) // SyncToLiteralAndContinueInstT<ScannerMixin> // TODO (doilij): not tested // DONE MACROS
+M(SyncToLinearLiteralAndContinue) // SyncToLiteralAndContinueInstT<ScannerMixin_WithLinearCharMap> // TODO (doilij): not tested // DONE MACROS
+M(SyncToLiteralEquivAndContinue) // SyncToLiteralAndContinueInstT<EquivScannerMixin> // TODO (doilij): not tested // DONE MACROS
+M(SyncToLiteralEquivTrivialLastPatCharAndContinue) // SyncToLiteralAndContinueInstT<EquivTrivialLastPatCharScannerMixin> // TODO (doilij): not tested // DONE MACROS
+M(SyncToCharAndConsume) // TODO (doilij): not tested // DONE MACROS
+M(SyncToChar2SetAndConsume) // TODO (doilij): not tested // DONE MACROS
 MTemplate(SyncToSetAndConsume, template<bool IsNegation>, SyncToSetAndConsumeInst, SyncToSetAndConsumeInst<false>) // REMOVE (doilij): tested // DONE MACROS
 // 0x28
 MTemplate(SyncToNegatedSetAndConsume, template<bool IsNegation>, SyncToSetAndConsumeInst, SyncToSetAndConsumeInst<true>) // TODO (doilij): not tested // DONE MACROS

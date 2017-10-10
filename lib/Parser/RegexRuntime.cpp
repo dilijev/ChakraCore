@@ -2113,131 +2113,56 @@ namespace UnifiedRegex
     template <>
     int SyncToLiteralAndContinueInstT<Char2LiteralScannerMixin>::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
-        w->Print(_u("L%04x: "), label);
-
-        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
-        {
-            w->Print(_u("(0x%03x bytes) "), sizeof(*this));
-        }
-
         // NOTE: this text is unique to this instantiation
-        w->Print(_u("SyncToLiteralAndContinueInstT<Char2LiteralScannerMixin> aka SyncToChar2LiteralAndContinue("), label);
-        Char2LiteralScannerMixin::Print(w, litbuf); // NOTE: would work with template <typename ScannerT> ScannerT::Print
-        w->PrintEOL(_u(")"));
-
-        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
-        {
-            w->Indent();
-            PRINT_BYTES(Inst);
-            PRINT_BYTES(Char2LiteralScannerMixin); // NOTE: unique because macro expansion and _u(#InstType) happen before template is evaluated (so text would be ScannerT)
-            w->Unindent();
-        }
-
-        return sizeof(*this);
+        PRINT_RE_BYTECODE_BEGIN("SyncToLiteralAndContinueInstT<Char2LiteralScannerMixin> aka SyncToChar2LiteralAndContinue");
+        PRINT_MIXIN(Char2LiteralScannerMixin); // NOTE: would work with template <typename ScannerT> ScannerT::Print
+        PRINT_RE_BYTECODE_MID();
+        PRINT_BYTES(Char2LiteralScannerMixin); // NOTE: unique because macro expansion and _u(#InstType) happen before template is evaluated (so text would be ScannerT)
+        PRINT_RE_BYTECODE_END();
     }
 
     template <>
     int SyncToLiteralAndContinueInstT<ScannerMixin>::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
-        w->Print(_u("L%04x: "), label);
-
-        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
-        {
-            w->Print(_u("(0x%03x bytes) "), sizeof(*this));
-        }
-
         // NOTE: this text is unique to this instantiation
-        w->Print(_u("SyncToLiteralAndContinueInstT<ScannerMixin> aka SyncToLiteralAndContinue("), label);
-        ScannerMixin::Print(w, litbuf); // NOTE: would work with template <typename ScannerT> ScannerT::Print
-        w->PrintEOL(_u(")"));
-
-        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
-        {
-            w->Indent();
-            PRINT_BYTES(Inst);
-            PRINT_BYTES(ScannerMixin); // NOTE: unique because macro expansion and _u(#InstType) happen before template is evaluated (so text would be ScannerT)
-            w->Unindent();
-        }
-
-        return sizeof(*this);
+        PRINT_RE_BYTECODE_BEGIN("SyncToLiteralAndContinueInstT<ScannerMixin> aka SyncToLiteralAndContinue");
+        PRINT_MIXIN(ScannerMixin); // NOTE: would work with template <typename ScannerT> ScannerT::Print
+        PRINT_RE_BYTECODE_MID();
+        PRINT_BYTES(ScannerMixin); // NOTE: unique because macro expansion and _u(#InstType) happen before template is evaluated (so text would be ScannerT)
+        PRINT_RE_BYTECODE_END();
     }
 
     template <>
     int SyncToLiteralAndContinueInstT<ScannerMixin_WithLinearCharMap>::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
-        w->Print(_u("L%04x: "), label);
-
-        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
-        {
-            w->Print(_u("(0x%03x bytes) "), sizeof(*this));
-        }
-
         // NOTE: this text is unique to this instantiation
-        w->Print(_u("SyncToLiteralAndContinueInstT<ScannerMixin_WithLinearCharMap> aka SyncToLinearLiteralAndContinue("), label);
-        ScannerMixin_WithLinearCharMap::Print(w, litbuf); // NOTE: would work with template <typename ScannerT> ScannerT::Print
-        w->PrintEOL(_u(")"));
-
-        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
-        {
-            w->Indent();
-            PRINT_BYTES(Inst);
-            PRINT_BYTES(ScannerMixin_WithLinearCharMap); // NOTE: unique because macro expansion and _u(#InstType) happen before template is evaluated (so text would be ScannerT)
-            w->Unindent();
-        }
-
-        return sizeof(*this);
+        PRINT_RE_BYTECODE_BEGIN("SyncToLiteralAndContinueInstT<ScannerMixin_WithLinearCharMap> aka SyncToLinearLiteralAndContinue");
+        PRINT_MIXIN(ScannerMixin_WithLinearCharMap); // NOTE: would work with template <typename ScannerT> ScannerT::Print
+        PRINT_RE_BYTECODE_MID();
+        PRINT_BYTES(ScannerMixin_WithLinearCharMap); // NOTE: unique because macro expansion and _u(#InstType) happen before template is evaluated (so text would be ScannerT)
+        PRINT_RE_BYTECODE_END();
     }
 
     template <>
     int SyncToLiteralAndContinueInstT<EquivScannerMixin>::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
-        w->Print(_u("L%04x: "), label);
-
-        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
-        {
-            w->Print(_u("(0x%03x bytes) "), sizeof(*this));
-        }
-
         // NOTE: this text is unique to this instantiation
-        w->Print(_u("SyncToLiteralAndContinueInstT<EquivScannerMixin> aka SyncToLiteralEquivAndContinue("), label);
-        EquivScannerMixin::Print(w, litbuf); // NOTE: would work with template <typename ScannerT> ScannerT::Print
-        w->PrintEOL(_u(")"));
-
-        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
-        {
-            w->Indent();
-            PRINT_BYTES(Inst);
-            PRINT_BYTES(EquivScannerMixin); // NOTE: unique because macro expansion and _u(#InstType) happen before template is evaluated (so text would be ScannerT)
-            w->Unindent();
-        }
-
-        return sizeof(*this);
+        PRINT_RE_BYTECODE_BEGIN("SyncToLiteralAndContinueInstT<EquivScannerMixin> aka SyncToLiteralEquivAndContinue");
+        PRINT_MIXIN(EquivScannerMixin); // NOTE: would work with template <typename ScannerT> ScannerT::Print
+        PRINT_RE_BYTECODE_MID();
+        PRINT_BYTES(EquivScannerMixin); // NOTE: unique because macro expansion and _u(#InstType) happen before template is evaluated (so text would be ScannerT)
+        PRINT_RE_BYTECODE_END();
     }
 
     template <>
     int SyncToLiteralAndContinueInstT<EquivTrivialLastPatCharScannerMixin>::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
-        w->Print(_u("L%04x: "), label);
-
-        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
-        {
-            w->Print(_u("(0x%03x bytes) "), sizeof(*this));
-        }
-
         // NOTE: this text is unique to this instantiation
-        w->Print(_u("SyncToLiteralAndContinueInstT<EquivTrivialLastPatCharScannerMixin> aka SyncToLiteralEquivTrivialLastPatCharAndContinue("), label);
-        EquivTrivialLastPatCharScannerMixin::Print(w, litbuf); // NOTE: would work with template <typename ScannerT> ScannerT::Print
-        w->PrintEOL(_u(")"));
-
-        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
-        {
-            w->Indent();
-            PRINT_BYTES(Inst);
-            PRINT_BYTES(EquivTrivialLastPatCharScannerMixin); // NOTE: unique because macro expansion and _u(#InstType) happen before template is evaluated (so text would be ScannerT)
-            w->Unindent();
-        }
-
-        return sizeof(*this);
+        PRINT_RE_BYTECODE_BEGIN("SyncToLiteralAndContinueInstT<EquivTrivialLastPatCharScannerMixin> aka SyncToLiteralEquivTrivialLastPatCharAndContinue");
+        PRINT_MIXIN(EquivTrivialLastPatCharScannerMixin); // NOTE: would work with template <typename ScannerT> ScannerT::Print
+        PRINT_RE_BYTECODE_MID();
+        PRINT_BYTES(EquivTrivialLastPatCharScannerMixin); // NOTE: unique because macro expansion and _u(#InstType) happen before template is evaluated (so text would be ScannerT)
+        PRINT_RE_BYTECODE_END();
     }
 #endif
 
@@ -2272,26 +2197,11 @@ namespace UnifiedRegex
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int SyncToCharAndConsumeInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
-        w->Print(_u("L%04x: "), label);
-
-        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
-        {
-            w->Print(_u("(0x%03x bytes) "), sizeof(*this));
-        }
-
-        w->Print(_u("SyncToCharAndConsume("), label);
-        CharMixin::Print(w, litbuf);
-        w->PrintEOL(_u(")"));
-
-        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
-        {
-            w->Indent();
-            PRINT_BYTES(Inst);
-            PRINT_BYTES(CharMixin);
-            w->Unindent();
-        }
-
-        return sizeof(*this);
+        PRINT_RE_BYTECODE_BEGIN("SyncToCharAndConsume");
+        PRINT_MIXIN(CharMixin);
+        PRINT_RE_BYTECODE_MID();
+        PRINT_BYTES(CharMixin);
+        PRINT_RE_BYTECODE_END();
     }
 #endif
 
@@ -2327,26 +2237,11 @@ namespace UnifiedRegex
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int SyncToChar2SetAndConsumeInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
-        w->Print(_u("L%04x: "), label);
-
-        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
-        {
-            w->Print(_u("(0x%03x bytes) "), sizeof(*this));
-        }
-
-        w->Print(_u("SyncToChar2SetAndConsume("), label);
-        Char2Mixin::Print(w, litbuf);
-        w->PrintEOL(_u(")"));
-
-        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
-        {
-            w->Indent();
-            PRINT_BYTES(Inst);
-            PRINT_BYTES(Char2Mixin);
-            w->Unindent();
-        }
-
-        return sizeof(*this);
+        PRINT_RE_BYTECODE_BEGIN("SyncToChar2SetAndConsume");
+        PRINT_MIXIN(Char2Mixin);
+        PRINT_RE_BYTECODE_MID();
+        PRINT_BYTES(Char2Mixin);
+        PRINT_RE_BYTECODE_END();
     }
 #endif
 
