@@ -84,11 +84,11 @@ M(BeginLoopFixed) // TODO (doilij): not tested // DONE MACROS
 M(RepeatLoopFixed) // TODO (doilij): not tested // DONE MACROS
 M(LoopSet) // TODO (doilij): not tested // DONE MACROS
 M(LoopSetWithFollowFirst) // TODO (doilij): not tested // DONE MACROS
-M(BeginLoopFixedGroupLastIteration)
-M(RepeatLoopFixedGroupLastIteration)
-M(BeginGreedyLoopNoBacktrack)
+M(BeginLoopFixedGroupLastIteration) // TODO (doilij): not tested // DONE MACROS
+M(RepeatLoopFixedGroupLastIteration) // TODO (doilij): not tested // DONE MACROS
+M(BeginGreedyLoopNoBacktrack) // TODO (doilij): not tested // DONE MACROS
 // 0x48
-M(RepeatGreedyLoopNoBacktrack)
+M(RepeatGreedyLoopNoBacktrack) // TODO (doilij): not tested // DONE MACROS
 MTemplate(ChompCharStar, template<ChompMode Mode>, ChompCharInst, ChompCharInst<ChompMode::Star>)
 MTemplate(ChompCharPlus, template<ChompMode Mode>, ChompCharInst, ChompCharInst<ChompMode::Plus>) // REMOVE (doilij): tested
 MTemplate(ChompSetStar, template<ChompMode Mode>, ChompSetInst, ChompSetInst<ChompMode::Star>)

@@ -559,6 +559,19 @@ namespace UnifiedRegex
 #endif
     };
 
+    struct GreedyLoopNoBacktrackMixin
+    {
+        int loopId;
+        Label exitLabel;
+
+        // exitLabel must always be fixed up
+        inline GreedyLoopNoBacktrackMixin(int loopId) : loopId(loopId) {}
+
+#if ENABLE_REGEX_CONFIG_OPTIONS
+        void Print(DebugWriter* w, const char16* litbuf) const;
+#endif
+    };
+
     struct TryMixin
     {
         Label failLabel;
@@ -1303,13 +1316,10 @@ namespace UnifiedRegex
     };
 
     // Loop is greedy, deterministic body, lower == 0, upper == inf, follow is irrefutable, no inner groups
-    struct BeginGreedyLoopNoBacktrackInst : Inst
+    struct BeginGreedyLoopNoBacktrackInst : Inst, GreedyLoopNoBacktrackMixin
     {
-        int loopId;
-        Label exitLabel;
-
         // exitLabel must always be fixed up
-        inline BeginGreedyLoopNoBacktrackInst(int loopId) : Inst(BeginGreedyLoopNoBacktrack), loopId(loopId) {}
+        inline BeginGreedyLoopNoBacktrackInst(int loopId) : Inst(BeginGreedyLoopNoBacktrack), GreedyLoopNoBacktrackMixin(loopId) {}
 
         INST_BODY
     };

@@ -847,6 +847,13 @@ namespace UnifiedRegex
 #endif
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
+    void GreedyLoopNoBacktrackMixin::Print(DebugWriter* w, const char16* litbuf) const
+    {
+        w->Print(_u("loopId: %d, exitLabel: L%04x"), loopId, exitLabel);
+    }
+#endif
+
+#if ENABLE_REGEX_CONFIG_OPTIONS
     void TryMixin::Print(DebugWriter* w, const char16* litbuf) const
     {
         w->Print(_u("failLabel: L%04x"), Inst::GetPrintLabel(failLabel));
@@ -4513,16 +4520,17 @@ namespace UnifiedRegex
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int BeginLoopFixedGroupLastIterationInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
-        w->Print(_u("L%04x: BeginLoopFixedGroupLastIteration("), label);
-        BeginLoopMixin::Print(w, litbuf);
-        w->Print(_u(", "));
-        FixedLengthMixin::Print(w, litbuf);
-        w->Print(_u(", "));
-        GroupMixin::Print(w, litbuf);
-        w->Print(_u(", "));
-        NoNeedToSaveMixin::Print(w, litbuf);
-        w->PrintEOL(_u(")"));
-        return sizeof(*this);
+        PRINT_RE_BYTECODE_BEGIN("BeginLoopFixedGroupLastIteration");
+        PRINT_MIXIN_COMMA(BeginLoopMixin);
+        PRINT_MIXIN_COMMA(FixedLengthMixin);
+        PRINT_MIXIN_COMMA(GroupMixin);
+        PRINT_MIXIN(NoNeedToSaveMixin);
+        PRINT_RE_BYTECODE_MID();
+        PRINT_BYTES(BeginLoopMixin);
+        PRINT_BYTES(FixedLengthMixin);
+        PRINT_BYTES(GroupMixin);
+        PRINT_BYTES(NoNeedToSaveMixin);
+        PRINT_RE_BYTECODE_END();
     }
 #endif
 
@@ -4584,13 +4592,13 @@ namespace UnifiedRegex
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int RepeatLoopFixedGroupLastIterationInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
-        w->Print(_u("L%04x: RepeatLoopFixedGroupLastIteration("), label);
-        RepeatLoopMixin::Print(w, litbuf);
-        w->PrintEOL(_u(")"));
-        return sizeof(*this);
+        PRINT_RE_BYTECODE_BEGIN("RepeatLoopFixedGroupLastIteration");
+        PRINT_MIXIN(RepeatLoopMixin);
+        PRINT_RE_BYTECODE_MID();
+        PRINT_BYTES(RepeatLoopMixin);
+        PRINT_RE_BYTECODE_END();
     }
 #endif
-
 
     // ----------------------------------------------------------------------
     // BeginGreedyLoopNoBacktrackInst
@@ -4616,8 +4624,11 @@ namespace UnifiedRegex
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int BeginGreedyLoopNoBacktrackInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
-        w->PrintEOL(_u("L%04x: BeginGreedyLoopNoBacktrack(loopId: %d)"), label, loopId);
-        return sizeof(*this);
+        PRINT_RE_BYTECODE_BEGIN("BeginGreedyLoopNoBacktrack");
+        PRINT_MIXIN(GreedyLoopNoBacktrackMixin);
+        PRINT_RE_BYTECODE_MID();
+        PRINT_BYTES(GreedyLoopNoBacktrackMixin);
+        PRINT_RE_BYTECODE_END();
     }
 #endif
 
@@ -4657,10 +4668,11 @@ namespace UnifiedRegex
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int RepeatGreedyLoopNoBacktrackInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
-        w->Print(_u("L%04x: RepeatGreedyLoopNoBacktrack("), label);
-        RepeatLoopMixin::Print(w, litbuf);
-        w->PrintEOL(_u(")"));
-        return sizeof(*this);
+        PRINT_RE_BYTECODE_BEGIN("RepeatGreedyLoopNoBacktrack");
+        PRINT_MIXIN(RepeatLoopMixin);
+        PRINT_RE_BYTECODE_MID();
+        PRINT_BYTES(RepeatLoopMixin);
+        PRINT_RE_BYTECODE_END();
     }
 #endif
 
