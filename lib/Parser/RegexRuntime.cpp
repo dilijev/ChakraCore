@@ -1931,26 +1931,11 @@ namespace UnifiedRegex
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int OptMatchCharInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
-        w->Print(_u("L%04x: "), label);
-
-        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
-        {
-            w->Print(_u("(0x%03x bytes) "), sizeof(*this));
-        }
-
-        w->Print(_u("OptMatchChar("), label);
-        CharMixin::Print(w, litbuf);
-        w->PrintEOL(_u(")"));
-
-        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
-        {
-            w->Indent();
-            PRINT_BYTES(Inst);
-            PRINT_BYTES(CharMixin);
-            w->Unindent();
-        }
-
-        return sizeof(*this);
+        PRINT_RE_BYTECODE_BEGIN("OptMatchChar");
+        PRINT_MIXIN(CharMixin);
+        PRINT_RE_BYTECODE_MID();
+        PRINT_BYTES(CharMixin);
+        PRINT_RE_BYTECODE_END();
     }
 #endif
 
@@ -1975,26 +1960,11 @@ namespace UnifiedRegex
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int OptMatchSetInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
-        w->Print(_u("L%04x: "), label);
-
-        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
-        {
-            w->Print(_u("(0x%03x bytes) "), sizeof(*this));
-        }
-
-        w->Print(_u("OptMatchSet("), label);
-        SetMixin<false>::Print(w, litbuf);
-        w->PrintEOL(_u(")"));
-
-        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
-        {
-            w->Indent();
-            PRINT_BYTES(Inst);
-            PRINT_BYTES(SetMixin<false>);
-            w->Unindent();
-        }
-
-        return sizeof(*this);
+        PRINT_RE_BYTECODE_BEGIN("OptMatchSet");
+        PRINT_MIXIN(SetMixin<false>);
+        PRINT_RE_BYTECODE_MID();
+        PRINT_BYTES(SetMixin<false>);
+        PRINT_RE_BYTECODE_END();
     }
 #endif
 
@@ -2024,26 +1994,11 @@ namespace UnifiedRegex
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int SyncToCharAndContinueInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
-        w->Print(_u("L%04x: "), label);
-
-        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
-        {
-            w->Print(_u("(0x%03x bytes) "), sizeof(*this));
-        }
-
-        w->Print(_u("SyncToCharAndContinue("), label);
-        CharMixin::Print(w, litbuf);
-        w->PrintEOL(_u(")"));
-
-        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
-        {
-            w->Indent();
-            PRINT_BYTES(Inst);
-            PRINT_BYTES(CharMixin);
-            w->Unindent();
-        }
-
-        return sizeof(*this);
+        PRINT_RE_BYTECODE_BEGIN("SyncToCharAndContinue");
+        PRINT_MIXIN(CharMixin);
+        PRINT_RE_BYTECODE_MID();
+        PRINT_BYTES(CharMixin);
+        PRINT_RE_BYTECODE_END();
     }
 #endif
 
@@ -2074,29 +2029,13 @@ namespace UnifiedRegex
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int SyncToChar2SetAndContinueInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
-        w->Print(_u("L%04x: "), label);
-
-        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
-        {
-            w->Print(_u("(0x%03x bytes) "), sizeof(*this));
-        }
-
-        w->Print(_u("SyncToChar2SetAndContinue("), label);
-        Char2Mixin::Print(w, litbuf);
-        w->PrintEOL(_u(")"));
-
-        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
-        {
-            w->Indent();
-            PRINT_BYTES(Inst);
-            PRINT_BYTES(Char2Mixin);
-            w->Unindent();
-        }
-
-        return sizeof(*this);
+        PRINT_RE_BYTECODE_BEGIN("SyncToChar2SetAndContinue");
+        PRINT_MIXIN(Char2Mixin);
+        PRINT_RE_BYTECODE_MID();
+        PRINT_BYTES(Char2Mixin);
+        PRINT_RE_BYTECODE_END();
     }
 #endif
-
 
     // ----------------------------------------------------------------------
     // SyncToSetAndContinueInst (optimized instruction)
