@@ -433,6 +433,13 @@ namespace UnifiedRegex
 #define PRINT_BYTES_ANNOTATED(InstType, Annotation) \
     Inst::PrintBytes<InstType>(w, (Inst *)this, (InstType *)this, (Annotation))
 
+#define PRINT_MIXIN(Mixin) \
+    Mixin::Print(w, litbuf);
+
+#define PRINT_MIXIN_COMMA(Mixin) \
+    PRINT_MIXIN(Mixin); \
+    w->Print(_u(", "));
+
 #define PRINT_RE_BYTECODE_BEGIN(Name) \
     w->Print(_u("L%04x: "), label); \
     if (REGEX_CONFIG_FLAG(RegexBytecodeDebug)) \
@@ -440,25 +447,19 @@ namespace UnifiedRegex
         w->Print(_u("(0x%03x bytes) "), sizeof(*this)); \
     } \
     w->Print(_u(Name)); \
-    w->Print(_u("(")); \
+    w->Print(_u("("));
 
 #define PRINT_RE_BYTECODE_MID() \
     w->PrintEOL(_u(")")); \
     if (REGEX_CONFIG_FLAG(RegexBytecodeDebug)) \
     { \
         w->Indent(); \
+        PRINT_BYTES(Inst);
 
 #define PRINT_RE_BYTECODE_END() \
         w->Unindent(); \
     } \
     return sizeof(*this);
-
-#define PRINT_MIXIN(Mixin) \
-    Mixin::Print(w, litbuf);
-
-#define PRINT_MIXIN_COMMA(Mixin) \
-    PRINT_MIXIN(Mixin); \
-    w->Print(_u(", "));
 
 #endif
 
@@ -2218,6 +2219,7 @@ namespace UnifiedRegex
         {
             w->Indent();
             // We don't PRINT_BYTES(Inst) because MatchTrieInst : Inst (no mixins). The trie field is directly on MatchTrieInst struct.
+            // TODO (doilij): trie mixin
             PRINT_BYTES(MatchTrieInst);
             w->Unindent();
         }
@@ -3755,7 +3757,6 @@ namespace UnifiedRegex
         PRINT_MIXIN_COMMA(FixedLengthMixin);
         PRINT_MIXIN(NoNeedToSaveMixin);
         PRINT_RE_BYTECODE_MID();
-        PRINT_BYTES(Inst);
         PRINT_BYTES(GroupMixin);
         PRINT_BYTES(FixedLengthMixin);
         PRINT_BYTES(NoNeedToSaveMixin);
@@ -3839,7 +3840,6 @@ namespace UnifiedRegex
         PRINT_MIXIN_COMMA(BodyGroupsMixin);
         PRINT_MIXIN(GreedyMixin);
         PRINT_RE_BYTECODE_MID();
-        PRINT_BYTES(Inst);
         PRINT_BYTES(BeginLoopMixin);
         PRINT_BYTES(BodyGroupsMixin);
         PRINT_BYTES(GreedyMixin);
@@ -3928,10 +3928,11 @@ namespace UnifiedRegex
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int RepeatLoopInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
-        w->Print(_u("L%04x: RepeatLoop("), label);
-        RepeatLoopMixin::Print(w, litbuf);
-        w->PrintEOL(_u(")"));
-        return sizeof(*this);
+        PRINT_RE_BYTECODE_BEGIN("RepeatLoop");
+        PRINT_MIXIN(RepeatLoopMixin);
+        PRINT_RE_BYTECODE_MID();
+        PRINT_BYTES(RepeatLoopMixin);
+        PRINT_RE_BYTECODE_END();
     }
 #endif
 
