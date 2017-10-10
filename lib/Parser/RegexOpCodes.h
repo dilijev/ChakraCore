@@ -35,7 +35,7 @@ MTemplate(MatchNegatedSet, template<bool IsNegation>, MatchSetInst, MatchSetInst
 M(MatchLiteral) // REMOVE (doilij): tested // DONE MACROS
 // 0x18
 M(MatchLiteralEquiv) // REMOVE (doilij): tested // DONE MACROS
-M(MatchTrie) // TODO (doilij): not tested
+M(MatchTrie) // TODO (doilij): not tested // DONE MACROS
 M(OptMatchChar) // TODO (doilij): not tested
 M(OptMatchSet) // TODO (doilij): not tested
 M(SyncToCharAndContinue) // TODO (doilij): not tested

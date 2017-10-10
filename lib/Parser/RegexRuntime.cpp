@@ -782,6 +782,13 @@ namespace UnifiedRegex
 #endif
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
+    void TrieMixin::Print(DebugWriter* w, const char16* litbuf) const
+    {
+        trie.Print(w);
+    }
+#endif
+
+#if ENABLE_REGEX_CONFIG_OPTIONS
     void HardFailMixin::Print(DebugWriter* w, const char16* litbuf) const
     {
         w->Print(_u("hardFail: %s"), canHardFail ? _u("true") : _u("false"));
@@ -1895,27 +1902,11 @@ namespace UnifiedRegex
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int MatchTrieInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
-        w->Print(_u("L%04x: "), label);
-
-        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
-        {
-            w->Print(_u("(0x%03x bytes) "), sizeof(*this));
-        }
-
-        w->Print(_u("MatchTrie("));
-        trie.Print(w);
-        w->PrintEOL(_u(")"));
-
-        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
-        {
-            w->Indent();
-            // We don't PRINT_BYTES(Inst) because MatchTrieInst : Inst (no mixins). The trie field is directly on MatchTrieInst struct.
-            // TODO (doilij): trie mixin
-            PRINT_BYTES(MatchTrieInst);
-            w->Unindent();
-        }
-
-        return sizeof(*this);
+        PRINT_RE_BYTECODE_BEGIN("MatchTrie");
+        PRINT_MIXIN(TrieMixin);
+        PRINT_RE_BYTECODE_MID();
+        PRINT_BYTES(TrieMixin);
+        PRINT_RE_BYTECODE_END();
     }
 #endif
 

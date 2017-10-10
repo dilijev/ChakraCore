@@ -361,6 +361,17 @@ namespace UnifiedRegex
 #endif
     };
 
+    struct TrieMixin
+    {
+        RuntimeCharTrie trie;
+
+        // Trie must always be cloned
+
+#if ENABLE_REGEX_CONFIG_OPTIONS
+        void Print(DebugWriter* w, const char16* litbuf) const;
+#endif
+    };
+
     struct Char2LiteralScannerMixin : Char2Mixin
     {
         // scanner must be setup
@@ -934,10 +945,8 @@ namespace UnifiedRegex
         INST_BODY
     };
 
-    struct MatchTrieInst : Inst
+    struct MatchTrieInst : Inst, TrieMixin
     {
-        RuntimeCharTrie trie;
-
         // Trie must always be cloned
         inline MatchTrieInst() : Inst(MatchTrie) {}
         void FreeBody(ArenaAllocator* rtAllocator);
