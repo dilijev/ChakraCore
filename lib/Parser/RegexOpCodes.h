@@ -107,5 +107,5 @@ M(TryMatchChar) // TODO (doilij): not tested // DONE MACROS
 M(TryIfSet) // TODO (doilij): not tested // DONE MACROS
 // 0x58
 M(TryMatchSet) // REMOVE (doilij): tested // DONE MACROS
-M(BeginAssertion)
-M(EndAssertion)
+M(BeginAssertion) // TODO (doilij): not tested // DONE MACROS
+M(EndAssertion) // TODO (doilij): not tested // DONE MACROS

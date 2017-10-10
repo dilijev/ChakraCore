@@ -861,6 +861,20 @@ namespace UnifiedRegex
 #endif
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
+    void NegationMixin::Print(DebugWriter* w, const char16* litbuf) const
+    {
+        w->Print(_u("isNegation: %s"), isNegation ? _u("true") : _u("false"));
+    }
+#endif
+
+#if ENABLE_REGEX_CONFIG_OPTIONS
+    void NextLabelMixin::Print(DebugWriter* w, const char16* litbuf) const
+    {
+        w->Print(_u("nextLabel: L%04x"), Inst::GetPrintLabel(nextLabel));
+    }
+#endif
+
+#if ENABLE_REGEX_CONFIG_OPTIONS
     void FixedLengthMixin::Print(DebugWriter* w, const char16* litbuf) const
     {
         w->Print(_u("length: %u"), length);
@@ -5301,11 +5315,15 @@ namespace UnifiedRegex
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int BeginAssertionInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
-        w->Print(_u("L%04x: BeginAssertion(isNegation: %s, nextLabel: L%04x, "),
-            label, isNegation ? _u("true") : _u("false"), GetPrintLabel(nextLabel));
-        BodyGroupsMixin::Print(w, litbuf);
-        w->PrintEOL(_u(")"));
-        return sizeof(*this);
+        PRINT_RE_BYTECODE_BEGIN("BeginAssertion");
+        PRINT_MIXIN_COMMA(BodyGroupsMixin);
+        PRINT_MIXIN_COMMA(NegationMixin);
+        PRINT_MIXIN(NextLabelMixin);
+        PRINT_RE_BYTECODE_MID();
+        PRINT_BYTES(BodyGroupsMixin);
+        PRINT_BYTES(NegationMixin);
+        PRINT_BYTES(NextLabelMixin);
+        PRINT_RE_BYTECODE_END();
     }
 #endif
 
@@ -5328,8 +5346,10 @@ namespace UnifiedRegex
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int EndAssertionInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
-        w->PrintEOL(_u("L%04x: EndAssertion()"), label);
-        return sizeof(*this);
+        PRINT_RE_BYTECODE_BEGIN("EndAssertion");
+        PRINT_RE_BYTECODE_MID();
+        PRINT_BYTES(EndAssertionInst);
+        PRINT_RE_BYTECODE_END();
     }
 #endif
 

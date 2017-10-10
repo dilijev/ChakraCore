@@ -589,6 +589,34 @@ namespace UnifiedRegex
 #endif
     };
 
+    struct NegationMixin
+    {
+        bool isNegation;
+
+        inline NegationMixin(bool isNegation) : isNegation(isNegation) {}
+
+#if ENABLE_REGEX_CONFIG_OPTIONS
+        void Print(DebugWriter* w, const char16* litbuf) const;
+#endif
+    };
+
+    struct NextLabelMixin
+    {
+        Label nextLabel;
+
+        // nextLabel must always be fixed up
+        inline NextLabelMixin()
+        {
+#if DBG
+            nextLabel = (Label)-1;
+#endif
+        }
+
+#if ENABLE_REGEX_CONFIG_OPTIONS
+        void Print(DebugWriter* w, const char16* litbuf) const;
+#endif
+    };
+
     struct FixedLengthMixin
     {
         CharCount length;
@@ -1455,18 +1483,12 @@ namespace UnifiedRegex
     // User-defined assertions
     //
 
-    struct BeginAssertionInst : Inst, BodyGroupsMixin
+    struct BeginAssertionInst : Inst, BodyGroupsMixin, NegationMixin, NextLabelMixin
     {
-        bool isNegation;
-        Label nextLabel;
-
         // nextLabel must always be fixed up
-        inline BeginAssertionInst(bool isNegation, int minBodyGroupId, int maxBodyGroupId) : Inst(BeginAssertion), isNegation(isNegation), BodyGroupsMixin(minBodyGroupId, maxBodyGroupId)
-        {
-#if DBG
-            nextLabel = (Label)-1;
-#endif
-        }
+        inline BeginAssertionInst(bool isNegation, int minBodyGroupId, int maxBodyGroupId)
+            : Inst(BeginAssertion), BodyGroupsMixin(minBodyGroupId, maxBodyGroupId), NegationMixin(isNegation), NextLabelMixin()
+        {}
 
         INST_BODY
     };
