@@ -4968,12 +4968,13 @@ namespace UnifiedRegex
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int ChompCharBoundedInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
-        w->Print(_u("L%04x: ChompCharBounded("), label);
-        CharMixin::Print(w, litbuf);
-        w->Print(_u(", "));
-        ChompBoundedMixin::Print(w, litbuf);
-        w->PrintEOL(_u(")"));
-        return sizeof(*this);
+        PRINT_RE_BYTECODE_BEGIN("ChompCharBounded");
+        PRINT_MIXIN_COMMA(CharMixin);
+        PRINT_MIXIN(ChompBoundedMixin);
+        PRINT_RE_BYTECODE_MID();
+        PRINT_BYTES(CharMixin);
+        PRINT_BYTES(ChompBoundedMixin);
+        PRINT_RE_BYTECODE_END();
     }
 #endif
 
@@ -5013,12 +5014,13 @@ namespace UnifiedRegex
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int ChompSetBoundedInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
-        w->Print(_u("L%04x: ChompSetBounded("), label);
-        SetMixin::Print(w, litbuf);
-        w->Print(_u(", "));
-        ChompBoundedMixin::Print(w, litbuf);
-        w->PrintEOL(_u(")"));
-        return sizeof(*this);
+        PRINT_RE_BYTECODE_BEGIN("ChompSetBounded");
+        PRINT_MIXIN_COMMA(SetMixin);
+        PRINT_MIXIN(ChompBoundedMixin);
+        PRINT_RE_BYTECODE_MID();
+        PRINT_BYTES(SetMixin);
+        PRINT_BYTES(ChompBoundedMixin);
+        PRINT_RE_BYTECODE_END();
     }
 #endif
 
@@ -5075,16 +5077,17 @@ namespace UnifiedRegex
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int ChompSetBoundedGroupLastCharInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
-        w->Print(_u("L%04x: ChompSetBoundedGroupLastChar("), label);
-        SetMixin::Print(w, litbuf);
-        w->Print(_u(", "));
-        ChompBoundedMixin::Print(w, litbuf);
-        w->Print(_u(", "));
-        GroupMixin::Print(w, litbuf);
-        w->Print(_u(", "));
-        NoNeedToSaveMixin::Print(w, litbuf);
-        w->PrintEOL(_u(")"));
-        return sizeof(*this);
+        PRINT_RE_BYTECODE_BEGIN("ChompSetBoundedGroupLastChar");
+        PRINT_MIXIN_COMMA(SetMixin<false>);
+        PRINT_MIXIN_COMMA(ChompBoundedMixin);
+        PRINT_MIXIN_COMMA(GroupMixin);
+        PRINT_MIXIN(NoNeedToSaveMixin);
+        PRINT_RE_BYTECODE_MID();
+        PRINT_BYTES(SetMixin<false>);
+        PRINT_BYTES(ChompBoundedMixin);
+        PRINT_BYTES(GroupMixin);
+        PRINT_BYTES(NoNeedToSaveMixin);
+        PRINT_RE_BYTECODE_END();
     }
 #endif
 

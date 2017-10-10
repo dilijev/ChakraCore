@@ -98,9 +98,9 @@ MTemplate(ChompCharGroupPlus, template<ChompMode Mode>, ChompCharGroupInst, Chom
 MTemplate(ChompSetGroupStar, template<ChompMode Mode>, ChompSetGroupInst, ChompSetGroupInst<ChompMode::Star>) // TODO (doilij): not tested // DONE MACROS
 // 0x50
 MTemplate(ChompSetGroupPlus, template<ChompMode Mode>, ChompSetGroupInst, ChompSetGroupInst<ChompMode::Plus>) // TODO (doilij): not tested // DONE MACROS
-M(ChompCharBounded)
-M(ChompSetBounded)
-M(ChompSetBoundedGroupLastChar)
+M(ChompCharBounded) // TODO (doilij): not tested // DONE MACROS
+M(ChompSetBounded) // TODO (doilij): not tested // DONE MACROS
+M(ChompSetBoundedGroupLastChar) // TODO (doilij): not tested // DONE MACROS
 M(Try)
 M(TryIfChar)
 M(TryMatchChar)
