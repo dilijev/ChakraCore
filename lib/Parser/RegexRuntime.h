@@ -526,6 +526,16 @@ namespace UnifiedRegex
 #endif
     };
 
+    struct GreedyMixin
+    {
+        bool isGreedy;
+        inline GreedyMixin(bool isGreedy) : isGreedy(isGreedy) {}
+
+#if ENABLE_REGEX_CONFIG_OPTIONS
+        void Print(DebugWriter* w, const char16* litbuf) const;
+#endif
+    };
+
     struct RepeatLoopMixin
     {
         Label beginLabel;  // label of the BeginLoopX instruction
@@ -1161,13 +1171,11 @@ namespace UnifiedRegex
     // Loops
     //
 
-    struct BeginLoopInst : Inst, BeginLoopMixin, BodyGroupsMixin
+    struct BeginLoopInst : Inst, BeginLoopMixin, BodyGroupsMixin, GreedyMixin
     {
-        bool isGreedy;
-
         // exitLabel must always be fixed up
         inline BeginLoopInst(int loopId, const CountDomain& repeats, bool hasOuterLoops, bool hasInnerNondet, int minBodyGroupId, int maxBodyGroupId, bool isGreedy)
-            : Inst(BeginLoop), BeginLoopMixin(loopId, repeats, hasOuterLoops, hasInnerNondet), BodyGroupsMixin(minBodyGroupId, maxBodyGroupId), isGreedy(isGreedy)
+            : Inst(BeginLoop), BeginLoopMixin(loopId, repeats, hasOuterLoops, hasInnerNondet), BodyGroupsMixin(minBodyGroupId, maxBodyGroupId), GreedyMixin(isGreedy)
         {}
 
         INST_BODY

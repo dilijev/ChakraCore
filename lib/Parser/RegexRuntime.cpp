@@ -824,6 +824,13 @@ namespace UnifiedRegex
 #endif
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
+    void GreedyMixin::Print(DebugWriter* w, const char16* litbuf) const
+    {
+        w->Print(_u("greedy: %s"), isGreedy ? _u("true") : _u("false"));
+    }
+#endif
+
+#if ENABLE_REGEX_CONFIG_OPTIONS
     void RepeatLoopMixin::Print(DebugWriter* w, const char16* litbuf) const
     {
         w->Print(_u("beginLabel: L%04x"), Inst::GetPrintLabel(beginLabel));
@@ -3827,12 +3834,16 @@ namespace UnifiedRegex
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int BeginLoopInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
-        w->Print(_u("L%04x: BeginLoop("), label);
-        BeginLoopMixin::Print(w, litbuf);
-        w->Print(_u(", "));
-        BodyGroupsMixin::Print(w, litbuf);
-        w->PrintEOL(_u(", greedy: %s)"), isGreedy ? _u("true") : _u("false"));
-        return sizeof(*this);
+        PRINT_RE_BYTECODE_BEGIN("BeginLoop");
+        PRINT_MIXIN_COMMA(BeginLoopMixin);
+        PRINT_MIXIN_COMMA(BodyGroupsMixin);
+        PRINT_MIXIN(GreedyMixin);
+        PRINT_RE_BYTECODE_MID();
+        PRINT_BYTES(Inst);
+        PRINT_BYTES(BeginLoopMixin);
+        PRINT_BYTES(BodyGroupsMixin);
+        PRINT_BYTES(GreedyMixin);
+        PRINT_RE_BYTECODE_END();
     }
 #endif
 

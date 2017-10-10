@@ -72,8 +72,8 @@ M(MatchGroup) // TODO (doilij): not tested
 // 0x38
 M(BeginDefineGroup) // TODO (doilij): not tested
 M(EndDefineGroup) // TODO (doilij): not tested
-M(DefineGroupFixed) // REMOVE (doilij): tested
-M(BeginLoop)
+M(DefineGroupFixed) // REMOVE (doilij): tested // DONE MACROS
+M(BeginLoop) // TODO (doilij): not tested
 M(RepeatLoop)
 M(BeginLoopIfChar)
 M(BeginLoopIfSet)
