@@ -5110,10 +5110,11 @@ namespace UnifiedRegex
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int TryInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
-        w->Print(_u("L%04x: Try("), label);
-        TryMixin::Print(w, litbuf);
-        w->PrintEOL(_u(")"));
-        return sizeof(*this);
+        PRINT_RE_BYTECODE_BEGIN("Try");
+        PRINT_MIXIN(TryMixin);
+        PRINT_RE_BYTECODE_MID();
+        PRINT_BYTES(TryMixin);
+        PRINT_RE_BYTECODE_END();
     }
 #endif
 
@@ -5145,12 +5146,13 @@ namespace UnifiedRegex
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int TryIfCharInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
-        w->Print(_u("L%04x: TryIfChar("), label);
-        CharMixin::Print(w, litbuf);
-        w->Print(_u(", "));
-        TryMixin::Print(w, litbuf);
-        w->PrintEOL(_u(")"));
-        return sizeof(*this);
+        PRINT_RE_BYTECODE_BEGIN("TryIfChar");
+        PRINT_MIXIN_COMMA(CharMixin);
+        PRINT_MIXIN(TryMixin);
+        PRINT_RE_BYTECODE_MID();
+        PRINT_BYTES(CharMixin);
+        PRINT_BYTES(TryMixin);
+        PRINT_RE_BYTECODE_END();
     }
 #endif
 
@@ -5183,12 +5185,13 @@ namespace UnifiedRegex
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int TryMatchCharInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
-        w->Print(_u("L%04x: TryMatchChar("), label);
-        CharMixin::Print(w, litbuf);
-        w->Print(_u(", "));
-        TryMixin::Print(w, litbuf);
-        w->PrintEOL(_u(")"));
-        return sizeof(*this);
+        PRINT_RE_BYTECODE_BEGIN("TryMatchChar");
+        PRINT_MIXIN_COMMA(CharMixin);
+        PRINT_MIXIN(TryMixin);
+        PRINT_RE_BYTECODE_MID();
+        PRINT_BYTES(CharMixin);
+        PRINT_BYTES(TryMixin);
+        PRINT_RE_BYTECODE_END();
     }
 #endif
 
@@ -5220,12 +5223,13 @@ namespace UnifiedRegex
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int TryIfSetInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
-        w->Print(_u("L%04x: TryIfSet("), label);
-        SetMixin::Print(w, litbuf);
-        w->Print(_u(", "));
-        TryMixin::Print(w, litbuf);
-        w->PrintEOL(_u(")"));
-        return sizeof(*this);
+        PRINT_RE_BYTECODE_BEGIN("TryIfSet");
+        PRINT_MIXIN_COMMA(SetMixin<false>);
+        PRINT_MIXIN(TryMixin);
+        PRINT_RE_BYTECODE_MID();
+        PRINT_BYTES(SetMixin<false>);
+        PRINT_BYTES(TryMixin);
+        PRINT_RE_BYTECODE_END();
     }
 #endif
 
@@ -5258,29 +5262,13 @@ namespace UnifiedRegex
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int TryMatchSetInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
-        w->Print(_u("L%04x: "), label);
-
-        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
-        {
-            w->Print(_u("(0x%03x bytes) "), sizeof(*this));
-        }
-
-        w->Print(_u("TryMatchSet("));
-        SetMixin::Print(w, litbuf);
-        w->Print(_u(", "));
-        TryMixin::Print(w, litbuf);
-        w->PrintEOL(_u(")"));
-
-        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
-        {
-            w->Indent();
-            PRINT_BYTES(Inst);
-            PRINT_BYTES(SetMixin<false>);
-            PRINT_BYTES(TryMixin);
-            w->Unindent();
-        }
-
-        return sizeof(*this);
+        PRINT_RE_BYTECODE_BEGIN("TryMatchSet");
+        PRINT_MIXIN_COMMA(SetMixin<false>);
+        PRINT_MIXIN(TryMixin);
+        PRINT_RE_BYTECODE_MID();
+        PRINT_BYTES(SetMixin<false>);
+        PRINT_BYTES(TryMixin);
+        PRINT_RE_BYTECODE_END();
     }
 #endif
 

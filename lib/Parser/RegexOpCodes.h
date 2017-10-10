@@ -101,11 +101,11 @@ MTemplate(ChompSetGroupPlus, template<ChompMode Mode>, ChompSetGroupInst, ChompS
 M(ChompCharBounded) // TODO (doilij): not tested // DONE MACROS
 M(ChompSetBounded) // TODO (doilij): not tested // DONE MACROS
 M(ChompSetBoundedGroupLastChar) // TODO (doilij): not tested // DONE MACROS
-M(Try)
-M(TryIfChar)
-M(TryMatchChar)
-M(TryIfSet)
+M(Try) // TODO (doilij): not tested // DONE MACROS
+M(TryIfChar) // TODO (doilij): not tested // DONE MACROS
+M(TryMatchChar) // TODO (doilij): not tested // DONE MACROS
+M(TryIfSet) // TODO (doilij): not tested // DONE MACROS
 // 0x58
-M(TryMatchSet) // REMOVE (doilij): tested
+M(TryMatchSet) // REMOVE (doilij): tested // DONE MACROS
 M(BeginAssertion)
 M(EndAssertion)
