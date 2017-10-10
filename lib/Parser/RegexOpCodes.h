@@ -63,11 +63,11 @@ M(SyncToCharAndBackup) // REMOVE (doilij): tested // DONE MACROS
 MTemplate(SyncToSetAndBackup, template<bool IsNegation>, SyncToSetAndBackupInst, SyncToSetAndBackupInst<false>) // REMOVE (doilij): tested // DONE MACROS
 // 0x30
 MTemplate(SyncToNegatedSetAndBackup, template<bool IsNegation>, SyncToSetAndBackupInst, SyncToSetAndBackupInst<true>) // TODO (doilij): not tested // DONE MACROS
-M(SyncToChar2LiteralAndBackup) // SyncToLiteralAndBackupInstT<Char2LiteralScannerMixin> // TODO (doilij): not tested
-M(SyncToLiteralAndBackup) // SyncToLiteralAndBackupInstT<ScannerMixin> // TODO (doilij): not tested
-M(SyncToLinearLiteralAndBackup) // SyncToLiteralAndBackupInstT<ScannerMixin_WithLinearCharMap> // TODO (doilij): not tested
-M(SyncToLiteralEquivAndBackup) // SyncToLiteralAndBackupInstT<EquivScannerMixin> // TODO (doilij): not tested
-M(SyncToLiteralEquivTrivialLastPatCharAndBackup) // SyncToLiteralAndBackupInstT<EquivTrivialLastPatCharScannerMixin> // TODO (doilij): not tested
+M(SyncToChar2LiteralAndBackup) // SyncToLiteralAndBackupInstT<Char2LiteralScannerMixin> // TODO (doilij): not tested // DONE MACROS
+M(SyncToLiteralAndBackup) // SyncToLiteralAndBackupInstT<ScannerMixin> // TODO (doilij): not tested // DONE MACROS
+M(SyncToLinearLiteralAndBackup) // SyncToLiteralAndBackupInstT<ScannerMixin_WithLinearCharMap> // TODO (doilij): not tested // DONE MACROS
+M(SyncToLiteralEquivAndBackup) // SyncToLiteralAndBackupInstT<EquivScannerMixin> // TODO (doilij): not tested // DONE MACROS
+M(SyncToLiteralEquivTrivialLastPatCharAndBackup) // SyncToLiteralAndBackupInstT<EquivTrivialLastPatCharScannerMixin> // TODO (doilij): not tested // DONE MACROS
 M(SyncToLiteralsAndBackup) // REMOVE (doilij): tested
 M(MatchGroup) // TODO (doilij): not tested
 // 0x38
