@@ -58,7 +58,8 @@ M(SyncToLiteralAndConsume) // SyncToLiteralAndConsumeInstT<ScannerMixin> // TODO
 M(SyncToLinearLiteralAndConsume) // SyncToLiteralAndConsumeInstT<ScannerMixin_WithLinearCharMap> // TODO (doilij): not tested // DONE MACROS
 M(SyncToLiteralEquivAndConsume) // SyncToLiteralAndConsumeInstT<EquivScannerMixin> // TODO (doilij): not tested // DONE MACROS
 M(SyncToLiteralEquivTrivialLastPatCharAndConsume) // SyncToLiteralAndConsumeInstT<EquivTrivialLastPatCharScannerMixin> // TODO (doilij): not tested // DONE MACROS
-M(SyncToCharAndBackup) // REMOVE (doilij): tested
+M(SyncToCharAndBackup) // REMOVE (doilij): tested // DONE MACROS
+// REVIEW (doilij): why not have a SyncToChar2SetAndBackup ?
 MTemplate(SyncToSetAndBackup, template<bool IsNegation>, SyncToSetAndBackupInst, SyncToSetAndBackupInst<false>) // REMOVE (doilij): tested // DONE MACROS
 // 0x30
 MTemplate(SyncToNegatedSetAndBackup, template<bool IsNegation>, SyncToSetAndBackupInst, SyncToSetAndBackupInst<true>) // TODO (doilij): not tested // DONE MACROS

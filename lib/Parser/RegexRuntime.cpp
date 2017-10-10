@@ -2438,29 +2438,13 @@ namespace UnifiedRegex
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int SyncToCharAndBackupInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
-        w->Print(_u("L%04x: "), label);
-
-        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
-        {
-            w->Print(_u("(0x%03x bytes) "), sizeof(*this));
-        }
-
-        w->Print(_u("SyncToCharAndBackup("), label);
-        CharMixin::Print(w, litbuf);
-        w->Print(_u(", "));
-        BackupMixin::Print(w, litbuf);
-        w->PrintEOL(_u(")"));
-
-        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
-        {
-            w->Indent();
-            PRINT_BYTES(Inst);
-            PRINT_BYTES(CharMixin);
-            PRINT_BYTES(BackupMixin);
-            w->Unindent();
-        }
-
-        return sizeof(*this);
+        PRINT_RE_BYTECODE_BEGIN("SyncToCharAndBackup");
+        PRINT_MIXIN_COMMA(CharMixin);
+        PRINT_MIXIN(BackupMixin);
+        PRINT_RE_BYTECODE_MID();
+        PRINT_BYTES(CharMixin);
+        PRINT_BYTES(BackupMixin);
+        PRINT_RE_BYTECODE_END();
     }
 #endif
 
