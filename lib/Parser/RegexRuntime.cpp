@@ -4720,10 +4720,13 @@ namespace UnifiedRegex
     template<ChompMode Mode>
     int ChompCharInst<Mode>::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
-        w->Print(_u("L%04x: ChompChar<%S>("), label, Mode == ChompMode::Star ? "Star" : "Plus");
-        CharMixin::Print(w, litbuf);
-        w->PrintEOL(_u(")"));
-        return sizeof(*this);
+        Mode == ChompMode::Star
+            ? PRINT_RE_BYTECODE_BEGIN("ChompChar<Star>")
+            : PRINT_RE_BYTECODE_BEGIN("ChompChar<Plus>");
+        PRINT_MIXIN(CharMixin);
+        PRINT_RE_BYTECODE_MID();
+        PRINT_BYTES(CharMixin);
+        PRINT_RE_BYTECODE_END();
     }
 #endif
 
