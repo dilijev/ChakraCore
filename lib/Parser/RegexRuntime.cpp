@@ -4734,9 +4734,15 @@ namespace UnifiedRegex
     template<ChompMode Mode>
     int ChompCharInst<Mode>::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
-        Mode == ChompMode::Star
-            ? PRINT_RE_BYTECODE_BEGIN("ChompChar<Star>")
-            : PRINT_RE_BYTECODE_BEGIN("ChompChar<Plus>");
+        if (Mode == ChompMode::Star)
+        {
+            PRINT_RE_BYTECODE_BEGIN("ChompChar<Star>");
+        }
+        else
+        {
+            PRINT_RE_BYTECODE_BEGIN("ChompChar<Plus>");
+        }
+
         PRINT_MIXIN(CharMixin);
         PRINT_RE_BYTECODE_MID();
         PRINT_BYTES(CharMixin);
@@ -4788,9 +4794,15 @@ namespace UnifiedRegex
     template<ChompMode Mode>
     int ChompSetInst<Mode>::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
-        Mode == ChompMode::Star
-            ? PRINT_RE_BYTECODE_BEGIN("ChompSet<Star>")
-            : PRINT_RE_BYTECODE_BEGIN("ChompSet<Plus>");
+        if (Mode == ChompMode::Star)
+        {
+            PRINT_RE_BYTECODE_BEGIN("ChompSet<Star>");
+        }
+        else
+        {
+            PRINT_RE_BYTECODE_BEGIN("ChompSet<Plus>");
+        }
+
         PRINT_MIXIN(SetMixin);
         PRINT_RE_BYTECODE_MID();
         PRINT_BYTES(SetMixin);
@@ -4858,9 +4870,15 @@ namespace UnifiedRegex
     template<ChompMode Mode>
     int ChompCharGroupInst<Mode>::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
-        Mode == ChompMode::Star
-            ? PRINT_RE_BYTECODE_BEGIN("ChompCharGroup<Star>")
-            : PRINT_RE_BYTECODE_BEGIN("ChompCharGroup<Plus>");
+        if (Mode == ChompMode::Star)
+        {
+            PRINT_RE_BYTECODE_BEGIN("ChompCharGroup<Star>");
+        }
+        else
+        {
+            PRINT_RE_BYTECODE_BEGIN("ChompCharGroup<Plus>");
+        }
+
         PRINT_MIXIN_COMMA(CharMixin);
         PRINT_MIXIN_COMMA(GroupMixin);
         PRINT_MIXIN(NoNeedToSaveMixin);
@@ -4932,9 +4950,15 @@ namespace UnifiedRegex
     template<ChompMode Mode>
     int ChompSetGroupInst<Mode>::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
-        Mode == ChompMode::Star
-            ? PRINT_RE_BYTECODE_BEGIN("ChompSetGroup<Star>")
-            : PRINT_RE_BYTECODE_BEGIN("ChompSetGroup<Plus>");
+        if (Mode == ChompMode::Star)
+        {
+            PRINT_RE_BYTECODE_BEGIN("ChompSetGroup<Star>");
+        }
+        else
+        {
+            PRINT_RE_BYTECODE_BEGIN("ChompSetGroup<Plus>");
+        }
+
         PRINT_MIXIN_COMMA(SetMixin);
         PRINT_MIXIN_COMMA(GroupMixin);
         PRINT_MIXIN(NoNeedToSaveMixin);
