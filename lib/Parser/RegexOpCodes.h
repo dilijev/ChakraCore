@@ -73,15 +73,15 @@ M(MatchGroup) // TODO (doilij): not tested
 M(BeginDefineGroup) // TODO (doilij): not tested
 M(EndDefineGroup) // TODO (doilij): not tested
 M(DefineGroupFixed) // REMOVE (doilij): tested // DONE MACROS
-M(BeginLoop) // TODO (doilij): not tested
-M(RepeatLoop)
-M(BeginLoopIfChar)
-M(BeginLoopIfSet)
-M(RepeatLoopIfChar)
+M(BeginLoop) // REMOVE (doilij): tested // DONE MACROS
+M(RepeatLoop) // TODO (doilij): not tested // DONE MACROS
+M(BeginLoopIfChar) // TODO (doilij): not tested // DONE MACROS
+M(BeginLoopIfSet) // TODO (doilij): not tested // DONE MACROS
+M(RepeatLoopIfChar) // TODO (doilij): not tested // DONE MACROS
 // 0x40
-M(RepeatLoopIfSet)
-M(BeginLoopFixed)
-M(RepeatLoopFixed)
+M(RepeatLoopIfSet) // TODO (doilij): not tested // DONE MACROS
+M(BeginLoopFixed) // TODO (doilij): not tested // DONE MACROS
+M(RepeatLoopFixed) // TODO (doilij): not tested // DONE MACROS
 M(LoopSet)
 M(LoopSetWithFollowFirst)
 M(BeginLoopFixedGroupLastIteration)

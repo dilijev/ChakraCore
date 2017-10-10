@@ -3974,14 +3974,15 @@ namespace UnifiedRegex
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int BeginLoopIfCharInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
-        w->Print(_u("L%04x: BeginLoopIfChar("), label);
-        CharMixin::Print(w, litbuf);
-        w->Print(_u(", "));
-        BeginLoopMixin::Print(w, litbuf);
-        w->Print(_u(", "));
-        BodyGroupsMixin::Print(w, litbuf);
-        w->PrintEOL(_u(")"));
-        return sizeof(*this);
+        PRINT_RE_BYTECODE_BEGIN("BeginLoopIfChar");
+        PRINT_MIXIN_COMMA(CharMixin);
+        PRINT_MIXIN_COMMA(BeginLoopMixin);
+        PRINT_MIXIN(BodyGroupsMixin);
+        PRINT_RE_BYTECODE_MID();
+        PRINT_BYTES(CharMixin);
+        PRINT_BYTES(BeginLoopMixin);
+        PRINT_BYTES(BodyGroupsMixin);
+        PRINT_RE_BYTECODE_END();
     }
 #endif
 
@@ -4025,14 +4026,15 @@ namespace UnifiedRegex
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int BeginLoopIfSetInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
-        w->Print(_u("L%04x: BeginLoopIfSet("), label);
-        SetMixin::Print(w, litbuf);
-        w->Print(_u(", "));
-        BeginLoopMixin::Print(w, litbuf);
-        w->Print(_u(", "));
-        BodyGroupsMixin::Print(w, litbuf);
-        w->PrintEOL(_u(")"));
-        return sizeof(*this);
+        PRINT_RE_BYTECODE_BEGIN("BeginLoopIfSet");
+        PRINT_MIXIN_COMMA(SetMixin);
+        PRINT_MIXIN_COMMA(BeginLoopMixin);
+        PRINT_MIXIN(BodyGroupsMixin);
+        PRINT_RE_BYTECODE_MID();
+        PRINT_BYTES(SetMixin);
+        PRINT_BYTES(BeginLoopMixin);
+        PRINT_BYTES(BodyGroupsMixin);
+        PRINT_RE_BYTECODE_END();
     }
 #endif
 
@@ -4098,10 +4100,11 @@ namespace UnifiedRegex
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int RepeatLoopIfCharInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
-        w->Print(_u("L%04x: RepeatLoopIfChar(%d, "), label);
-        RepeatLoopMixin::Print(w, litbuf);
-        w->PrintEOL(_u(")"));
-        return sizeof(*this);
+        PRINT_RE_BYTECODE_BEGIN("RepeatLoopIfChar");
+        PRINT_MIXIN(RepeatLoopMixin);
+        PRINT_RE_BYTECODE_MID();
+        PRINT_BYTES(RepeatLoopMixin);
+        PRINT_RE_BYTECODE_END();
     }
 #endif
 
@@ -4167,10 +4170,11 @@ namespace UnifiedRegex
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int RepeatLoopIfSetInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
-        w->Print(_u("L%04x: RepeatLoopIfSet("), label);
-        RepeatLoopMixin::Print(w, litbuf);
-        w->PrintEOL(_u(")"));
-        return sizeof(*this);
+        PRINT_RE_BYTECODE_BEGIN("RepeatLoopIfSet");
+        PRINT_MIXIN(RepeatLoopMixin);
+        PRINT_RE_BYTECODE_MID();
+        PRINT_BYTES(RepeatLoopMixin);
+        PRINT_RE_BYTECODE_END();
     }
 #endif
 
@@ -4215,12 +4219,13 @@ namespace UnifiedRegex
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int BeginLoopFixedInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
-        w->Print(_u("L%04x: BeginLoopFixed("), label);
-        BeginLoopMixin::Print(w, litbuf);
-        w->Print(_u(", "));
-        FixedLengthMixin::Print(w, litbuf);
-        w->PrintEOL(_u(")"));
-        return sizeof(*this);
+        PRINT_RE_BYTECODE_BEGIN("BeginLoopFixed");
+        PRINT_MIXIN_COMMA(BeginLoopMixin);
+        PRINT_MIXIN(FixedLengthMixin);
+        PRINT_RE_BYTECODE_MID();
+        PRINT_BYTES(BeginLoopMixin);
+        PRINT_BYTES(FixedLengthMixin);
+        PRINT_RE_BYTECODE_END();
     }
 #endif
 
@@ -4276,10 +4281,11 @@ namespace UnifiedRegex
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int RepeatLoopFixedInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
-        w->Print(_u("L%04x: RepeatLoopFixed("), label);
-        RepeatLoopMixin::Print(w, litbuf);
-        w->PrintEOL(_u(")"));
-        return sizeof(*this);
+        PRINT_RE_BYTECODE_BEGIN("RepeatLoopFixed");
+        PRINT_MIXIN(RepeatLoopMixin);
+        PRINT_RE_BYTECODE_MID();
+        PRINT_BYTES(RepeatLoopMixin);
+        PRINT_RE_BYTECODE_END();
     }
 #endif
 
