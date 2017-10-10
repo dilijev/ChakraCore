@@ -436,6 +436,9 @@ namespace UnifiedRegex
 #define PRINT_MIXIN(Mixin) \
     Mixin::Print(w, litbuf)
 
+#define PRINT_MIXIN_ARGS(Mixin, ...) \
+    Mixin::Print(w, litbuf, __VA_ARGS__)
+
 #define PRINT_MIXIN_COMMA(Mixin) \
     PRINT_MIXIN(Mixin); \
     w->Print(_u(", "));
@@ -1804,26 +1807,11 @@ namespace UnifiedRegex
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int MatchLiteralInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
-        w->Print(_u("L%04x: "), label);
-
-        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
-        {
-            w->Print(_u("(0x%03x bytes) "), sizeof(*this));
-        }
-
-        w->Print(_u("MatchLiteral("));
-        LiteralMixin::Print(w, litbuf, false);
-        w->PrintEOL(_u(")"));
-
-        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
-        {
-            w->Indent();
-            PRINT_BYTES(Inst);
-            PRINT_BYTES(LiteralMixin);
-            w->Unindent();
-        }
-
-        return sizeof(*this);
+        PRINT_RE_BYTECODE_BEGIN("MatchLiteral");
+        PRINT_MIXIN_ARGS(LiteralMixin, false);
+        PRINT_RE_BYTECODE_MID();
+        PRINT_BYTES(LiteralMixin);
+        PRINT_RE_BYTECODE_END();
     }
 #endif
 
@@ -1869,26 +1857,11 @@ namespace UnifiedRegex
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int MatchLiteralEquivInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
-        w->Print(_u("L%04x: "), label);
-
-        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
-        {
-            w->Print(_u("(0x%03x bytes) "), sizeof(*this));
-        }
-
-        w->Print(_u("MatchLiteralEquiv("));
-        LiteralMixin::Print(w, litbuf, true);
-        w->PrintEOL(_u(")"));
-
-        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
-        {
-            w->Indent();
-            PRINT_BYTES(Inst);
-            PRINT_BYTES(LiteralMixin);
-            w->Unindent();
-        }
-
-        return sizeof(*this);
+        PRINT_RE_BYTECODE_BEGIN("MatchLiteralEquiv");
+        PRINT_MIXIN_ARGS(LiteralMixin, true);
+        PRINT_RE_BYTECODE_MID();
+        PRINT_BYTES(LiteralMixin);
+        PRINT_RE_BYTECODE_END();
     }
 #endif
 
