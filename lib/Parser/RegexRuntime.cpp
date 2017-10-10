@@ -3572,9 +3572,25 @@ namespace UnifiedRegex
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int MatchGroupInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
-        w->Print(_u("L%04x: MatchGroup("), label);
+        w->Print(_u("L%04x: "), label);
+
+        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
+        {
+            w->Print(_u("(0x%03x bytes) "), sizeof(*this));
+        }
+
+        w->Print(_u("MatchGroup("), label);
         GroupMixin::Print(w, litbuf);
         w->PrintEOL(_u(")"));
+
+        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
+        {
+            w->Indent();
+            PRINT_BYTES(Inst);
+            PRINT_BYTES(GroupMixin);
+            w->Unindent();
+        }
+
         return sizeof(*this);
     }
 #endif
@@ -3597,9 +3613,25 @@ namespace UnifiedRegex
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int BeginDefineGroupInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
-        w->Print(_u("L%04x: BeginDefineGroup("), label);
+        w->Print(_u("L%04x: "), label);
+
+        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
+        {
+            w->Print(_u("(0x%03x bytes) "), sizeof(*this));
+        }
+
+        w->Print(_u("BeginDefineGroup("), label);
         GroupMixin::Print(w, litbuf);
         w->PrintEOL(_u(")"));
+
+        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
+        {
+            w->Indent();
+            PRINT_BYTES(Inst);
+            PRINT_BYTES(GroupMixin);
+            w->Unindent();
+        }
+
         return sizeof(*this);
     }
 #endif
@@ -3631,11 +3663,28 @@ namespace UnifiedRegex
 #if ENABLE_REGEX_CONFIG_OPTIONS
     int EndDefineGroupInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
     {
-        w->Print(_u("L%04x: EndDefineGroup("), label);
+        w->Print(_u("L%04x: "), label);
+
+        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
+        {
+            w->Print(_u("(0x%03x bytes) "), sizeof(*this));
+        }
+
+        w->Print(_u("EndDefineGroup("), label);
         GroupMixin::Print(w, litbuf);
         w->Print(_u(", "));
         NoNeedToSaveMixin::Print(w, litbuf);
         w->PrintEOL(_u(")"));
+
+        if (REGEX_CONFIG_FLAG(RegexBytecodeDebug))
+        {
+            w->Indent();
+            PRINT_BYTES(Inst);
+            PRINT_BYTES(GroupMixin);
+            PRINT_BYTES(NoNeedToSaveMixin);
+            w->Unindent();
+        }
+
         return sizeof(*this);
     }
 #endif
