@@ -6,6 +6,11 @@
 
 namespace UnifiedRegex
 {
+    struct AsciiChar7b
+    {
+        // stub type for 7-bit ascii variant (Chars<AsciiChar7b>)
+    };
+
     template <typename C>
     struct Chars
     {
@@ -47,6 +52,56 @@ namespace UnifiedRegex
         static inline char16 CTW(Char c)
         {
             return (char16)c;
+        }
+
+        // Offset, same buffer
+        static inline CharCount OSB(const Char* ph, const Char* pl)
+        {
+            Assert(ph >= pl && ph - pl <= MaxCharCount);
+            return (CharCount)(ph - pl);
+        }
+
+        static inline Char Shift(Char c, int n)
+        {
+            return UTC(CTU(c) + n);
+        }
+    };
+
+    template <>
+    struct Chars<AsciiChar7b>
+    {
+        typedef char Char;
+        typedef uint8 UChar;
+
+        static const int CharWidth = sizeof(char) * 7;
+        static const int NumChars = 1 << CharWidth;
+        //static const uint MaxUChar = (uint8)-1;
+        static const uint MaxUCharAscii = (1 << 7) - 1;
+        static const Char MinCharAscii = (Char)0;
+        static const Char MaxCharAscii = (Char)MaxUCharAscii;
+
+        // Char to unsigned int
+        static inline uint CTU(Char c)
+        {
+            return (uint8)c;
+        }
+
+        // Unsigned int to Char
+        static inline Char UTC(uint u) {
+            Assert(u <= MaxUCharAscii);
+            return (Char)u;
+        }
+
+        // int to Char
+        static inline Char ITC(int i) {
+            Assert(i >= 0 && i <= MaxUCharAscii);
+            return (Char)(uint8)i;
+        }
+
+        // Char to char16
+        static inline char16 CTW(Char c)
+        {
+            return (char16)(uint8)c;
         }
 
         // Offset, same buffer

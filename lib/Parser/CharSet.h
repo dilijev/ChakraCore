@@ -10,11 +10,11 @@ namespace UnifiedRegex
     template <typename C>
     class RuntimeCharSet;
 
-    class CharBitvec : private Chars<char>
+    class CharBitvec : private Chars<AsciiChar7b>
     {
     public:
-        static const int Width = Chars<char>::CharWidth;
-        static const int Size = NumChars;
+        static const int Width = Chars<AsciiChar7b>::CharWidth;
+        static const int Size = Chars<AsciiChar7b>::NumChars;
 
     private:
         static const int wordSize = sizeof(uint32) * 8;
@@ -251,15 +251,15 @@ namespace UnifiedRegex
 
     struct CharSetNode : protected Chars<char16>
     {
-        static const int directBits = Chars<char>::CharWidth;
-        static const uint directSize = Chars<char>::NumChars;
+        static const int directBits = Chars<AsciiChar7b>::CharWidth;
+        static const uint directSize = Chars<AsciiChar7b>::NumChars;
 
         static const uint bitsPerInnerLevel = 4;
         static const uint branchingPerInnerLevel = 1 << bitsPerInnerLevel;
         static const uint innerMask = branchingPerInnerLevel - 1;
 
-        static const int bitsPerLeafLevel = CharBitvec::Width;
-        static const int branchingPerLeafLevel = CharBitvec::Size;
+        static const int bitsPerLeafLevel = Chars<char>::CharWidth;
+        static const int branchingPerLeafLevel = Chars<char>::NumChars;
         static const uint leafMask = branchingPerLeafLevel - 1;
 
         static const uint levels = 1 + (CharWidth - bitsPerLeafLevel) / bitsPerInnerLevel;
