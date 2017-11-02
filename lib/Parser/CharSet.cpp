@@ -213,6 +213,20 @@ namespace UnifiedRegex
     }
 
     // ----------------------------------------------------------------------
+    // AsciiBitvec
+    // ----------------------------------------------------------------------
+
+    uint AsciiBitvec::Count() const
+    {
+        uint n = 0;
+        for (int w = 0; w < vecSize; w++)
+        {
+            n += Math::PopCnt32(vec[w]);
+        }
+        return n;
+    }
+
+    // ----------------------------------------------------------------------
     // CharSetNode
     // ----------------------------------------------------------------------
 
@@ -1646,6 +1660,27 @@ namespace UnifiedRegex
                 return true;
             }
             return rep.full.root->IsEqualTo(CharSetNode::levels - 1, other.rep.full.root);
+        }
+    }
+
+    bool CharSet<char16>::IsAsciiOnlyBitVector(bool isNegation) const
+    {
+        if (IsCompact())
+        {
+            // This is not a bit vector.
+            return false;
+        }
+        else
+        {
+            if (rep.full.root != nullptr)
+            {
+                // if root is set, then the set contains non-ASCII characters
+                return false;
+            }
+            else
+            {
+                return rep.full.direct.IsAsciiOnly(isNegation);
+            }
         }
     }
 

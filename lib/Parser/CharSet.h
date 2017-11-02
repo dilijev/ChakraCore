@@ -234,6 +234,26 @@ namespace UnifiedRegex
             return true;
         }
 
+        inline bool IsAsciiOnly(bool isNegated) const
+        {
+            uint32 noBitsSetValue = 0;
+            if (isNegated)
+            {
+                noBitsSetValue = UINT32_MAX;
+            }
+
+            // Doesn't matter what's in slots [0..3]. We want to know whether any bits in [4..7] are set.
+            for (int i = 4; i < vecSize; i++)
+            {
+                if (vec[i] != noBitsSetValue)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         uint Count() const;
 
         int NextSet(int k) const;
@@ -470,6 +490,7 @@ namespace UnifiedRegex
 
         uint Count() const;
 
+        /*
         int NextSet(int k) const;
         int NextClear(int k) const;
 
@@ -478,6 +499,7 @@ namespace UnifiedRegex
 
         template <typename C>
         void ToEquivClass(ArenaAllocator* allocator, uint base, uint& tblidx, CharSet<C>& result, codepoint_t baseOffset = 0x0) const;
+        */
     };
 
     template <typename C>
@@ -811,6 +833,7 @@ namespace UnifiedRegex
 
         bool IsSubsetOf(const CharSet<Char>& other) const;
         bool IsEqualTo(const CharSet<Char>& other) const;
+        bool IsAsciiOnlyBitVector(bool isNegation) const;
 
         inline uint Count() const
         {
@@ -1030,8 +1053,8 @@ namespace UnifiedRegex
     class RuntimeAsciiSet : private Chars<char16>
     {
     private:
-        // Entries for first 256 characters
-        CharBitvec direct;
+        // Entries for first 128 characters
+        AsciiBitvec direct;
 
     public:
         RuntimeAsciiSet();

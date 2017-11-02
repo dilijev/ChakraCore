@@ -3890,13 +3890,29 @@ namespace UnifiedRegex
                 //   LoopSet
                 //
                 Assert(body->IsSimpleOneChar());
+                UnicodeCharSet set = *body->firstSet;
+                bool isAsciiOnly = set.IsAsciiOnlyBitVector(false); // LoopSetInst uses SetMixin<false> explicitly, so we know (isNegation == false).
                 if (followFirst == MaxChar || PHASE_OFF1(Js::RegexOptBTPhase))
                 {
-                    EMIT(compiler, LoopSetInst, compiler.NextLoopId(), repeats, !isNotInLoop)->set.CloneFrom(compiler.rtAllocator, *body->firstSet);
+                    if (isAsciiOnly)
+                    {
+                        EMIT(compiler, LoopAsciiSetInst, compiler.NextLoopId(), repeats, !isNotInLoop)->set.CloneFrom(compiler.rtAllocator, *body->firstSet);
+                    }
+                    else
+                    {
+                        EMIT(compiler, LoopSetInst, compiler.NextLoopId(), repeats, !isNotInLoop)->set.CloneFrom(compiler.rtAllocator, *body->firstSet);
+                    }
                 }
                 else
                 {
-                    EMIT(compiler, LoopSetWithFollowFirstInst, compiler.NextLoopId(), repeats, !isNotInLoop, followFirst)->set.CloneFrom(compiler.rtAllocator, *body->firstSet);
+                    if (isAsciiOnly)
+                    {
+                        EMIT(compiler, LoopAsciiSetWithFollowFirstInst, compiler.NextLoopId(), repeats, !isNotInLoop, followFirst)->set.CloneFrom(compiler.rtAllocator, *body->firstSet);
+                    }
+                    else
+                    {
+                        EMIT(compiler, LoopSetWithFollowFirstInst, compiler.NextLoopId(), repeats, !isNotInLoop, followFirst)->set.CloneFrom(compiler.rtAllocator, *body->firstSet);
+                    }
                 }
                 break;
             }
