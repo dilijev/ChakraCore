@@ -361,6 +361,19 @@ namespace UnifiedRegex
 #endif
     };
 
+    template<bool IsNegation>
+    struct AsciiSetMixin
+    {
+        RuntimeAsciiSet set; // contents always lives in run-time allocator
+
+        // set must always be cloned from source
+
+        void FreeBody(ArenaAllocator* rtAllocator);
+#if ENABLE_REGEX_CONFIG_OPTIONS
+        void Print(DebugWriter* w, const char16* litbuf) const;
+#endif
+    };
+
     struct TrieMixin
     {
         RuntimeCharTrie trie;
@@ -1331,6 +1344,29 @@ namespace UnifiedRegex
     {
         inline LoopSetWithFollowFirstInst(int loopId, const CountDomain& repeats, bool hasOuterLoops, Char followFirst)
             : LoopSetInst(InstTag::LoopSetWithFollowFirst, loopId, repeats, hasOuterLoops), FollowFirstMixin(followFirst) {}
+
+        INST_BODY
+    };
+
+    // Loop is greedy, contains a MatchSet only
+    struct LoopAsciiSetInst : Inst, AsciiSetMixin<false>, BeginLoopBasicsMixin
+    {
+        // set must always be cloned from source
+        inline LoopAsciiSetInst(int loopId, const CountDomain& repeats, bool hasOuterLoops)
+            : Inst(LoopAsciiSet), BeginLoopBasicsMixin(loopId, repeats, hasOuterLoops) {}
+
+        inline LoopAsciiSetInst(InstTag tag, int loopId, const CountDomain& repeats, bool hasOuterLoops)
+            : Inst(tag), BeginLoopBasicsMixin(loopId, repeats, hasOuterLoops) {}
+
+        INST_BODY
+        INST_BODY_FREE(AsciiSetMixin)
+    };
+
+    // Loop is greedy, contains a MatchSet only, first character in its follow set is known
+    struct LoopAsciiSetWithFollowFirstInst : LoopAsciiSetInst, FollowFirstMixin
+    {
+        inline LoopAsciiSetWithFollowFirstInst(int loopId, const CountDomain& repeats, bool hasOuterLoops, Char followFirst)
+            : LoopAsciiSetInst(InstTag::LoopSetWithFollowFirst, loopId, repeats, hasOuterLoops), FollowFirstMixin(followFirst) {}
 
         INST_BODY
     };
