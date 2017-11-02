@@ -368,7 +368,6 @@ namespace UnifiedRegex
 
         // set must always be cloned from source
 
-        void FreeBody(ArenaAllocator* rtAllocator);
 #if ENABLE_REGEX_CONFIG_OPTIONS
         void Print(DebugWriter* w, const char16* litbuf) const;
 #endif
@@ -1359,14 +1358,13 @@ namespace UnifiedRegex
             : Inst(tag), BeginLoopBasicsMixin(loopId, repeats, hasOuterLoops) {}
 
         INST_BODY
-        INST_BODY_FREE(AsciiSetMixin)
     };
 
     // Loop is greedy, contains a MatchSet only, first character in its follow set is known
     struct LoopAsciiSetWithFollowFirstInst : LoopAsciiSetInst, FollowFirstMixin
     {
         inline LoopAsciiSetWithFollowFirstInst(int loopId, const CountDomain& repeats, bool hasOuterLoops, Char followFirst)
-            : LoopAsciiSetInst(InstTag::LoopSetWithFollowFirst, loopId, repeats, hasOuterLoops), FollowFirstMixin(followFirst) {}
+            : LoopAsciiSetInst(InstTag::LoopAsciiSetWithFollowFirst, loopId, repeats, hasOuterLoops), FollowFirstMixin(followFirst) {}
 
         INST_BODY
     };

@@ -776,6 +776,19 @@ namespace UnifiedRegex
 #endif
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
+    template<bool IsNegation>
+    void AsciiSetMixin<IsNegation>::Print(DebugWriter* w, const char16* litbuf) const
+    {
+        w->Print(_u("set: "));
+        if (IsNegation)
+        {
+            w->Print(_u("not "));
+        }
+        set.Print(w);
+    }
+#endif
+
+#if ENABLE_REGEX_CONFIG_OPTIONS
     void TrieMixin::Print(DebugWriter* w, const char16* litbuf) const
     {
         trie.Print(w);
@@ -3699,6 +3712,163 @@ namespace UnifiedRegex
         PRINT_MIXIN(FollowFirstMixin);
         PRINT_RE_BYTECODE_MID();
         PRINT_BYTES(SetMixin<false>);
+        PRINT_BYTES(BeginLoopBasicsMixin);
+        PRINT_MIXIN(FollowFirstMixin);
+        PRINT_RE_BYTECODE_END();
+    }
+#endif
+
+    // ----------------------------------------------------------------------
+    // LoopAsciiSetInst (optimized instruction)
+    // ----------------------------------------------------------------------
+
+    inline bool LoopAsciiSetInst::Exec(REGEX_INST_EXEC_PARAMETERS) const
+    {
+        LoopInfo* loopInfo = matcher.LoopIdToLoopInfo(loopId);
+
+        // If loop is contained in an outer loop, continuation stack may already have a RewindLoopFixed entry for
+        // this loop. We must make sure it's state is preserved on backtrack.
+        if (hasOuterLoops)
+        {
+            PUSH(contStack, RestoreLoopCont, loopId, *loopInfo, matcher);
+#if ENABLE_REGEX_CONFIG_OPTIONS
+            matcher.PushStats(contStack, input);
+#endif
+        }
+
+        // startInputOffset will stay here for all iterations, and we'll use number of length to figure out
+        // where in the input to rewind to
+        loopInfo->startInputOffset = inputOffset;
+
+        // Consume as many elements of set as possible
+        const RuntimeAsciiSet& matchSet = this->set;
+        const CharCount loopMatchStart = inputOffset;
+        const CharCountOrFlag repeatsUpper = repeats.upper;
+        const CharCount inputEndOffset =
+            static_cast<CharCount>(repeatsUpper) >= inputLength - inputOffset
+            ? inputLength
+            : inputOffset + static_cast<CharCount>(repeatsUpper);
+#if ENABLE_REGEX_CONFIG_OPTIONS
+        matcher.CompStats();
+#endif
+        while (inputOffset < inputEndOffset && matchSet.Get(input[inputOffset]))
+        {
+#if ENABLE_REGEX_CONFIG_OPTIONS
+            matcher.CompStats();
+#endif
+            inputOffset++;
+        }
+
+        loopInfo->number = inputOffset - loopMatchStart;
+        if (loopInfo->number < repeats.lower)
+        {
+            return matcher.Fail(FAIL_PARAMETERS);
+        }
+        else if (loopInfo->number > repeats.lower)
+        {
+            // CHOICEPOINT: If follow fails, try consuming one fewer characters
+            Assert(instPointer == (uint8*)this);
+            PUSH(contStack, RewindLoopSetCont, matcher.InstPointerToLabel(instPointer));
+#if ENABLE_REGEX_CONFIG_OPTIONS
+            matcher.PushStats(contStack, input);
+#endif
+        }
+        // else: failure of follow signals failure of entire loop
+
+        // Continue with follow
+        instPointer += sizeof(*this);
+        return false;
+    }
+
+#if ENABLE_REGEX_CONFIG_OPTIONS
+    int LoopAsciiSetInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
+    {
+        PRINT_RE_BYTECODE_BEGIN("LoopAsciiSetInst");
+        PRINT_MIXIN_COMMA(AsciiSetMixin<false>);
+        PRINT_MIXIN(BeginLoopBasicsMixin);
+        PRINT_RE_BYTECODE_MID();
+        PRINT_BYTES(AsciiSetMixin<false>);
+        PRINT_BYTES(BeginLoopBasicsMixin);
+        PRINT_RE_BYTECODE_END();
+    }
+#endif
+
+    inline bool LoopAsciiSetWithFollowFirstInst::Exec(REGEX_INST_EXEC_PARAMETERS) const
+    {
+        LoopInfo* loopInfo = matcher.LoopIdToLoopInfo(loopId);
+
+        // If loop is contained in an outer loop, continuation stack may already have a RewindLoopFixed entry for
+        // this loop. We must make sure it's state is preserved on backtrack.
+        if (hasOuterLoops)
+        {
+            PUSH(contStack, RestoreLoopCont, loopId, *loopInfo, matcher);
+#if ENABLE_REGEX_CONFIG_OPTIONS
+            matcher.PushStats(contStack, input);
+#endif
+        }
+
+        if (loopInfo->offsetsOfFollowFirst)
+        {
+            loopInfo->offsetsOfFollowFirst->Clear();
+        }
+        // startInputOffset will stay here for all iterations, and we'll use number of length to figure out
+        // where in the input to rewind to
+        loopInfo->startInputOffset = inputOffset;
+
+        // Consume as many elements of set as possible
+        const RuntimeAsciiSet& matchSet = this->set;
+        const CharCount loopMatchStart = inputOffset;
+        const CharCountOrFlag repeatsUpper = repeats.upper;
+        const CharCount inputEndOffset =
+            static_cast<CharCount>(repeatsUpper) >= inputLength - inputOffset
+            ? inputLength
+            : inputOffset + static_cast<CharCount>(repeatsUpper);
+#if ENABLE_REGEX_CONFIG_OPTIONS
+        matcher.CompStats();
+#endif
+        while (inputOffset < inputEndOffset && matchSet.Get(input[inputOffset]))
+        {
+#if ENABLE_REGEX_CONFIG_OPTIONS
+            matcher.CompStats();
+#endif
+            if (input[inputOffset] == this->followFirst)
+            {
+                loopInfo->EnsureOffsetsOfFollowFirst(matcher);
+                loopInfo->offsetsOfFollowFirst->Add(inputOffset - loopInfo->startInputOffset);
+            }
+            inputOffset++;
+        }
+
+        loopInfo->number = inputOffset - loopMatchStart;
+        if (loopInfo->number < repeats.lower)
+        {
+            return matcher.Fail(FAIL_PARAMETERS);
+        }
+        else if (loopInfo->number > repeats.lower)
+        {
+            // CHOICEPOINT: If follow fails, try consuming one fewer characters
+            Assert(instPointer == (uint8*)this);
+            PUSH(contStack, RewindLoopSetWithFollowFirstCont, matcher.InstPointerToLabel(instPointer));
+#if ENABLE_REGEX_CONFIG_OPTIONS
+            matcher.PushStats(contStack, input);
+#endif
+        }
+        // else: failure of follow signals failure of entire loop
+
+        // Continue with follow
+        instPointer += sizeof(*this);
+        return false;
+    }
+
+#if ENABLE_REGEX_CONFIG_OPTIONS
+    int LoopAsciiSetWithFollowFirstInst::Print(DebugWriter* w, Label label, const Char* litbuf) const
+    {
+        PRINT_RE_BYTECODE_BEGIN("LoopAsciiSetWithFollowFirstInst");
+        PRINT_MIXIN_COMMA(AsciiSetMixin<false>);
+        PRINT_MIXIN_COMMA(BeginLoopBasicsMixin);
+        PRINT_MIXIN(FollowFirstMixin);
+        PRINT_RE_BYTECODE_MID();
+        PRINT_BYTES(AsciiSetMixin<false>);
         PRINT_BYTES(BeginLoopBasicsMixin);
         PRINT_MIXIN(FollowFirstMixin);
         PRINT_RE_BYTECODE_END();
