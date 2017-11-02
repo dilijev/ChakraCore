@@ -1824,7 +1824,7 @@ namespace UnifiedRegex
     {
         Assert(outLowerChar != nullptr);
         Assert(outHigherChar != nullptr);
-        if (searchCharStart >= 0x110000)
+        if (searchCharStart > Chars<codepoint_t>::MaxChar)
         {
             return false;
         }
@@ -2071,7 +2071,7 @@ namespace UnifiedRegex
                 }
                 else
                 {
-                    AssertMsg(false, "If we are using a RuntimeAsciiSet, this should not be possible");
+                    AssertOrFailFastMsg(false, "If we are using a RuntimeAsciiSet, this should not be possible");
                 }
             }
         }
