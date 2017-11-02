@@ -12,8 +12,10 @@ namespace UnifiedRegex
 
     class CharBitvec : private Chars<char>
     {
+        friend class AsciiBitvec;
+
     public:
-        static const int Width = Chars<char>::CharWidth;
+        static const int Width = CharWidth;
         static const int Size = NumChars;
 
     private:
@@ -21,7 +23,239 @@ namespace UnifiedRegex
         static const int vecSize = Size / wordSize;
         static const uint32 ones = (uint32)-1;
 
-        static const uint8 oneBits[Size];
+        uint32 vec[vecSize];
+
+        inline static void setrng(uint32 &v, uint l, uint h)
+        {
+            uint w = h - l + 1;
+            if (w == wordSize)
+            {
+                v = ones;
+            }
+            else
+            {
+                v |= ((1U << w) - 1) << l;
+            }
+        }
+
+        inline static void clearrng(uint32 &v, uint l, uint h)
+        {
+            uint w = h - l + 1;
+            if (w == wordSize)
+            {
+                v = 0;
+            }
+            else
+            {
+                v &= ~(((1U << w) - 1) << l);
+            }
+        }
+
+    public:
+        inline void CloneFrom(const CharBitvec& other)
+        {
+            for (int w = 0; w < vecSize; w++)
+            {
+                vec[w] = other.vec[w];
+            }
+        }
+
+        inline void Clear()
+        {
+            for (int w = 0; w < vecSize; w++)
+            {
+                vec[w] = 0;
+            }
+        }
+
+        inline void SetAll()
+        {
+            for (int w = 0; w < vecSize; w++)
+            {
+                vec[w] = ones;
+            }
+        }
+
+        inline void Set(uint k)
+        {
+            Assert(k < Size);
+            __assume(k < Size);
+            if (k < Size)
+            {
+                vec[k / wordSize] |= 1U << (k % wordSize);
+            }
+        }
+
+        inline void SetRange(uint l, uint h)
+        {
+            Assert(l < Size);
+            Assert(h < Size);
+            __assume(l < Size);
+            __assume(h < Size);
+            if (l < Size && h < Size)
+            {
+                if (l == h)
+                {
+                    vec[l / wordSize] |= 1U << (l % wordSize);
+                }
+                else if (l < h)
+                {
+                    int lw = l / wordSize;
+                    int hw = h / wordSize;
+                    int lo = l % wordSize;
+                    int hio = h % wordSize;
+                    if (lw == hw)
+                    {
+                        setrng(vec[lw], lo, hio);
+                    }
+                    else
+                    {
+                        setrng(vec[lw], lo, wordSize - 1);
+                        for (int w = lw + 1; w < hw; w++)
+                        {
+                            vec[w] = ones;
+                        }
+                        setrng(vec[hw], 0, hio);
+                    }
+                }
+            }
+        }
+
+        inline void ClearRange(uint l, uint h)
+        {
+            Assert(l < Size);
+            Assert(h < Size);
+            __assume(l < Size);
+            __assume(h < Size);
+            if (l < Size && h < Size)
+            {
+                if (l == h)
+                {
+                    vec[l / wordSize] &= ~(1U << (l % wordSize));
+                }
+                else if (l < h)
+                {
+                    int lw = l / wordSize;
+                    int hw = h / wordSize;
+                    int lo = l % wordSize;
+                    int hio = h % wordSize;
+                    if (lw == hw)
+                    {
+                        clearrng(vec[lw], lo, hio);
+                    }
+                    else
+                    {
+                        clearrng(vec[lw], lo, wordSize - 1);
+                        for (int w = lw + 1; w < hw; w++)
+                        {
+                            vec[w] = 0;
+                        }
+                        clearrng(vec[hw], 0, hio);
+                    }
+                }
+            }
+        }
+
+        inline bool IsEmpty()
+        {
+            for (int i = 0; i < vecSize; i++)
+            {
+                if (vec[i] != 0)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        inline void UnionInPlace(const CharBitvec& other)
+        {
+            for (int w = 0; w < vecSize; w++)
+            {
+                vec[w] |= other.vec[w];
+            }
+        }
+
+        inline bool UnionInPlaceFullCheck(const CharBitvec& other)
+        {
+            bool isFull = true;
+            for (int w = 0; w < vecSize; w++)
+            {
+                vec[w] |= other.vec[w];
+                if (vec[w] != ones)
+                {
+                    isFull = false;
+                }
+            }
+            return isFull;
+        }
+
+        inline bool Get(uint k) const
+        {
+            Assert(k < Size);
+            __assume(k < Size);
+            return ((vec[k / wordSize] >> (k % wordSize)) & 1) != 0;
+        }
+
+        inline bool IsFull() const
+        {
+            for (int w = 0; w < vecSize; w++)
+            {
+                if (vec[w] != ones)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        inline bool IsSubsetOf(const CharBitvec& other) const
+        {
+            for (int w = 0; w < vecSize; w++)
+            {
+                uint32 v = other.vec[w];
+                if (v != (vec[w] | v))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        inline bool IsEqualTo(const CharBitvec& other) const
+        {
+            for (int w = 0; w < vecSize; w++)
+            {
+                if (vec[w] != other.vec[w])
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        uint Count() const;
+
+        int NextSet(int k) const;
+        int NextClear(int k) const;
+
+        template <typename C>
+        void ToComplement(ArenaAllocator* allocator, uint base, CharSet<C>& result) const;
+
+        template <typename C>
+        void ToEquivClass(ArenaAllocator* allocator, uint base, uint& tblidx, CharSet<C>& result, codepoint_t baseOffset = 0x0) const;
+    };
+
+    class AsciiBitvec : private Chars<AsciiChar7b>
+    {
+    public:
+        static const int Width = CharWidth;
+        static const int Size = NumChars;
+
+    private:
+        static const int wordSize = sizeof(uint32) * 8;
+        static const int vecSize = Size / wordSize;
+        static const uint32 ones = (uint32)-1;
 
         uint32 vec[vecSize];
 
