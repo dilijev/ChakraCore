@@ -24,7 +24,9 @@ namespace UnifiedRegex
     int CharBitvec::NextSet(int k) const
     {
         if (k < 0 || k >= Size)
+        {
             return -1;
+        }
         uint w = k / wordSize;
         uint o = k % wordSize;
         uint32 v = vec[w] >> o;
@@ -36,7 +38,9 @@ namespace UnifiedRegex
                 break;
             }
             else if ((v & 0x1) != 0)
+            {
                 return k;
+            }
             else
             {
                 v >>= 1;
@@ -59,7 +63,9 @@ namespace UnifiedRegex
                     break;
                 }
                 else if ((v & 0x1) != 0)
+                {
                     return k;
+                }
                 else
                 {
                     v >>= 1;
@@ -77,7 +83,9 @@ namespace UnifiedRegex
     int CharBitvec::NextClear(int k) const
     {
         if (k < 0 || k >= Size)
+        {
             return -1;
+        }
         uint w = k / wordSize;
         uint o = k % wordSize;
         uint32 v = vec[w] >> o;
@@ -89,7 +97,9 @@ namespace UnifiedRegex
                 break;
             }
             else if ((v & 0x1) == 0)
+            {
                 return k;
+            }
             else
             {
                 v >>= 1;
@@ -112,14 +122,15 @@ namespace UnifiedRegex
                     break;
                 }
                 else if ((v & 0x1) == 0)
+                {
                     return k;
+                }
                 else
                 {
                     v >>= 1;
                     o++;
                     k++;
                 }
-
             }
             while (o < wordSize);
             w++;
@@ -136,10 +147,15 @@ namespace UnifiedRegex
             // Find the next range of clear bits in vector
             int li = NextClear(hi + 1);
             if (li < 0)
+            {
                 return;
+            }
+
             hi = NextSet(li + 1);
             if (hi < 0)
+            {
                 hi = Size - 1;
+            }
             else
             {
                 Assert(hi > 0);
@@ -160,10 +176,14 @@ namespace UnifiedRegex
             // Find the next range of set bits in vector
             int li = NextSet(hi + 1);
             if (li < 0)
+            {
                 return;
+            }
             hi = NextClear(li + 1);
             if (hi < 0)
+            {
                 hi = Size - 1;
+            }
             else
             {
                 Assert(hi > 0);
@@ -199,9 +219,13 @@ namespace UnifiedRegex
     CharSetNode* CharSetNode::For(ArenaAllocator* allocator, int level)
     {
         if (level == 0)
+        {
             return Anew(allocator, CharSetLeaf);
+        }
         else
+        {
             return Anew(allocator, CharSetInner);
+        }
     }
 
     // ----------------------------------------------------------------------
@@ -345,7 +369,9 @@ namespace UnifiedRegex
     CharSetInner::CharSetInner()
     {
         for (uint i = 0; i < branchingPerInnerLevel; i++)
+        {
             children[i] = 0;
+        }
     }
 
     void CharSetInner::FreeSelf(ArenaAllocator* allocator)
@@ -369,7 +395,9 @@ namespace UnifiedRegex
         for (uint i = 0; i < branchingPerInnerLevel; i++)
         {
             if (children[i] != 0)
+            {
                 res->children[i] = children[i]->Clone(allocator);
+            }
         }
         return res;
     }
@@ -439,7 +467,9 @@ namespace UnifiedRegex
             if (children[li] == nullptr)
             {
                 if (remain(level, l) == 0 && remain(level, h + 1) == 0)
+                {
                     children[li] = CharSetFull::TheFullNode;
+                }
                 else
                 {
                     children[li] = For(allocator, level);
@@ -448,14 +478,18 @@ namespace UnifiedRegex
                 }
             }
             else
+            {
                 children[li] = children[li]->Set(allocator, level, l, h);
+            }
         }
         else
         {
             if (children[li] == nullptr)
             {
                 if (remain(level, l) == 0)
+                {
                     children[li] = CharSetFull::TheFullNode;
+                }
                 else
                 {
                     children[li] = For(allocator, level);
@@ -464,17 +498,23 @@ namespace UnifiedRegex
                 }
             }
             else
+            {
                 children[li] = children[li]->Set(allocator, level, l, lim(level));
+            }
             for (uint i = li + 1; i < hi; i++)
             {
                 if (children[i] != nullptr)
+                {
                     children[i]->FreeSelf(allocator);
+                }
                 children[i] = CharSetFull::TheFullNode;
             }
             if (children[hi] == nullptr)
             {
                 if (remain(level, h + 1) == 0)
+                {
                     children[hi] = CharSetFull::TheFullNode;
+                }
                 else
                 {
                     children[hi] = For(allocator, level);
@@ -483,20 +523,26 @@ namespace UnifiedRegex
                 }
             }
             else
+            {
                 children[hi] = children[hi]->Set(allocator, level, 0, h);
+            }
         }
         if (couldBeFull)
         {
             for (uint i = 0; i < branchingPerInnerLevel; i++)
             {
                 if (children[i] != CharSetFull::TheFullNode)
+                {
                     return this;
+                }
             }
             FreeSelf(allocator);
             return CharSetFull::TheFullNode;
         }
         else
+        {
             return this;
+        }
     }
 
     CharSetNode* CharSetInner::UnionInPlace(ArenaAllocator* allocator, uint level, const CharSetNode* other)
@@ -513,28 +559,39 @@ namespace UnifiedRegex
                 if (otherInner->children[i] == CharSetFull::TheFullNode)
                 {
                     if (children[i] != nullptr)
+                    {
                         children[i]->FreeSelf(allocator);
+                    }
                     children[i] = CharSetFull::TheFullNode;
                 }
                 else
                 {
                     if (children[i] == nullptr)
+                    {
                         children[i] = For(allocator, level);
+                    }
                     children[i] = children[i]->UnionInPlace(allocator, level, otherInner->children[i]);
                     if (children[i] != CharSetFull::TheFullNode)
+                    {
                         isFull = false;
+                    }
                 }
             }
             else if (children[i] != CharSetFull::TheFullNode)
+            {
                 isFull = false;
+            }
         }
+
         if (isFull)
         {
             FreeSelf(allocator);
             return CharSetFull::TheFullNode;
         }
         else
+        {
             return this;
+        }
     }
 
     bool CharSetInner::Get(uint level, uint k) const
@@ -542,9 +599,13 @@ namespace UnifiedRegex
         Assert(level > 0);
         uint i = innerIdx(level--, k);
         if (children[i] == nullptr)
+        {
             return false;
+        }
         else
+        {
             return children[i]->Get(level, k);
+        }
     }
 
     void CharSetInner::ToComplement(ArenaAllocator* allocator, uint level, uint base, CharSet<Char>& result) const
@@ -555,10 +616,14 @@ namespace UnifiedRegex
         for (uint i = 0; i < branchingPerInnerLevel; i++)
         {
             if (children[i] == nullptr)
+            {
                 // Caution: Part of the range for this child may overlap with direct vector
                 result.SetRange(allocator, UTC(max(base, directSize)), UTC(base + delta - 1));
+            }
             else
+            {
                 children[i]->ToComplement(allocator, level, base, result);
+            }
             base += delta;
         }
     }
@@ -598,7 +663,9 @@ namespace UnifiedRegex
         Assert(level > 0);
         Assert(other != nullptr && !other->IsLeaf());
         if (other == CharSetFull::TheFullNode)
+        {
             return true;
+        }
         level--;
         const CharSetInner* otherInner = (CharSetInner*)other;
         for (uint i = 0; i < branchingPerInnerLevel; i++)
@@ -606,9 +673,13 @@ namespace UnifiedRegex
             if (children[i] != nullptr)
             {
                 if (otherInner->children[i] == nullptr)
+                {
                     return false;
+                }
                 if (children[i]->IsSubsetOf(level, otherInner->children[i]))
+                {
                     return false;
+                }
             }
         }
         return true;
@@ -619,7 +690,9 @@ namespace UnifiedRegex
         Assert(level > 0);
         Assert(other != nullptr && !other->IsLeaf());
         if (other == CharSetFull::TheFullNode)
+        {
             return false;
+        }
         level--;
         const CharSetInner* otherInner = (CharSetInner*)other;
         for (uint i = 0; i < branchingPerInnerLevel; i++)
@@ -627,9 +700,13 @@ namespace UnifiedRegex
             if (children[i] != 0)
             {
                 if (otherInner->children[i] == nullptr)
+                {
                     return false;
+                }
                 if (children[i]->IsSubsetOf(level, otherInner->children[i]))
+                {
                     return false;
+                }
             }
         }
         return true;
@@ -638,12 +715,14 @@ namespace UnifiedRegex
     uint CharSetInner::Count(uint level) const
     {
         uint n = 0;
-        Assert(level >  0);
+        Assert(level > 0);
         level--;
         for (uint i = 0; i < branchingPerInnerLevel; i++)
         {
             if (children[i] != nullptr)
+            {
                 n += children[i]->Count(level);
+            }
         }
         return n;
     }
@@ -732,7 +811,9 @@ namespace UnifiedRegex
             return CharSetFull::TheFullNode;
         }
         else
+        {
             return this;
+        }
     }
 
     CharSetNode* CharSetLeaf::ClearRange(ArenaAllocator* allocator, uint level, uint l, uint h)
@@ -767,7 +848,9 @@ namespace UnifiedRegex
             return CharSetFull::TheFullNode;
         }
         else
+        {
             return this;
+        }
     }
 
     bool CharSetLeaf::Get(uint level, uint k) const
@@ -804,7 +887,9 @@ namespace UnifiedRegex
         Assert(level == 0);
         Assert(other != nullptr);
         if (other == CharSetFull::TheFullNode)
+        {
             return true;
+        }
         Assert(other->IsLeaf());
         CharSetLeaf* otherLeaf = (CharSetLeaf*)other;
         return vec.IsSubsetOf(otherLeaf->vec);
@@ -815,7 +900,9 @@ namespace UnifiedRegex
         Assert(level == 0);
         Assert(other != nullptr);
         if (other == CharSetFull::TheFullNode)
+        {
             return false;
+        }
         Assert(other->IsLeaf());
         CharSetLeaf* otherLeaf = (CharSetLeaf*)other;
         return vec.IsSubsetOf(otherLeaf->vec);
@@ -873,7 +960,9 @@ namespace UnifiedRegex
             rep.full.root = nullptr;
             rep.full.direct.Clear();
             for (uint i = 0; i < existCount; i++)
+            {
                 Set(allocator, existCs[i]);
+            }
         }
     }
 
@@ -905,7 +994,9 @@ namespace UnifiedRegex
         Assert(sizeof(CompactRep) == sizeof(FullRep));
         rep.compact.countPlusOne = 1;
         for (int i = 0; i < MaxCompact; i++)
+        {
             rep.compact.cs[i] = emptySlot;
+        }
     }
 
     void CharSet<char16>::FreeBody(ArenaAllocator* allocator)
@@ -922,10 +1013,14 @@ namespace UnifiedRegex
     void CharSet<char16>::Clear(ArenaAllocator* allocator)
     {
         if (!IsCompact() && rep.full.root != nullptr)
+        {
             rep.full.root->FreeSelf(allocator);
+        }
         rep.compact.countPlusOne = 1;
         for (int i = 0; i < MaxCompact; i++)
+        {
             rep.compact.cs[i] = emptySlot;
+        }
     }
 
     void CharSet<char16>::CloneFrom(ArenaAllocator* allocator, const CharSet<Char>& other)
@@ -1005,14 +1100,15 @@ namespace UnifiedRegex
         }
     }
 
-
     void CharSet<char16>::SubtractRange(ArenaAllocator* allocator, Char lowerChar, Char higherChar)
     {
         uint lowerValue = CTU(lowerChar);
         uint higherValue = CTU(higherChar);
 
         if (higherValue < lowerValue)
+        {
             return;
+        }
 
         if (IsCompact())
         {
@@ -1030,7 +1126,7 @@ namespace UnifiedRegex
                 }
             }
         }
-        else if(lowerValue == 0 && higherValue == MaxUChar)
+        else if (lowerValue == 0 && higherValue == MaxUChar)
         {
             this->Clear(allocator);
         }
@@ -1054,7 +1150,9 @@ namespace UnifiedRegex
         uint l = CTU(lc);
         uint h = CTU(hc);
         if (h < l)
+        {
             return;
+        }
 
         if (IsCompact())
         {
@@ -1069,7 +1167,9 @@ namespace UnifiedRegex
                         if (l <= MaxUChar && i < MaxCompact)
                         {
                             if (this->GetCompactCharU(i) == l)
+                            {
                                 break;
+                            }
                         }
                     }
                     if (i == this->GetCompactLength())
@@ -1080,15 +1180,19 @@ namespace UnifiedRegex
                             this->AddCompactCharU(l);
                         }
                         else
+                        {
                             // Must switch representations
                             break;
+                        }
                     }
                     l++;
                 }
                 while (l <= h);
                 if (h < l)
+                {
                     // All chars are now in compact set
                     return;
+                }
                 // else: fall-through to general case for remaining chars
             }
             // else: no use even trying
@@ -1102,7 +1206,9 @@ namespace UnifiedRegex
         {
             rep.full.direct.SetRange(0, CharSetNode::directSize - 1);
             if (rep.full.root != nullptr)
+            {
                 rep.full.root->FreeSelf(allocator);
+            }
             rep.full.root = CharSetFull::TheFullNode;
         }
         else
@@ -1119,7 +1225,9 @@ namespace UnifiedRegex
             }
 
             if (rep.full.root == nullptr)
+            {
                 rep.full.root = Anew(allocator, CharSetInner);
+            }
             rep.full.root = rep.full.root->Set(allocator, CharSetNode::levels - 1, l, h);
         }
     }
@@ -1128,24 +1236,34 @@ namespace UnifiedRegex
     {
         for (int i = 0; i < numSortedPairs * 2; i += 2)
         {
-            Assert(i == 0 || sortedPairs[i-1] < sortedPairs[i]);
-            Assert(sortedPairs[i] <= sortedPairs[i+1]);
-            SetRange(allocator, sortedPairs[i], sortedPairs[i+1]);
+            Assert(i == 0 || sortedPairs[i - 1] < sortedPairs[i]);
+            Assert(sortedPairs[i] <= sortedPairs[i + 1]);
+            SetRange(allocator, sortedPairs[i], sortedPairs[i + 1]);
         }
     }
 
     void CharSet<char16>::SetNotRanges(ArenaAllocator* allocator, int numSortedPairs, const Char* sortedPairs)
     {
         if (numSortedPairs == 0)
+        {
             SetRange(allocator, MinChar, MaxChar);
+        }
         else
         {
             if (sortedPairs[0] != MinChar)
+            {
                 SetRange(allocator, MinChar, sortedPairs[0] - 1);
+            }
+
             for (int i = 1; i < numSortedPairs * 2 - 1; i += 2)
-                SetRange(allocator, sortedPairs[i] + 1, sortedPairs[i+1] - 1);
+            {
+                SetRange(allocator, sortedPairs[i] + 1, sortedPairs[i + 1] - 1);
+            }
+
             if (sortedPairs[numSortedPairs * 2 - 1] != MaxChar)
+            {
                 SetRange(allocator, sortedPairs[numSortedPairs * 2 - 1] + 1, MaxChar);
+            }
         }
     }
 
@@ -1161,7 +1279,9 @@ namespace UnifiedRegex
         }
 
         if (IsCompact())
+        {
             SwitchRepresentations(allocator);
+        }
 
         Assert(!IsCompact() && !other.IsCompact());
 
@@ -1172,13 +1292,17 @@ namespace UnifiedRegex
             if (other.rep.full.root == CharSetFull::TheFullNode)
             {
                 if (rep.full.root != nullptr)
+                {
                     rep.full.root->FreeSelf(allocator);
+                }
                 rep.full.root = CharSetFull::TheFullNode;
             }
             else
             {
                 if (rep.full.root == nullptr)
+                {
                     rep.full.root = Anew(allocator, CharSetInner);
+                }
                 rep.full.root = rep.full.root->UnionInPlace(allocator, CharSetNode::levels - 1, other.rep.full.root);
             }
         }
@@ -1299,16 +1423,24 @@ namespace UnifiedRegex
         for (int level = CharSetNode::levels - 1; level > 0; level--)
         {
             if (curr == CharSetFull::TheFullNode)
+            {
                 return true;
+            }
             CharSetInner* inner = (CharSetInner*)curr;
             uint i = CharSetNode::innerIdx(level, k);
             if (inner->children[i] == 0)
+            {
                 return false;
+            }
             else
+            {
                 curr = inner->children[i];
+            }
         }
         if (curr == CharSetFull::TheFullNode)
+        {
             return true;
+        }
         CharSetLeaf* leaf = (CharSetLeaf*)curr;
         return leaf->vec.Get(CharSetNode::leafIdx(k));
     }
@@ -1321,11 +1453,15 @@ namespace UnifiedRegex
             if (this->GetCompactLength() > 0)
             {
                 if (this->GetCompactCharU(0) > 0)
+                {
                     result.SetRange(allocator, UTC(0), UTC(this->GetCompactCharU(0) - 1));
+                }
+
                 for (uint i = 0; i < this->GetCompactLength() - 1; i++)
                 {
                     result.SetRange(allocator, UTC(this->GetCompactCharU(i) + 1), UTC(this->GetCompactCharU(i + 1) - 1));
                 }
+
                 if (this->GetCompactCharU(this->GetCompactLength() - 1) < MaxUChar)
                 {
                     result.SetRange(allocator, UTC(this->GetCompactCharU(this->GetCompactLength() - 1) + 1), UTC(MaxUChar));
@@ -1340,9 +1476,13 @@ namespace UnifiedRegex
         {
             rep.full.direct.ToComplement<char16>(allocator, 0, result);
             if (rep.full.root == nullptr)
+            {
                 result.SetRange(allocator, UTC(CharSetNode::directSize), MaxChar);
+            }
             else
+            {
                 rep.full.root->ToComplement(allocator, CharSetNode::levels - 1, 0, result);
+            }
         }
     }
 
@@ -1416,7 +1556,9 @@ namespace UnifiedRegex
     {
         Assert(max <= MaxCompact);
         if (!IsCompact())
+        {
             return -1;
+        }
 
         uint count = min(max, (uint)(this->GetCompactLength()));
         __analysis_assume(count <= max);
@@ -1436,20 +1578,30 @@ namespace UnifiedRegex
             for (uint i = 0; i < this->GetCompactLength(); i++)
             {
                 if (!other.Get(this->GetCompactChar(i)))
+                {
                     return false;
+                }
             }
             return true;
         }
         else
         {
             if (other.IsCompact())
+            {
                 return false;
+            }
             if (!rep.full.direct.IsSubsetOf(other.rep.full.direct))
+            {
                 return false;
+            }
             if (rep.full.root == nullptr)
+            {
                 return true;
+            }
             if (other.rep.full.root == nullptr)
+            {
                 return false;
+            }
             return rep.full.root->IsSubsetOf(CharSetNode::levels - 1, other.rep.full.root);
         }
     }
@@ -1459,26 +1611,40 @@ namespace UnifiedRegex
         if (IsCompact())
         {
             if (!other.IsCompact())
+            {
                 return false;
+            }
             if (rep.compact.countPlusOne != other.rep.compact.countPlusOne)
+            {
                 return false;
+            }
             for (uint i = 0; i < this->GetCompactLength(); i++)
             {
                 if (!other.Get(this->GetCompactChar(i)))
+                {
                     return false;
+                }
             }
             return true;
         }
         else
         {
             if (other.IsCompact())
+            {
                 return false;
+            }
             if (!rep.full.direct.IsEqualTo(other.rep.full.direct))
+            {
                 return false;
+            }
             if ((rep.full.root == nullptr) != (other.rep.full.root == nullptr))
+            {
                 return false;
+            }
             if (rep.full.root == nullptr)
+            {
                 return true;
+            }
             return rep.full.root->IsEqualTo(CharSetNode::levels - 1, other.rep.full.root);
         }
     }
@@ -1505,8 +1671,10 @@ namespace UnifiedRegex
                 {
                     if (i > (uint)(start + 1))
                     {
-                        if (i  > (uint)(start + 2))
+                        if (i > (uint)(start + 2))
+                        {
                             w->Print(_u("-"));
+                        }
                         w->PrintEscapedChar(UTC(i - 1));
                     }
                     start = -1;
@@ -1516,7 +1684,9 @@ namespace UnifiedRegex
         if (start >= 0)
         {
             if ((uint)start < MaxUChar - 1)
+            {
                 w->Print(_u("-"));
+            }
             w->PrintEscapedChar(MaxChar);
         }
         w->Print(_u("]"));
@@ -1589,7 +1759,7 @@ namespace UnifiedRegex
                 lowerIndex++;
             }
 
-            for(; lowerIndex < upperIndex; lowerIndex++)
+            for (; lowerIndex < upperIndex; lowerIndex++)
             {
                 this->characterPlanes[lowerIndex].SetRange(allocator, 0, Chars<char16>::MaxUChar);
             }
@@ -1602,11 +1772,12 @@ namespace UnifiedRegex
     {
         for (int i = 0; i < numSortedPairs * 2; i += 2)
         {
-            Assert(i == 0 || sortedPairs[i-1] < sortedPairs[i]);
-            Assert(sortedPairs[i] <= sortedPairs[i+1]);
-            SetRange(allocator, sortedPairs[i], sortedPairs[i+1]);
+            Assert(i == 0 || sortedPairs[i - 1] < sortedPairs[i]);
+            Assert(sortedPairs[i] <= sortedPairs[i + 1]);
+            SetRange(allocator, sortedPairs[i], sortedPairs[i + 1]);
         }
     }
+
     void CharSet<codepoint_t>::SetNotRanges(ArenaAllocator* allocator, int numSortedPairs, const Char* sortedPairs)
     {
         if (numSortedPairs == 0)
@@ -1625,7 +1796,7 @@ namespace UnifiedRegex
 
             for (int i = 1; i < numSortedPairs * 2 - 1; i += 2)
             {
-                SetRange(allocator, sortedPairs[i] + 1, sortedPairs[i+1] - 1);
+                SetRange(allocator, sortedPairs[i] + 1, sortedPairs[i + 1] - 1);
             }
 
             if (sortedPairs[numSortedPairs * 2 - 1] != MaxChar)
@@ -1634,6 +1805,7 @@ namespace UnifiedRegex
             }
         }
     }
+
     void CharSet<codepoint_t>::UnionInPlace(ArenaAllocator* allocator, const  CharSet<Char>& other)
     {
         for (int i = 0; i < NumberOfPlanes; i++)
@@ -1680,7 +1852,7 @@ namespace UnifiedRegex
         *outHigherChar = this->AddOffset(currentHighChar, index);
 
         // Check if range crosses plane boundaries
-        index ++;
+        index++;
         for (; index < NumberOfPlanes; index++)
         {
             if (!this->characterPlanes[index].GetNextRange(0x0, &currentLowChar, &currentHighChar) || *outHigherChar + 1 != this->AddOffset(currentLowChar, index))
@@ -1908,7 +2080,6 @@ namespace UnifiedRegex
             direct.CloneFrom(other.rep.full.direct);
         }
     }
-
 
 #if ENABLE_REGEX_CONFIG_OPTIONS
     // CAUTION: This method is very slow.
