@@ -754,7 +754,6 @@ namespace UnifiedRegex
 #endif
     };
 
-
     template <>
     class RuntimeCharSet<char16> : private Chars<char16>
     {
@@ -783,6 +782,36 @@ namespace UnifiedRegex
             else
             {
                 return Get_helper(CTU(kc));
+            }
+        }
+
+#if ENABLE_REGEX_CONFIG_OPTIONS
+        void Print(DebugWriter* w) const;
+#endif
+    };
+
+    // RuntimeAsciiSet (an optimized version of UnicodeRuntimeCharSet)
+    // Will be cloned from a CharSet<Char> which is NOT using compact representation
+    // and only has ASCII characters (all as bits set in CharBitvec direct).
+    class RuntimeAsciiSet : private Chars<char16>
+    {
+    private:
+        // Entries for first 256 characters
+        CharBitvec direct;
+
+    public:
+        RuntimeAsciiSet();
+        void CloneFrom(ArenaAllocator* allocator, const CharSet<Char>& other);
+
+        inline bool Get(Char kc) const
+        {
+            if (CTU(kc) < CharSetNode::directSize)
+            {
+                return direct.Get(CTU(kc));
+            }
+            else
+            {
+                return false;
             }
         }
 

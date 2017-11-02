@@ -1774,15 +1774,19 @@ namespace UnifiedRegex
             {
                 uint k = other.GetCompactCharU(i);
                 if (k < CharSetNode::directSize)
+                {
                     direct.Set(k);
+                }
                 else
                 {
                     if (root == nullptr)
+                    {
                         root = Anew(allocator, CharSetInner);
+                    }
 #if DBG
                     CharSetNode* newRoot =
 #endif
-                    root->Set(allocator, CharSetNode::levels - 1, k, k);
+                        root->Set(allocator, CharSetNode::levels - 1, k, k);
 #if DBG
                     // NOTE: Since we can add at most MaxCompact characters, we can never fill a leaf or inner node,
                     //       thus we will never need to reallocated nodes
@@ -1804,16 +1808,26 @@ namespace UnifiedRegex
         for (int level = CharSetNode::levels - 1; level > 0; level--)
         {
             if (curr == CharSetFull::TheFullNode)
+            {
                 return true;
+            }
             CharSetInner* inner = (CharSetInner*)curr;
             uint i = CharSetNode::innerIdx(level, k);
             if (inner->children[i] == 0)
+            {
                 return false;
+            }
             else
+            {
                 curr = inner->children[i];
+            }
         }
+
         if (curr == CharSetFull::TheFullNode)
+        {
             return true;
+        }
+
         CharSetLeaf* leaf = (CharSetLeaf*)curr;
         return leaf->vec.Get(CharSetNode::leafIdx(k));
     }
@@ -1840,8 +1854,10 @@ namespace UnifiedRegex
                 {
                     if (i > (uint)(start + 1))
                     {
-                        if (i  > (uint)(start + 2))
+                        if (i > (uint)(start + 2))
+                        {
                             w->Print(_u("-"));
+                        }
                         w->PrintEscapedChar(UTC(i - 1));
                     }
                     start = -1;
@@ -1851,7 +1867,88 @@ namespace UnifiedRegex
         if (start >= 0)
         {
             if ((uint)start < MaxUChar - 1)
+            {
                 w->Print(_u("-"));
+            }
+            w->PrintEscapedChar(MaxChar);
+        }
+        w->Print(_u("]"));
+    }
+#endif
+
+    // ----------------------------------------------------------------------
+    // RuntimeAsciiSet
+    // ----------------------------------------------------------------------
+
+    RuntimeAsciiSet::RuntimeAsciiSet()
+    {
+        direct.Clear();
+    }
+
+    void RuntimeAsciiSet::CloneFrom(ArenaAllocator* allocator, const CharSet<Char>& other)
+    {
+        Assert(direct.Count() == 0);
+        if (other.IsCompact())
+        {
+            for (uint i = 0; i < other.GetCompactLength(); i++)
+            {
+                uint k = other.GetCompactCharU(i);
+                if (k < CharSetNode::directSize)
+                {
+                    direct.Set(k);
+                }
+                else
+                {
+                    AssertMsg(false, "If we are using a RuntimeAsciiSet, this should not be possible");
+                }
+            }
+        }
+        else
+        {
+            direct.CloneFrom(other.rep.full.direct);
+        }
+    }
+
+
+#if ENABLE_REGEX_CONFIG_OPTIONS
+    // CAUTION: This method is very slow.
+    void RuntimeAsciiSet::Print(DebugWriter* w) const
+    {
+        w->Print(_u("["));
+        int start = -1;
+        for (uint i = 0; i < NumChars; i++)
+        {
+            if (Get(UTC(i)))
+            {
+                if (start < 0)
+                {
+                    start = i;
+                    w->PrintEscapedChar(UTC(i));
+                }
+            }
+            else
+            {
+                if (start >= 0)
+                {
+                    if (i > (uint)(start + 1))
+                    {
+                        if (i > (uint)(start + 2))
+                        {
+                            w->Print(_u("-"));
+                        }
+                        w->PrintEscapedChar(UTC(i - 1));
+                    }
+                    start = -1;
+                }
+            }
+        }
+
+        if (start >= 0)
+        {
+            if ((uint)start < MaxUChar - 1)
+            {
+                w->Print(_u("-"));
+            }
             w->PrintEscapedChar(MaxChar);
         }
         w->Print(_u("]"));
