@@ -1050,7 +1050,7 @@ namespace UnifiedRegex
     // RuntimeAsciiSet (an optimized version of UnicodeRuntimeCharSet)
     // Will be cloned from a CharSet<Char> which is NOT using compact representation
     // and only has ASCII characters (all as bits set in CharBitvec direct).
-    class RuntimeAsciiSet : private Chars<char16>
+    class RuntimeAsciiSet : private Chars<AsciiChar7b>
     {
     private:
         // Entries for first 128 characters
@@ -1058,9 +1058,9 @@ namespace UnifiedRegex
 
     public:
         RuntimeAsciiSet();
-        void CloneFrom(ArenaAllocator* allocator, const CharSet<Char>& other);
+        void CloneFrom(ArenaAllocator* allocator, const CharSet<char16>& other);
 
-        inline bool Get(Char kc) const
+        inline bool Get(char16 kc) const
         {
             if (CTU(kc) < CharSetNode::directSize)
             {

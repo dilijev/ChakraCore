@@ -77,15 +77,15 @@ namespace UnifiedRegex
         // REVIEW (doilij): Should we be faithfully capturing 7-bit ASCII here?
         static const int CharWidth = sizeof(char) * 8;
         static const int NumChars = 1 << 7; // 7-bit ASCII
-        static const uint MaxUChar = (1 << 7) - 1;
-        static const uint MaxUCharAscii = (1 << 7) - 1;
+        static const UChar MaxUChar = (1 << 7) - 1;
+        static const UChar MaxUCharAscii = (1 << 7) - 1;
         static const Char MinChar = (Char)0;
         static const Char MaxChar = (Char)MaxUCharAscii;
 
         // Char to unsigned int
-        static inline uint CTU(Char c)
+        static inline uint CTU(char16 c)
         {
-            return (uint8)c;
+            return (uint)c;
         }
 
         // Unsigned int to Char

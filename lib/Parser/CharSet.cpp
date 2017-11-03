@@ -2092,7 +2092,7 @@ namespace UnifiedRegex
         direct.Clear();
     }
 
-    void RuntimeAsciiSet::CloneFrom(ArenaAllocator* allocator, const CharSet<Char>& other)
+    void RuntimeAsciiSet::CloneFrom(ArenaAllocator* allocator, const CharSet<char16>& other)
     {
         Assert(direct.Count() == 0);
         if (other.IsCompact())
