@@ -3768,7 +3768,7 @@ namespace UnifiedRegex
         {
             // CHOICEPOINT: If follow fails, try consuming one fewer characters
             Assert(instPointer == (uint8*)this);
-            PUSH(contStack, RewindLoopSetCont, matcher.InstPointerToLabel(instPointer));
+            PUSH(contStack, RewindLoopAsciiSetCont, matcher.InstPointerToLabel(instPointer));
 #if ENABLE_REGEX_CONFIG_OPTIONS
             matcher.PushStats(contStack, input);
 #endif
@@ -3848,7 +3848,7 @@ namespace UnifiedRegex
         {
             // CHOICEPOINT: If follow fails, try consuming one fewer characters
             Assert(instPointer == (uint8*)this);
-            PUSH(contStack, RewindLoopSetWithFollowFirstCont, matcher.InstPointerToLabel(instPointer));
+            PUSH(contStack, RewindLoopAsciiSetWithFollowFirstCont, matcher.InstPointerToLabel(instPointer));
 #if ENABLE_REGEX_CONFIG_OPTIONS
             matcher.PushStats(contStack, input);
 #endif
@@ -5149,6 +5149,127 @@ namespace UnifiedRegex
     int RewindLoopSetWithFollowFirstCont::Print(DebugWriter* w, const Char* const input) const
     {
         w->PrintEOL(_u("RewindLoopSetWithFollowFirst(beginLabel: L%04x)"), beginLabel);
+        return sizeof(*this);
+    }
+#endif
+
+    // ----------------------------------------------------------------------
+    // RewindLoopAsciiSetCont
+    // ----------------------------------------------------------------------
+
+    // Duplicate of RewindLoopSetCont with s/LoopSet/LoopAsciiSet/g
+    inline bool RewindLoopAsciiSetCont::Exec(REGEX_CONT_EXEC_PARAMETERS)
+    {
+        matcher.QueryContinue(qcTicks);
+
+        LoopAsciiSetInst* begin = matcher.L2I(LoopAsciiSet, beginLabel);
+        LoopInfo* loopInfo = matcher.LoopIdToLoopInfo(begin->loopId);
+
+        // loopInfo->number is the number of iterations completed before trying follow
+        Assert(loopInfo->number > begin->repeats.lower);
+        // Try follow with fewer iterations
+        loopInfo->number--;
+
+        // Rewind input
+        inputOffset = loopInfo->startInputOffset + loopInfo->number;
+
+        if (loopInfo->number > begin->repeats.lower)
+        {
+            // Un-pop the continuation ready for next time
+            contStack.UnPop<RewindLoopAsciiSetCont>();
+#if ENABLE_REGEX_CONFIG_OPTIONS
+            matcher.UnPopStats(contStack, input);
+#endif
+        }
+        // else: Can't try any fewer iterations if follow fails, so leave continuation as popped and let failure propagate
+
+        instPointer = matcher.LabelToInstPointer(beginLabel + sizeof(LoopAsciiSetInst));
+        return true; // STOP BACKTRACKING
+    }
+
+#if ENABLE_REGEX_CONFIG_OPTIONS
+    int RewindLoopAsciiSetCont::Print(DebugWriter* w, const Char* const input) const
+    {
+        w->PrintEOL(_u("RewindLoopAsciiSet(beginLabel: L%04x)"), beginLabel);
+        return sizeof(*this);
+    }
+#endif
+
+    // ----------------------------------------------------------------------
+    // RewindLoopAsciiSetWithFollowFirstCont
+    // ----------------------------------------------------------------------
+
+    // Duplicate of RewindLoopSetWithFollowFirstCont with s/LoopSet/LoopAsciiSet/g
+    inline bool RewindLoopAsciiSetWithFollowFirstCont::Exec(REGEX_CONT_EXEC_PARAMETERS)
+    {
+        matcher.QueryContinue(qcTicks);
+
+        LoopAsciiSetWithFollowFirstInst* begin = matcher.L2I(LoopAsciiSetWithFollowFirst, beginLabel);
+        LoopInfo* loopInfo = matcher.LoopIdToLoopInfo(begin->loopId);
+
+        // loopInfo->number is the number of iterations completed before trying follow
+        Assert(loopInfo->number > begin->repeats.lower);
+        // Try follow with fewer iterations
+
+        if (loopInfo->offsetsOfFollowFirst == nullptr)
+        {
+            if (begin->followFirst != MaxUChar)
+            {
+                // We determined the first character in the follow set at compile time,
+                // but didn't find a single match for it in the last iteration of the loop.
+                // So, there is no benefit in backtracking.
+                loopInfo->number = begin->repeats.lower; // stop backtracking
+            }
+            else
+            {
+                // We couldn't determine the first character in the follow set at compile time;
+                // fall back to backtracking by one character at a time.
+                loopInfo->number--;
+            }
+        }
+        else
+        {
+            if (loopInfo->offsetsOfFollowFirst->Empty())
+            {
+                // We have already backtracked to the first offset where we matched the LoopAsciiSet's followFirst;
+                // no point in backtracking more.
+                loopInfo->number = begin->repeats.lower; // stop backtracking
+            }
+            else
+            {
+                // Backtrack to the previous offset where we matched the LoopAsciiSet's followFirst
+                // We will be doing one unnecessary match. But, if we wanted to avoid it, we'd have
+                // to propagate to the next Inst, that the first character is already matched.
+                // Seems like an overkill to avoid one match.
+                loopInfo->number = loopInfo->offsetsOfFollowFirst->RemoveAtEnd();
+            }
+        }
+
+        // If loopInfo->number now is less than begins->repeats.lower, the loop
+        // shouldn't match anything. In that case, stop backtracking.
+        loopInfo->number = max(loopInfo->number, begin->repeats.lower);
+
+        // Rewind input
+        inputOffset = loopInfo->startInputOffset + loopInfo->number;
+
+        if (loopInfo->number > begin->repeats.lower)
+        {
+            // Un-pop the continuation ready for next time
+            contStack.UnPop<RewindLoopAsciiSetWithFollowFirstCont>();
+#if ENABLE_REGEX_CONFIG_OPTIONS
+            matcher.UnPopStats(contStack, input);
+#endif
+        }
+        // else: Can't try any fewer iterations if follow fails, so leave continuation as popped and let failure propagate
+
+        instPointer = matcher.LabelToInstPointer(beginLabel + sizeof(LoopAsciiSetWithFollowFirstInst));
+        return true; // STOP BACKTRACKING
+    }
+
+#if ENABLE_REGEX_CONFIG_OPTIONS
+    int RewindLoopAsciiSetWithFollowFirstCont::Print(DebugWriter* w, const Char* const input) const
+    {
+        w->PrintEOL(_u("RewindLoopAsciiSetWithFollowFirst(beginLabel: L%04x)"), beginLabel);
         return sizeof(*this);
     }
 #endif

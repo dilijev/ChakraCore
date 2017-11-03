@@ -1746,6 +1746,24 @@ namespace UnifiedRegex
         CONT_BODY
     };
 
+    struct RewindLoopAsciiSetCont : Cont
+    {
+        Label beginLabel;   // label of LoopSet instruction
+
+        inline RewindLoopAsciiSetCont(Label beginLabel) : Cont(RewindLoopAsciiSet), beginLabel(beginLabel) {}
+
+        CONT_BODY
+    };
+
+    struct RewindLoopAsciiSetWithFollowFirstCont : Cont
+    {
+        Label beginLabel;   // label of LoopSet instruction
+
+        inline RewindLoopAsciiSetWithFollowFirstCont(Label beginLabel) : Cont(RewindLoopAsciiSetWithFollowFirst), beginLabel(beginLabel) {}
+
+        CONT_BODY
+    };
+
     struct RewindLoopFixedGroupLastIterationCont : Cont
     {
         Label beginLabel;   // label of BeginLoopFixedGroupLastIteration instruction
